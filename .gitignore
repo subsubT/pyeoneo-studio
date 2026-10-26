@@ -1,0 +1,16 @@
+node_modules/
+.next/
+.vercel/
+.env*
+!.env.example
+tmp/
+*.log
+playwright-report/
+test-results/
+*.pdf
+*.xlsx
+public/pdf.worker.min.mjs
+scripts/inspect_sources.py
+
+.vercel
+.env*
