@@ -1,4 +1,5 @@
 # 프로젝트 식별
+사용자 결정(2026-10-27): API가 필요한 작업은 이번 작업에서 제외하고 나중에 연결한다. 현재 자동 생성 비활성 상태를 유지한다.
 - 앱: 평어담 (pyeoneo-studio)
 - GitHub 공개 저장소: https://github.com/subsubT/pyeoneo-studio
 - Production: https://pyeoneo-studio.vercel.app
