@@ -1,6 +1,7 @@
 # 프로젝트 식별
 - 앱: 평어담 (pyeoneo-studio)
-- GitHub 예정 주소: https://github.com/subsubT/pyeoneo-studio
+- GitHub 공개 저장소: https://github.com/subsubT/pyeoneo-studio
+- Production: https://pyeoneo-studio.vercel.app
 - Vercel scope: subsub-tschool
 - Vercel projectId: prj_osDdLkgyiAomzS03J2GFM0c2bVB4
 - Vercel orgId: team_JKZ7B5OCf27pFKiNlhvSVuE4

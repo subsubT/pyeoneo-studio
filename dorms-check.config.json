@@ -1,0 +1,15 @@
+{
+  "app": {
+    "name": "평어담",
+    "url": "https://pyeoneo-studio.vercel.app",
+    "stack": "Next.js"
+  },
+  "tracks": [
+    "security"
+  ],
+  "edzipCase": null,
+  "teacher": {
+    "dormsHandle": ""
+  },
+  "ownershipConfirmed": true
+}

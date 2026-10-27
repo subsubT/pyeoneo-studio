@@ -1,0 +1,10 @@
+.git
+.env*
+.vercel
+tmp
+node_modules
+.next
+scripts/inspect_sources.py
+*.pdf
+*.xlsx
+.dorms-check
