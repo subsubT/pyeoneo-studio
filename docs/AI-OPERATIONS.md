@@ -1,6 +1,8 @@
 # AI 연결 설계와 운영 전 남은 결정
 
-현재 공개 앱은 외부 AI 호출을 하지 않는다. `lib/generation.mjs`는 네트워크 없는 공급자 인터페이스이며 실제 서버 어댑터를 주입해야 한다. 비밀키 입력 UI를 만들지 않는다. 환경변수만 서버에서 읽도록 후속 구현한다.
+현재 공개 앱은 외부 AI 호출을 하지 않는다. Checkpoint 5에서 로컬 전용 NVIDIA 어댑터를 추가했다. `lib/generation.mjs`는 공급자 독립 생성·검토 로직이며 `lib/server/nvidia.mjs`가 환경변수 NVIDIA_API_KEY로 공식 NVIDIA 엔드포인트를 호출한다. 모델은 `deepseek-ai/deepseek-v4.1-flash`이다. 비밀키 입력 UI나 클라이언트 공개 환경변수는 사용하지 않는다. 이번 단계에서는 Vercel에 키를 올리거나 재배포하지 않는다.
+
+`LOCAL_AI_ENABLED=true`, `NODE_ENV=development`, `VERCEL` 변수 없음, 키 존재를 모두 만족할 때만 로컬 API가 켜진다. Host/Origin도 loopback 주소와 일치해야 한다. Vercel·production에서는 플래그와 키가 있어도 비활성화한다. 로컬 개발은 `.next-local`을 사용해 production 산출물과 분리한다.
 
 ## 예상 이용량 (예측값, 측정값 아님)
 평가 항목 16개 × 24문장 = 교사 1명 기준 384문장. 12개 후보당 생성 1회 + 독립 검토 1회이므로 모두 승인한다고 가정해 최소 64 모델 호출. 교사 10명은 640회, 100명은 6,400회. 4수준을 모두 24개씩 만들면 네 배. 검토 탈락·재생성은 추가 호출이다.

@@ -4,6 +4,7 @@
 tmp
 node_modules
 .next
+.next-local
 scripts/inspect_sources.py
 *.pdf
 *.xlsx
