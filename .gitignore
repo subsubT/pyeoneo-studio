@@ -16,3 +16,5 @@ scripts/inspect_sources.py
 
 .vercel
 .env*
+# Local work files contain original teaching material.
+평어담-작업*.json

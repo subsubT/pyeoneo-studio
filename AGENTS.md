@@ -1,4 +1,5 @@
 # 프로젝트 식별
+Checkpoint 6 (2026-10-28): 평가계획 추출·편집·선택·확정과 문장 작업의 두 단계. 공개 AI 비활성 유지. 사용자 승인 전 배포·production 병합 금지. 현재 `checkpoint-5-local-ai` 브랜치의 자동 배포 차단을 유지한다. 작업 v2에는 PDF 원본·추출 원문·제외 항목도 포함하므로 작업 JSON과 검증 산출물은 `tmp/`에만 두고 Git에 넣지 않는다. 상세 `docs/CHECKPOINT-6.md`.
 사용자 결정(2026-10-27, Checkpoint 5): `.env.local`의 NVIDIA_API_KEY를 서버 환경변수로 읽어 DeepSeek V4.1 Flash의 로컬 실제 생성·검증을 허용했다. VERCEL_OIDC_TOKEN 및 환경 파일은 보존하고 비밀값을 출력하지 않는다. Vercel 공개 서비스의 AI는 비활성 상태로 유지하며 이번 단계에서는 재배포하지 않는다.
 후속 속도 최적화(2026-10-27): 동일한 가상 사례의 실제 시간·토큰·품질 비교는 `docs/AI-LATENCY.md`에 기록한다. 모델·독립 의미 검증·후보 목표 12개를 유지한다. 현재 `checkpoint-5-local-ai` 브랜치는 `vercel.json`으로 Git 자동 배포를 끈 상태에서만 push하며, production 병합·재배포는 하지 않는다.
 - 앱: 평어담 (pyeoneo-studio)
