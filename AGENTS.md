@@ -1,5 +1,6 @@
 # 프로젝트 식별
 사용자 결정(2026-10-27, Checkpoint 5): `.env.local`의 NVIDIA_API_KEY를 서버 환경변수로 읽어 DeepSeek V4.1 Flash의 로컬 실제 생성·검증을 허용했다. VERCEL_OIDC_TOKEN 및 환경 파일은 보존하고 비밀값을 출력하지 않는다. Vercel 공개 서비스의 AI는 비활성 상태로 유지하며 이번 단계에서는 재배포하지 않는다.
+후속 속도 최적화(2026-10-27): 동일한 가상 사례의 실제 시간·토큰·품질 비교는 `docs/AI-LATENCY.md`에 기록한다. 모델·독립 의미 검증·후보 목표 12개를 유지한다. 현재 `checkpoint-5-local-ai` 브랜치는 `vercel.json`으로 Git 자동 배포를 끈 상태에서만 push하며, production 병합·재배포는 하지 않는다.
 - 앱: 평어담 (pyeoneo-studio)
 - GitHub 공개 저장소: https://github.com/subsubT/pyeoneo-studio
 - Production: https://pyeoneo-studio.vercel.app

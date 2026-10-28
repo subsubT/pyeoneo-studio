@@ -11,7 +11,7 @@ export default function Home(){
   if(!item?.confirmed||!aiEnabled||busy)return;
   const snapshot={id:item.id,actual:item.actual,example:item.example,level};
   await run(async()=>{
-   const response=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({actual:snapshot.actual,example:snapshot.example,level:snapshot.level,confirmed:true,existing:[...item.approved,...item.candidates].map(c=>c.text).slice(-120)})});
+   const response=await fetch('/api/generate',{method:'POST',signal:AbortSignal.timeout(370000),headers:{'Content-Type':'application/json'},body:JSON.stringify({actual:snapshot.actual,example:snapshot.example,level:snapshot.level,confirmed:true,existing:[...item.approved,...item.candidates].map(c=>c.text).slice(-120)})}).catch(e=>{throw Error(e.name==='TimeoutError'?'생성·검증 대기 시간이 초과되었습니다. 후보는 추가되지 않았습니다. 잠시 후 다시 시도하세요.':'서버에 연결하지 못했습니다. 연결 상태를 확인하고 다시 시도하세요.');});
    const result=await response.json();if(!response.ok)throw Error(result.error||'생성에 실패했습니다.');
    if(!Array.isArray(result.candidates)||result.candidates.length>12)throw Error('후보 응답을 확인할 수 없습니다.');
    setItems(prev=>prev.map(i=>i.id===snapshot.id&&i.actual===snapshot.actual&&i.example===snapshot.example&&i.confirmed?{...i,candidates:[...i.candidates,...result.candidates.map(c=>({...c,id:crypto.randomUUID(),level:snapshot.level,source:'AI · 로컬 시험'}))].slice(0,120)}:i));

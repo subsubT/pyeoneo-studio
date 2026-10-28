@@ -1,0 +1,238 @@
+[
+  {
+    "label": "baseline",
+    "mode": "baseline",
+    "startedAt": "2026-10-27T10:22:57.402Z",
+    "finishedAt": "2026-10-27T10:43:02.085Z",
+    "cases": [
+      {
+        "id": "colors",
+        "totalMs": 263664,
+        "externalMs": 263645,
+        "internalMs": 19,
+        "generated": 12,
+        "accepted": 12,
+        "calls": [
+          {
+            "stage": "generation",
+            "requestBytes": 3002,
+            "headersMs": 96348,
+            "httpStatus": 200,
+            "durationMs": 96350,
+            "call": 1,
+            "prompt_tokens": 764,
+            "completion_tokens": 610,
+            "total_tokens": 1374
+          },
+          {
+            "stage": "review",
+            "requestBytes": 3786,
+            "headersMs": 167293,
+            "httpStatus": 200,
+            "durationMs": 167295,
+            "call": 2,
+            "prompt_tokens": 1040,
+            "completion_tokens": 151,
+            "total_tokens": 1191
+          }
+        ]
+      },
+      {
+        "id": "words",
+        "totalMs": 292459,
+        "externalMs": 292422,
+        "internalMs": 37,
+        "generated": 12,
+        "accepted": 5,
+        "calls": [
+          {
+            "stage": "generation",
+            "requestBytes": 3118,
+            "headersMs": 143100,
+            "httpStatus": 200,
+            "durationMs": 143101,
+            "call": 1,
+            "prompt_tokens": 786,
+            "completion_tokens": 795,
+            "total_tokens": 1581
+          },
+          {
+            "stage": "review",
+            "requestBytes": 3554,
+            "headersMs": 149314,
+            "httpStatus": 200,
+            "durationMs": 149320,
+            "call": 2,
+            "prompt_tokens": 854,
+            "completion_tokens": 113,
+            "total_tokens": 967
+          }
+        ]
+      },
+      {
+        "id": "numbers",
+        "totalMs": 263661,
+        "externalMs": 263639,
+        "internalMs": 22,
+        "generated": 12,
+        "accepted": 10,
+        "calls": [
+          {
+            "stage": "generation",
+            "requestBytes": 3064,
+            "headersMs": 133799,
+            "httpStatus": 200,
+            "durationMs": 133800,
+            "call": 1,
+            "prompt_tokens": 771,
+            "completion_tokens": 658,
+            "total_tokens": 1429
+          },
+          {
+            "stage": "review",
+            "requestBytes": 4459,
+            "headersMs": 129838,
+            "httpStatus": 200,
+            "durationMs": 129839,
+            "call": 2,
+            "prompt_tokens": 1095,
+            "completion_tokens": 241,
+            "total_tokens": 1336
+          }
+        ]
+      },
+      {
+        "id": "support",
+        "totalMs": 244991,
+        "externalMs": 244919,
+        "internalMs": 72,
+        "generated": 12,
+        "accepted": 4,
+        "calls": [
+          {
+            "stage": "generation",
+            "requestBytes": 3155,
+            "headersMs": 118547,
+            "httpStatus": 200,
+            "durationMs": 118551,
+            "call": 1,
+            "prompt_tokens": 798,
+            "completion_tokens": 1071,
+            "total_tokens": 1869
+          },
+          {
+            "stage": "review",
+            "requestBytes": 3099,
+            "headersMs": 126358,
+            "httpStatus": 200,
+            "durationMs": 126367,
+            "call": 2,
+            "prompt_tokens": 763,
+            "completion_tokens": 55,
+            "total_tokens": 818
+          }
+        ]
+      },
+      {
+        "id": "negative",
+        "totalMs": 139931,
+        "externalMs": 139922,
+        "internalMs": 9,
+        "correct": 6,
+        "calls": [
+          {
+            "stage": "review",
+            "requestBytes": 2849,
+            "headersMs": 139919,
+            "httpStatus": 200,
+            "durationMs": 139922,
+            "call": 1,
+            "prompt_tokens": 741,
+            "completion_tokens": 280,
+            "total_tokens": 1021
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "conservative-words",
+    "mode": "optimized",
+    "startedAt": "2026-10-27T10:50:27.028Z",
+    "finishedAt": "2026-10-27T10:54:17.192Z",
+    "cases": [
+      {
+        "id": "words",
+        "totalMs": 230172,
+        "externalMs": 230126,
+        "internalMs": 46,
+        "generated": 12,
+        "accepted": 3,
+        "calls": [
+          {
+            "stage": "generation",
+            "requestBytes": 3157,
+            "headersMs": 122832,
+            "httpStatus": 200,
+            "durationMs": 134649,
+            "call": 1,
+            "firstByteMs": 124229,
+            "firstContentMs": 124230,
+            "bodyCompleteMs": 134649,
+            "prompt_tokens": 786,
+            "completion_tokens": 796,
+            "total_tokens": 1582,
+            "ok": true
+          },
+          {
+            "stage": "review",
+            "requestBytes": 3612,
+            "headersMs": 93330,
+            "httpStatus": 200,
+            "durationMs": 95475,
+            "call": 2,
+            "firstByteMs": 93510,
+            "firstContentMs": 93510,
+            "bodyCompleteMs": 95475,
+            "prompt_tokens": 859,
+            "completion_tokens": 141,
+            "total_tokens": 1000,
+            "ok": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "conservative-negative",
+    "mode": "optimized",
+    "startedAt": "2026-10-27T10:54:17.745Z",
+    "finishedAt": "2026-10-27T10:55:52.229Z",
+    "cases": [
+      {
+        "id": "negative",
+        "totalMs": 94476,
+        "externalMs": 94465,
+        "internalMs": 11,
+        "correct": 6,
+        "calls": [
+          {
+            "stage": "review",
+            "requestBytes": 2888,
+            "headersMs": 91712,
+            "httpStatus": 200,
+            "durationMs": 94465,
+            "call": 1,
+            "firstByteMs": 92043,
+            "firstContentMs": 92044,
+            "bodyCompleteMs": 94464,
+            "prompt_tokens": 741,
+            "completion_tokens": 205,
+            "total_tokens": 946,
+            "ok": true
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -9,7 +9,7 @@ const fingerprint=JSON.parse(await readFile('tmp/checkpoint5-env-integrity.json'
 const unchanged=createHash('sha256').update(await readFile('.env.local')).digest('hex')===fingerprint.sha256;
 const files=execFileSync('git',['ls-files','--cached','--others','--exclude-standard'],{encoding:'utf8'}).trim().split(/\r?\n/).filter(Boolean);
 async function collect(dir){try{for(const e of await readdir(dir,{withFileTypes:true})){const p=dir+'/'+e.name;if(e.isDirectory())await collect(p);else files.push(p);}}catch(e){if(e.code!=='ENOENT')throw e;}}
-await collect('.next/static');await collect('.next-local/static');await collect('tmp/checkpoint5');
+await collect('.next/static');await collect('.next-local/static');await collect('tmp/checkpoint5');await collect('tmp/ai-speed');
 let leaks=0;
 for(const file of files){const bytes=await readFile(file);if(secrets.some(s=>bytes.includes(Buffer.from(s))))leaks++;}
 const ignored=execFileSync('git',['check-ignore','.env.local'],{encoding:'utf8'}).trim()==='.env.local';

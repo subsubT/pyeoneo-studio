@@ -2,6 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {BANNED,blankItem,validateText,combine,LEVELS} from '../lib/core.mjs';
 import {generateBatch} from '../lib/generation.mjs';
 import {restoreProject} from '../lib/restore.mjs';
+import {reviewCandidates} from '../lib/generation.mjs';
 test('all forbidden words and endings are blocked; source unchanged',()=>{for(const word of BANNED)assert.ok(validateText(word+' 함.').errors.length);assert.ok(validateText('색을 탐색함.').errors.length===0);assert.ok(validateText('읽음.').errors.length);const example='차분히 색을 탐색함.';validateText('색을 탐색함.',example);assert.equal(example,'차분히 색을 탐색함.');});
 test('exact and near duplicates and length checked',()=>{assert.ok(validateText('색을 탐색함.','',['색을 탐색함.']).errors.length);assert.ok(validateText('색을 탐색함.','길고 길게 입력한 예시문장입니다.').warnings.length)});
 test('combination uses only approved sentences and minimum count, preserves order',()=>{const a=blankItem(),b=blankItem();a.approved=[{id:'a1',text:'가 함.'},{id:'a2',text:'나 함.'}];b.approved=[{id:'b1',text:'다 함.'}];a.candidates=[{text:'비승인 함.'}];assert.deepEqual(combine([a,b],[b.id,a.id])[0].sources,['b1','a1']);assert.equal(combine([a,b],[a.id,b.id]).length,1);b.subject='수학';assert.throws(()=>combine([a,b],[a.id,b.id]));});
@@ -13,3 +14,9 @@ test('incomplete reviews fail closed and batches larger than 12 rejected',async(
 test('four levels accepted, confirmation and fact limits enforced',async()=>{for(const level of LEVELS)await generateBatch({complete:async()=>({candidates:[]})},{...input,level});await assert.rejects(generateBatch({}, {...input,confirmed:false}));await assert.rejects(generateBatch({}, {...input,actual:''}));});
 test('single evidence string is normalized without changing text or relaxing exact evidence check',async()=>{let calls=0;const r=await generateBatch({complete:async()=>++calls===1?{candidates:[{text:'주변의 색을 탐색하고 10색상환을 완성함.',evidence:input.actual}]}:{reviews:[{index:0,pass:true,issues:[]}]}},input);assert.deepEqual(r.candidates[0].evidence,[input.actual]);assert.equal(r.candidates[0].errors.length,0);});
 test('invalid endings are flagged before semantic calls; valid candidates keep index mapping',async()=>{let calls=0;const p={complete:async(system,data)=>{calls++;if(calls===1)return {candidates:[{text:'주변의 색을 탐색함.',evidence:['주변의 색']},{text:'완성하였음.',evidence:['10색상환']}]};assert.equal(data.candidates.length,1);return {reviews:[{index:0,pass:false,issues:['색상환 완성 누락']}]};}};const r=await generateBatch(p,input);assert.equal(calls,2);assert.ok(r.candidates[0].errors.includes('색상환 완성 누락'));assert.equal(r.candidates[1].semanticPass,false);assert.ok(r.candidates[1].errors.length);});
+
+test('duplicate review indexes, incomplete review and positive-with-issues never bypass review',async()=>{
+ await assert.rejects(reviewCandidates({complete:async()=>({reviews:[{index:0,pass:true,issues:[]},{index:0,pass:true,issues:[]}]})},input,[{text:input.actual},{text:input.actual}]));
+ let calls=0;const r=await generateBatch({complete:async()=>++calls===1?{candidates:[{text:input.actual,evidence:[input.actual]}]}:{reviews:[{index:0,pass:true,issues:['핵심 누락']}] }},input);
+ assert.equal(r.candidates[0].semanticPass,false);assert.ok(r.candidates[0].errors.length);
+});
