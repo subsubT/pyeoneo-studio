@@ -28,4 +28,6 @@ Node.js 22 이상. `npm ci`, `npm run build`, `npm start`. 개발 모드 `npm ru
 
 자세한 현황: [개발 상태](docs/STATUS.md), [AI 운영 설계](docs/AI-OPERATIONS.md), [Checkpoint 5 실제 시험](docs/CHECKPOINT-5.md), [Checkpoint 6 평가계획 단계](docs/CHECKPOINT-6.md).
 
+GitHub에서 개발을 이어갈 때는 [Cloud 인계](docs/CLOUD-HANDOFF.md)를 먼저 확인하세요. 로컬 폴더 이름은 `assessment`, 저장소 이름은 `pyeoneo-studio`이며 최신 개발 브랜치는 `checkpoint-5-local-ai`입니다. `master` 병합과 공개 재배포는 별도 승인 전 금지합니다.
+
 첨부된 참고 파일은 저장소에 포함하지 않습니다. 교육 자료 및 개인정보를 이슈·커밋에 올리지 마세요.
