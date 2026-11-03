@@ -28,6 +28,8 @@ Node.js 22 이상. `npm ci`, `npm run build`, `npm start`. 개발 모드 `npm ru
 
 자세한 현황: [개발 상태](docs/STATUS.md), [AI 운영 설계](docs/AI-OPERATIONS.md), [Checkpoint 5 실제 시험](docs/CHECKPOINT-5.md), [Checkpoint 6 평가계획 단계](docs/CHECKPOINT-6.md).
 
-GitHub에서 개발을 이어갈 때는 [Cloud 인계](docs/CLOUD-HANDOFF.md)를 먼저 확인하세요. 로컬 폴더 이름은 `assessment`, 저장소 이름은 `pyeoneo-studio`이며 최신 개발 브랜치는 `checkpoint-5-local-ai`입니다. `master` 병합과 공개 재배포는 별도 승인 전 금지합니다.
+GitHub에서 개발을 이어갈 때는 [AGENTS](AGENTS.md) → [개발 상태](docs/STATUS.md) → [운영 배포 절차](docs/PRODUCTION-OPERATIONS.md)를 먼저 확인하세요. 로컬 폴더 이름은 `assessment`, 저장소 이름은 `pyeoneo-studio`이며 기본 개발 브랜치는 `checkpoint-5-local-ai`입니다. 환경 이전의 과거 기록은 [Cloud 인계](docs/CLOUD-HANDOFF.md)에 있습니다.
+
+2026-11-03 사용자 확정: 승인한 구현은 검증·수정 → 개발 브랜치 커밋·push → 운영 배포 → 공개 사이트 검증 → 인계까지 같은 작업에서 완료합니다. 일반 배포 재승인이나 Preview 사전 확인은 기본 절차가 아닙니다. 필요한 정상 운영 브랜치 병합·push는 포함하며 보호 규칙 우회·force push는 하지 않습니다. 개발 브랜치 자동 Preview 차단은 유지하고 무조건 자동 배포 CI는 추가하지 않습니다. 문서만 변경한 경우 불필요한 앱 재배포는 생략합니다. 공개 AI 활성화·추가 비용 서비스·파괴적 데이터 변경과 다음 기능 착수는 별도 사용자 결정 대상입니다.
 
 첨부된 참고 파일은 저장소에 포함하지 않습니다. 교육 자료 및 개인정보를 이슈·커밋에 올리지 마세요.

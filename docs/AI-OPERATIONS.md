@@ -1,6 +1,6 @@
 # AI 연결 설계와 운영 전 남은 결정
 
-현재 공개 앱은 외부 AI 호출을 하지 않는다. Checkpoint 5에서 로컬 전용 NVIDIA 어댑터를 추가했다. `lib/generation.mjs`는 공급자 독립 생성·검토 로직이며 `lib/server/nvidia.mjs`가 환경변수 NVIDIA_API_KEY로 공식 NVIDIA 엔드포인트를 호출한다. 모델은 `deepseek-ai/deepseek-v4.1-flash`이다. 비밀키 입력 UI나 클라이언트 공개 환경변수는 사용하지 않는다. 이번 단계에서는 Vercel에 키를 올리거나 재배포하지 않는다.
+현재 공개 앱은 외부 AI 호출을 하지 않는다. Checkpoint 5에서 로컬 전용 NVIDIA 어댑터를 추가했다. `lib/generation.mjs`는 공급자 독립 생성·검토 로직이며 `lib/server/nvidia.mjs`가 환경변수 NVIDIA_API_KEY로 공식 NVIDIA 엔드포인트를 호출한다. 모델은 `deepseek-ai/deepseek-v4.1-flash`이다. 비밀키 입력 UI나 클라이언트 공개 환경변수는 사용하지 않는다. 공개 AI 활성화와 운영 키 추가는 별도 사용자 결정 대상이다. AI 비활성을 유지한 일반 앱 배포는 2026-11-03 상시 승인에 따라 [운영 절차](PRODUCTION-OPERATIONS.md)로 완료한다.
 
 `LOCAL_AI_ENABLED=true`, `NODE_ENV=development`, `VERCEL` 변수 없음, 키 존재를 모두 만족할 때만 로컬 API가 켜진다. Host/Origin도 loopback 주소와 일치해야 한다. Vercel·production에서는 플래그와 키가 있어도 비활성화한다. 로컬 개발은 `.next-local`을 사용해 production 산출물과 분리한다.
 

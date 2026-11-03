@@ -1,6 +1,12 @@
 # assessment / 평어담 GitHub·Cloud 인계
 
-기준일: 2026-10-28. 기존 공개 저장소 재사용. 이번 작업은 GitHub 보존까지만 수행하며 Cloud 환경 생성·Linux 호환성 수정·실행 테스트·배포·DB 수정은 하지 않는다.
+## 현재 재개 기준 (2026-11-03 사용자 확정)
+
+`AGENTS.md` → [STATUS](STATUS.md) → [운영 절차](PRODUCTION-OPERATIONS.md)를 먼저 읽는다. 승인한 구현은 검증·개발 브랜치 커밋·push·운영 배포·공개 URL 검증·인계까지 마친다. 일반 배포의 재승인과 Preview 사전 확인을 기본 절차로 요구하지 않는다. 필요한 정상 운영 브랜치 병합·push를 포함하며 보호 규칙 우회·force push는 하지 않는다. 공개 AI·비용·파괴적 데이터 변경의 경계는 유지한다. 다음 기능은 사용자가 정한다.
+
+아래는 **2026-10-28 GitHub 보존 작업의 역사적 범위·환경 기록**이다. 당시의 ‘이번 이전에서 배포/검사 없음’은 당시 실행 결과이며 다음 작업의 중단 규칙이 아니다. 과거의 별도 배포 승인·push 후 중단 규칙은 위 사용자 결정으로 대체한다.
+
+기준일: 2026-10-28. 기존 공개 저장소 재사용. 당시 작업은 GitHub 보존까지만 수행했고 Cloud 환경 생성·Linux 호환성 수정·실행 테스트·배포·DB 수정은 하지 않았다.
 
 ## 프로젝트와 시작 지점
 
@@ -13,7 +19,7 @@
 - Vercel projectId `prj_osDdLkgyiAomzS03J2GFM0c2bVB4`, orgId `team_JKZ7B5OCf27pFKiNlhvSVuE4` (식별자이며 인증정보가 아님).
 - Supabase 없음. 자료·결과 서버 저장 없음. 이전을 위해 DB를 만들지 않는다.
 
-현재 브랜치의 `vercel.json`은 Git 자동 배포를 차단한다. 그대로 유지한다. 사용자 별도 승인 전 production 병합·재배포·공개 AI 활성화 금지. 다른 브랜치를 push할 때도 자동 배포 차단 상태를 먼저 확인한다.
+현재 개발 브랜치의 `vercel.json`은 Git 자동 배포를 차단한다. 그대로 유지한다. 승인한 구현의 일반 Production 배포와 필요한 정상 병합·push는 같은 작업에서 수행한다. 공개 AI 활성화는 이 승인에 포함되지 않는다. 다른 브랜치를 push할 때도 실제 자동 배포 대상을 먼저 확인한다.
 
 ## 현재 상태와 다음 작업
 
@@ -35,7 +41,7 @@ Checkpoint 6은 평가계획 추출·편집·선택·확정 → 실제 활동 �
 | `NVIDIA_API_KEY` | 로컬 실모델 시험의 서버 전용 인증. 기본 Cloud 개발에는 불필요. 실제 값은 업로드하지 않는다. 로컬 PC 승인만으로 Cloud 외부 전송 시험을 자동 실행하지 않는다. 후속 승인 시 환경의 안전한 비밀값 설정으로 제공하고 기존 `.env.local` 로더와의 연결을 검토한다. |
 | `LOCAL_AI_ENABLED` | 명시적 시험 opt-in. 기본 미설정. 기존 `dev:ai` 런처가 `true`로 설정한다. |
 | `NODE_ENV`, `VERCEL` | 기존 AI 차단 조건. development와 키·opt-in이 모두 필요하고, `VERCEL` 변수가 존재하거나 production이면 차단한다. 차단을 우회하지 않는다. |
-| `VERCEL_OIDC_TOKEN` | 기존 PC 인증 환경에 보존. 개발에 불필요하므로 이전·재사용하지 않는다. 후속 배포 승인 시 별도 인증한다. |
+| `VERCEL_OIDC_TOKEN` | 기존 PC 인증 환경에 보존. 개발에 불필요하므로 이전·재사용하지 않는다. 운영 배포 시 해당 환경의 정상 인증·권한을 확인한다. 일반 배포의 재승인은 요구하지 않는다. |
 | `PLAYWRIGHT_MODULE`, `BROWSER_CHANNEL` | 선택적 브라우저 회귀 검사 설정. Playwright는 package.json 의존성에 없고 기본 채널은 `chrome`이다. 후속 환경에 Playwright·브라우저가 필요하다. |
 | `NEXT_TELEMETRY_DISABLED` | 로컬 AI 런처가 `1`로 지정하는 비밀값 없는 옵션. |
 
