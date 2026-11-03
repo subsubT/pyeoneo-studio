@@ -61,7 +61,6 @@ TEST_BASE_URL=http://127.0.0.1:3006 TEST_OUTPUT_DIR=tmp/release-local-plan node 
 검증 완료 소스를 `checkpoint-5-local-ai`에 정상 커밋·push하고 원격 SHA 일치를 확인한다. 아래는 **향후 앱 배포가 필요한 작업에서만** 실행하는 payload 생성 예다. 로컬 HEAD와 원격 개발 HEAD가 정확히 같고 작업 트리가 깨끗해야 한다. 문서 작업에서 실행해 앱을 재배포하지 않는다.
 
 ```bash
-git push origin HEAD:checkpoint-5-local-ai
 python3 - <<'PY'
 import base64, hashlib, json, pathlib, subprocess
 
@@ -72,6 +71,7 @@ branch = git('branch', '--show-current').decode().strip()
 assert branch == 'checkpoint-5-local-ai', branch
 assert not git('status', '--porcelain'), 'Uncommitted changes'
 sha = git('rev-parse', 'HEAD').decode().strip()
+subprocess.check_call(['git', 'push', 'origin', 'HEAD:' + branch])
 remote = git('ls-remote', '--exit-code', 'origin', 'refs/heads/' + branch).decode().split()[0]
 assert sha == remote, 'Remote source differs'
 files, manifest = [], []

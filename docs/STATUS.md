@@ -11,6 +11,7 @@
 
 ### 최초 적용 시 현재 상태 직접 확인
 
+- 운영 규칙 문서 커밋 `1b0a05be8f701ecb61c615234b0881fe9f46e9c9`를 원격 개발 브랜치에 정상 반영하고 readback 확인했다. 문서 검사·Vercel 직접 조회·미실행/복구 구분과 후속 최종 HEAD 확인 방법은 [이번 WORK HANDOFF](OPERATIONS-POLICY-HANDOFF.md)에 기록한다. 이번 판정은 **운영 문서 반영 완료, 앱 재배포 생략(문서만 변경)**이다.
 - 시작 원격 개발 HEAD: `289ac8854399b2c9212d64fc0a2d10ed66d81d8b`. 환경의 기존 `work` / `2f72e1b`는 오래된 스냅샷이므로 사용하지 않았다. Git 프록시 연결 실패 후 인증된 GitHub 도구로 정확한 최신 원격 문서를 읽고 동일 브랜치의 정상 fast-forward 갱신 경로를 사용한다.
 - 공개 도메인으로 조회한 Production: `dpl_7Dr8XmmcGiEXMoWZTC7x9qr2y3f4` / READY / 소스 `9318df4b601a72084934a2143b7f02d084b940f7`. 프로젝트·팀·공개 도메인 verified·연결 일치. 실제 설정과 소스 업로드 재현 절차는 [운영 절차](PRODUCTION-OPERATIONS.md)에 기록했다. 개발 push만으로 운영이 갱신되는 경로는 아니다.
 - 운영 소스부터 시작 개발 HEAD까지 3커밋·4파일: 운영 인계/STATUS 문서와 브라우저 검사 스크립트 2개다. `app/`, `lib/`, 공개 자산·의존성·배포 구성의 실행 코드 차이 없음. 이번 변경은 Markdown 운영 문서만이며 앱 재배포를 하지 않는다.
