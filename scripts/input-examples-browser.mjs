@@ -8,7 +8,7 @@ import {blankItem} from '../lib/core.mjs';
 import {serializeProject} from '../lib/restore.mjs';
 
 const {chromium}=await import(process.env.PLAYWRIGHT_MODULE?pathToFileURL(process.env.PLAYWRIGHT_MODULE).href:'playwright');
-const base=process.env.TEST_BASE_URL||'http://127.0.0.1:3006',dir='tmp/input-examples';
+const base=process.env.TEST_BASE_URL||'http://127.0.0.1:3006',dir=process.env.TEST_OUTPUT_DIR||'tmp/input-examples';
 await mkdir(dir,{recursive:true});
 const colors={...blankItem(),subject:'즐거운생활',element:'주변에서 여러 가지 색을 찾아보고 10색상환 완성하기'};
 const numbers={...blankItem(),subject:'수학',element:'구체물을 이용하여 9까지의 두 수의 크기 비교하기'};
