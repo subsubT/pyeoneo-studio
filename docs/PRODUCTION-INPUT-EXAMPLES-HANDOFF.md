@@ -59,7 +59,7 @@
 | 실제 Vercel 운영 ID/커밋/도메인·복구 대상 확인 | **PASS**, 팀 접근 복구 후 실제 ID·소스·alias 대조 |
 | 운영 배포·새 Production READY·새 공개 기능 검사 | **PASS**, 아래 공개 검사 참조 |
 | 배포 후 런타임 오류 | **PASS**, 새 배포의 배포 시점부터 2026-11-03 14:30 KST까지 error/fatal 로그 조회 결과 없음 |
-| 도름스체크 추가 보안 검사 | **BLOCKED/미실행**, 자동 승인 검토가 원격 GitHub 패키지의 npx 실행을 공급망·인증정보 접근 위험으로 거부. 별도 실행 여부를 사용자에게 확인 중. 기본 기능 검증과 구분 |
+| 도름스체크 추가 보안 검사 | **실행 완료**, 사용자 추가 승인 후 v0.3.1 detect/scan. 확인 30·미확인 5·해당 없음 1, 차단 수준 실패 0. 아래 후속 결과 참조 |
 
 비식별 예시 출력:
 
@@ -97,6 +97,22 @@ Vercel MCP로 기존 팀/프로젝트에 명시적인 target=production을 사�
 
 ## 남은 사항 및 재현
 
-핵심 기능/배포에 미해결 장애 없음. 과거 원본 PDF/XLSX 재현·실모델 품질 검증은 위 사유로 미실행이며 기존 CP5 품질 동등성 미충족을 유지한다. 도름스체크는 별도 보안 보조 검사로 자동 승인 거부 상태를 숨기지 않고 보고한다. 이 결과는 포괄적 보안 보증이 아니다.
+핵심 기능/배포에 미해결 장애 없음. 과거 원본 PDF/XLSX 재현·실모델 품질 검증은 위 사유로 미실행이며 기존 CP5 품질 동등성 미충족을 유지한다. 도름스체크는 처음 자동 승인 거부로 보류됐으나 사용자가 추가 실행을 명시적으로 승인하여 완료했다. 아래 미확인·권고를 유지하며, 이 결과는 포괄적 보안 보증이 아니다.
 
 검사 재현: `PLAYWRIGHT_MODULE`과 `BROWSER_EXECUTABLE`을 환경에 맞게 지정해 `node scripts/input-examples-browser.mjs`, `node scripts/release-plan-browser.mjs` 실행. `TEST_BASE_URL`과 `TEST_OUTPUT_DIR`로 로컬/공개 근거를 분리한다. 공개 검사에서는 환경 HTTPS_PROXY를 사용하고 환경 CA를 브라우저에 신뢰 등록해야 한다.
+
+## 도름스체크 추가 승인 후 결과 (2026-11-03 15:35 KST)
+
+사용자가 제3자 코드 실행 위험 안내 후 v0.3.1 추가 검사를 명시적으로 승인했다. 기존 설정을 사용해 `npx -y https://github.com/shinnanchanguk/dorms-check/archive/refs/tags/v0.3.1.tar.gz detect`와 `scan --url https://pyeoneo-studio.vercel.app`을 실행했다. npm 캐시는 ignored tmp에 한정했고 전역 설치·훅·배포 차단을 추가하지 않았다.
+
+첫 실행은 공개 응답 연결 시간 초과로 확인 4·미확인 2에 그쳤다. Node의 `NODE_USE_ENV_PROXY=1`로 기존 환경 HTTPS 프록시를 적용해 재실행했으며 TLS 검증을 유지했다. **최종 결과: 공개 화면 최소 점검 완료, 확인 30·미확인 5·해당 없음 1, blockingFails=[], critical/high/medium/low 실패 모두 0.**
+
+- 시크릿/민감자료: 하드코딩 시크릿, 클라이언트 시크릿, 점검한 공개 본문·경로의 비공개 인증정보 미검출. 설정 파일·소스맵·스택트레이스 추가 노출 미검출.
+- 확인: 공개 HTTPS 본문, HSTS, X-Frame-Options, nosniff, Referrer/Permissions 정책, mixed content 없음 등. 쿠키 플래그는 응답 쿠키가 없어 해당 없음.
+- 미확인 5: HTTP→HTTPS 강제 전환, TLS 세부 버전, 개인정보처리방침, Supabase RLS, Firebase 규칙. DB 두 검사는 도구가 공개 DB 정보를 찾지 못해 미확인으로 기록한 것이며 이 앱은 두 DB를 사용하지 않는다. 실제 DB 권한 검증 결과로 보고하지 않는다.
+- 권고: CSP, wildcard CORS, 약관, OG/canonical, 미인증 API 접근, 헤더 설정 위치 및 위험 코드 패턴. `/api/generate` GET은 의도된 공개 연결 상태 응답이며 실제 자료를 제공하지 않는다. POST는 기존처럼 503으로 차단된다. 헤더 설정 위치는 next.config.mjs 감지 정보다.
+- 코드 패턴 4건 검토: 모두 의존성에서 복사한 `public/pdf.worker.min.mjs`의 25·28행이다. `new Function` 2건은 PDF.js의 상수 기능 감지 및 PostScript 컴파일 분기다. 실제 PDF 읽기와 원본 미리보기는 모두 `isEvalSupported:false`를 전달하여 문서 기반 eval 컴파일을 비활성화한다. `child_process exec` 2건은 검사기의 일반 `exec(...)` 패턴이 PDF.js 정규식 호출을 잡은 것이다. worker에는 `child_process`/`node:child_process` 문자열이 없다. 이 검토는 라이브러리 전체의 안전성을 보증하지 않는다.
+
+긴급 수정이 필요한 위험 검출 없음. 이번 후속은 **문서만 변경**하며 앱 코드·환경변수·Production 배포·공개 AI 설정은 변경하지 않았다. 기존 Production READY/공개 기능 검증 결과와 복구 대상은 그대로 유지한다. 과거 원본 PDF/XLSX·실모델 미실행 사유도 유지한다.
+
+최종 원본 보고서·scan JSON은 ignored `tmp/release-dorms-final/`, 실행 로그는 `tmp/release-dorms-detect.log`, `tmp/release-dorms-scan.log`, `tmp/release-dorms-scan-proxy.log`에 보존했다. 보고서 원문이나 산출물은 Git에 올리지 않는다.
