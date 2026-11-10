@@ -56,6 +56,18 @@ TEST_BASE_URL=http://127.0.0.1:3006 TEST_OUTPUT_DIR=tmp/release-local-plan node 
 
 문서 전용 변경은 diff의 문서 한정 여부·링크·기존 규칙 충돌·비밀값·공백 검사를 수행한다. 앱 빌드/기능 브라우저 회귀/배포를 이번에 재실행하지 않았다면 N/A(문서만 변경)로 기록하며 과거 PASS를 이번 결과로 쓰지 않는다.
 
+## PDF 끌어놓기 회귀 검사
+
+PDF 입력 변경 시 기존 두 브라우저 회귀에 아래 검사를 추가한다. 검증용 Python ReportLab과 한국어 TrueType 글꼴은 시험 환경에서만 사용하며 제품 의존성에 추가하지 않는다. PDF/글꼴/작업 JSON/다운로드/스크린샷은 Git 제외 `tmp/`에 둔다.
+
+```bash
+python3 scripts/create-drop-fixtures.py /path/to/korean-font.ttf tmp/pdf-drop-fixtures
+TEST_BASE_URL=http://127.0.0.1:3010 TEST_OUTPUT_DIR=tmp/pdf-drop-local node scripts/pdf-drop-browser.mjs
+TEST_BASE_URL=https://pyeoneo-studio.vercel.app TEST_OUTPUT_DIR=tmp/pdf-drop-public node scripts/pdf-drop-browser.mjs
+```
+
+기존과 같이 `PLAYWRIGHT_MODULE`·`BROWSER_EXECUTABLE`을 지정한다. `TEST_FIXTURE_DIR`로 생성 자료 위치를 바꿀 수 있다. 지원 평가표의 선택/드롭 일치, 실제 DataTransfer 이벤트, 입력 오류/10MB/30쪽/복수 파일/빈 입력, 승인 작업 보존, 처리 중 중복 입력, 10개 원본/40MB 저장 한도, 직접 승인·조합·복사·XLSX·PDF 포함 복원, 키보드/터치를 검사한다. 처리 중 상태 관찰에만 실제 File 읽기를 잠시 지연하며 추출 결과나 API를 모의 처리하지 않는다. 손상 PDF의 예상 파서 경고는 일반 오류와 구분한다.
+
 ## 검증한 커밋의 push와 재현 가능한 소스 업로드
 
 검증 완료 소스를 `checkpoint-5-local-ai`에 정상 커밋·push하고 원격 SHA 일치를 확인한다. 아래는 **향후 앱 배포가 필요한 작업에서만** 실행하는 payload 생성 예다. 로컬 HEAD와 원격 개발 HEAD가 정확히 같고 작업 트리가 깨끗해야 한다. 문서 작업에서 실행해 앱을 재배포하지 않는다.

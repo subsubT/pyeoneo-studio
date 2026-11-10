@@ -6,3 +6,5 @@
 @media(max-width:650px){.steps button{align-items:flex-start;text-align:left;line-height:1.6}.plan-upload{grid-template-columns:1fr}.plan-group>.card-heading{align-items:flex-start;flex-direction:column}.plan-sidebar{padding:12px}.plan-sidebar .text-button{margin:0}.plan-confirm{padding:18px}.plan-confirm .primary{width:100%}.source-panel{padding:12px}.plan-compare{gap:16px}.pdf-preview .card-heading{align-items:flex-start}.grid2{grid-template-columns:1fr}}
 
 .input-example{background:#f1f5ec;border-left:3px solid #93ad7d;border-radius:5px;padding:12px 14px;margin:-3px 0 20px}.input-example .card-heading{font-size:12px}.input-example button{font-size:12px;flex-shrink:0;padding:6px 12px}.input-example p{font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0 0}
+
+.pdf-upload.dragging{background:#e8f0df;border-color:var(--green);border-style:solid;outline:2px solid var(--green);outline-offset:2px}.pdf-upload[aria-busy=true]{cursor:wait;background:#f0f3e9}.pdf-upload[aria-busy=true]:hover{background:#f0f3e9}
