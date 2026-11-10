@@ -39,8 +39,8 @@ test('vague or invalid tasks request clarification instead of emitting a fixed o
 test('copy-sized patches share fact editing invalidation and final values survive save/restore',()=>{
  const item={...blankItem(),element:'10색상환 완성하기',actual:'교사가 작성한 활동',example:'교사가 작성한 예시',confirmed:true,approved:[{text:'기존 문장을 검토함.',level:'잘함'}]};
  const pair=createInputExamples(item),copied=editItem(item,{actual:pair.actual});
- assert.equal(copied.example,item.example);assert.equal(copied.confirmed,false);assert.equal(copied.approved.length,0);assert.equal(copied.candidates.length,1);
+ assert.equal(copied.example,item.example);assert.equal(copied.confirmed,undefined);assert.equal(copied.approved.length,0);assert.equal(copied.candidates.length,1);
  const edited=editItem(editItem(copied,{example:pair.example}),{actual:'주변에서 찾은 색으로 10색상환을 완성했다.'});
  const restored=restoreProject(JSON.parse(serializeProject({items:[edited],examples:[],sources:[],planConfirmed:true})));
- assert.equal(restored.items[0].actual,edited.actual);assert.equal(restored.items[0].example,edited.example);assert.equal(restored.items[0].confirmed,false);
+ assert.equal(restored.items[0].actual,edited.actual);assert.equal(restored.items[0].example,edited.example);assert.equal(restored.items[0].confirmed,undefined);
 });

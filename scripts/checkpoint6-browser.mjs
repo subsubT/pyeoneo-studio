@@ -68,7 +68,7 @@ try{
   await restored.locator('.sidebar .item').nth(n).click();
   await restored.getByLabel('실제 교육활동',{exact:true}).fill('주어진 낱말을 바르게 읽음.');
   await restored.getByLabel('참고 예시문장',{exact:true}).fill('주어진 낱말을 바르게 읽는 활동을 수행함.');
-  await restored.getByRole('checkbox',{name:'실제 수행한 활동과 확인된 성취임을 확인했습니다.',exact:true}).check();
+  assert.equal(await restored.getByRole('checkbox',{name:'실제 수행한 활동과 확인된 성취임을 확인했습니다.',exact:true}).count(),0);
   await restored.getByLabel(/평가 수준/).selectOption('잘함');
   await restored.getByLabel('검토할 문장',{exact:true}).fill(sentence);await restored.getByRole('button',{name:'후보에 추가',exact:true}).click();
   assert.equal(await restored.getByRole('button',{name:'승인하여 담기 ＋',exact:true}).isDisabled(),true);
@@ -100,7 +100,7 @@ try{
  const overflow=await finalPage.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth);assert.equal(overflow,false);
  await finalPage.screenshot({path:'tmp/checkpoint6/plan-mobile.png',fullPage:true});
  await finalPage.getByRole('button',{name:'문장 작업으로 이동 →',exact:true}).click();
- assert.equal(await finalPage.getByRole('checkbox',{name:'실제 수행한 활동과 확인된 성취임을 확인했습니다.',exact:true}).isChecked(),false);
+ assert.equal(await finalPage.getByRole('checkbox',{name:'실제 수행한 활동과 확인된 성취임을 확인했습니다.',exact:true}).count(),0);
  assert.equal(await finalPage.getByRole('button',{name:'승인하여 담기 ＋',exact:true}).isDisabled(),true);
  assert.equal(await finalPage.locator('article.approved').count(),0);
  const local=await context.request.get('http://127.0.0.1:3006/api/generate');assert.equal((await local.json()).enabled,false);

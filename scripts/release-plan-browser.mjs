@@ -40,7 +40,7 @@ try{
  await p.locator('input[accept=".xlsx"]').setInputFiles(`${dir}/reference.xlsx`);
  await p.getByLabel('불러온 원본 예시 선택',{exact:true}).selectOption('0');
  assert.equal(await p.getByLabel('참고 예시문장',{exact:true}).inputValue(),'주변의 색을 찾아보는 활동을 수행함.');
- assert.equal(await p.getByRole('checkbox',{name:'실제 수행한 활동과 확인된 성취임을 확인했습니다.',exact:true}).isDisabled(),true);
+ assert.equal(await p.getByRole('checkbox',{name:'실제 수행한 활동과 확인된 성취임을 확인했습니다.',exact:true}).count(),0);
  const final=await save(p,'confirmed');assert.equal(final.planConfirmed,true);
  const restored=await context.newPage();await restored.goto(base);await restored.locator('input[accept=".json"]').setInputFiles(`${dir}/confirmed.json`);
  await restored.getByRole('button',{name:'문장 작업으로 이동 →',exact:true}).waitFor();

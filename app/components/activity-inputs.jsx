@@ -1,5 +1,6 @@
 'use client';
 import {useState} from 'react';
+import {activityIssues} from '../../lib/activity.mjs';
 import {createInputExamples} from '../../lib/input-examples.mjs';
 
 export default function ActivityInputs({item,examples,busy,onUpdate}){
@@ -31,7 +32,6 @@ export default function ActivityInputs({item,examples,busy,onUpdate}){
   {examples.length>0&&<label>불러온 원본 예시 선택<select aria-label="불러온 원본 예시 선택" value="" onChange={e=>{if(e.target.value==='')return;const x=examples[Number(e.target.value)];if(x)onUpdate({example:x.text})}}><option value="">{examples.length}개 원본 예시 중 선택하세요</option>{examples.map((x,n)=><option key={n} value={n}>[{x.sheet} {x.cell}] {x.text.slice(0,90)}</option>)}</select></label>}
   <label>참고 예시문장<textarea aria-label="참고 예시문장" rows={3} maxLength={2000} value={item.example} onChange={e=>onUpdate({example:e.target.value})} placeholder="실제 활동에 부합하는 예시를 입력하거나 예시 만들기를 사용하세요."/></label>
   {preview('example','참고 예시문장')}
-  <label className="check"><input type="checkbox" checked={item.confirmed} disabled={item.actual.trim().length<8||item.example.trim().length<5} onChange={e=>onUpdate({confirmed:e.target.checked})}/>실제 수행한 활동과 확인된 성취임을 확인했습니다.</label>
-  <p className="muted">사실·예시·평가 내용을 바꾸면 기존 승인이 해제되어 다시 검토해야 합니다.</p>
+  {activityIssues(item).map(issue=><p className="muted" key={issue}>{issue}</p>)}
  </div>;
 }

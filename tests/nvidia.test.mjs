@@ -125,3 +125,9 @@ test('production route stays disabled with a real-looking config and never calls
   }
  }
 });
+test('slow request body is cancelled within the input read budget',async()=>{
+ const {readGenerationInput}=await import('../lib/server/local-ai.mjs');let cancelled=false;
+ const request=new Request('http://localhost/api/generate',{method:'POST',duplex:'half',headers:{'content-type':'application/json'},body:new ReadableStream({cancel(){cancelled=true;}})});
+ const keepAlive=setTimeout(()=>{},100);
+ try{await assert.rejects(readGenerationInput(request,10));assert.equal(cancelled,true);}finally{clearTimeout(keepAlive);}
+});

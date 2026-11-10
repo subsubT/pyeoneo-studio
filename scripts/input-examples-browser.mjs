@@ -51,19 +51,19 @@ async function replace(p,button,accept){
  await button.click();assert.equal(seen,true);
 }
 async function generate(p,expected){
- await confirmation(p).check();const before=payloads.length;
- await p.getByRole('button',{name:'후보 12개 생성',exact:true}).click();
+ assert.equal(await confirmation(p).count(),0);const before=payloads.length;
+ await p.getByRole('button',{name:'AI 후보 12개 생성',exact:true}).click();
  await p.locator('.sentence').first().waitFor();
  assert.equal(payloads.length,before+1);
  assert.deepEqual({actual:payloads.at(-1).actual,example:payloads.at(-1).example},expected);
- assert.equal(payloads.at(-1).confirmed,true);
+ assert.equal(payloads.at(-1).confirmed,undefined);
  assert.equal(await p.locator('article.approved').count(),0);
  assert.equal(await p.getByRole('button',{name:'승인하여 담기 ＋',exact:true}).isDisabled(),true);
 }
 async function roundtrip(p,name,expected){
  const saved=await save(p,name);assert.deepEqual({actual:saved.items[0].actual,example:saved.items[0].example},expected);
  const restored=await load(false,`${dir}/${name}.json`);assert.deepEqual(await values(restored),expected);
- assert.equal(await confirmation(restored).isChecked(),false);assert.equal(await restored.locator('article.approved').count(),0);
+ assert.equal(await confirmation(restored).count(),0);assert.equal(await restored.locator('article.approved').count(),0);
  assert.equal(await restored.locator('.input-example').count(),0);
  await restored.close();
 }
@@ -72,18 +72,18 @@ try{
  assert.equal((await context.request.post(`${base}/api/generate`,{data:{}})).status(),503);
  const offline=await load();let offlinePosts=0;offline.on('request',r=>{if(r.method()==='POST')offlinePosts++;});
  await make(offline);const colorPair=await pair(offline);
- assert.deepEqual(await values(offline),{actual:'',example:''});assert.equal(await confirmation(offline).isDisabled(),true);
+ assert.deepEqual(await values(offline),{actual:'',example:''});assert.equal(await confirmation(offline).count(),0);
  assert.equal(await offline.getByRole('button',{name:'후보에 추가',exact:true}).isDisabled(),true);
- assert.equal(await offline.getByRole('button',{name:'후보 12개 생성 · 연결 대기',exact:true}).isDisabled(),true);
+ assert.equal(await offline.getByRole('button',{name:'AI 후보 12개 생성 · 연결 대기',exact:true}).isDisabled(),true);
  assert.equal(await offline.getByText('수업에서 실제로 한 활동과 일치하는지 확인한 뒤 사용하세요.',{exact:true}).count(),1);
- await copyActual(offline).click();assert.equal(await reference(offline).inputValue(),'');assert.equal(await confirmation(offline).isDisabled(),true);
+ await copyActual(offline).click();assert.equal(await reference(offline).inputValue(),'');assert.equal(await confirmation(offline).count(),0);
  await offline.locator('.sidebar .item').nth(1).click();assert.equal(await offline.locator('.input-example').count(),0);assert.deepEqual(await values(offline),{actual:'',example:''});
  await make(offline);const numberPair=await pair(offline);assert.notDeepEqual(numberPair,colorPair);
  assert.match(numberPair.actual,/9까지의 두 수의 크기를 비교/);
  await actual(offline).fill('구체물로 두 수를 비교했다.');await copyReference(offline).click();
  assert.equal(await actual(offline).inputValue(),'구체물로 두 수를 비교했다.');assert.equal(await reference(offline).inputValue(),numberPair.example);
  await offline.locator('.sidebar .item').first().click();assert.equal(await offline.locator('.input-example').count(),0);assert.equal(await actual(offline).inputValue(),colorPair.actual);
- await make(offline);assert.equal(offlinePosts,0);assert.equal(await confirmation(offline).isChecked(),false);
+ await make(offline);assert.equal(offlinePosts,0);assert.equal(await confirmation(offline).count(),0);
  await offline.screenshot({path:`${dir}/examples-desktop.png`,fullPage:true});
  await offline.setViewportSize({width:390,height:844});assert.equal(await offline.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  await offline.screenshot({path:`${dir}/examples-mobile.png`,fullPage:true});
@@ -94,15 +94,15 @@ try{
  await generate(one,finalOne);await roundtrip(one,'activity-only',finalOne);
  results.push('activity copy + manual reference: exact request and saved/restored values');
 
- const two=await load(true);await actual(two).fill('교사가 먼저 작성해 둔 활동이다.');await reference(two).fill('교사가 먼저 작성해 둔 문장을 보관함.');await confirmation(two).check();
- const old=await values(two);await make(two);assert.deepEqual(await values(two),old);assert.equal(await confirmation(two).isChecked(),true);
- await replace(two,copyActual(two),false);assert.deepEqual(await values(two),old);assert.equal(await confirmation(two).isChecked(),true);
+ const two=await load(true);await actual(two).fill('교사가 먼저 작성해 둔 활동이다.');await reference(two).fill('교사가 먼저 작성해 둔 문장을 보관함.');assert.equal(await confirmation(two).count(),0);
+ const old=await values(two);await make(two);assert.deepEqual(await values(two),old);assert.equal(await confirmation(two).count(),0);
+ await replace(two,copyActual(two),false);assert.deepEqual(await values(two),old);assert.equal(await confirmation(two).count(),0);
  await replace(two,copyReference(two),false);assert.deepEqual(await values(two),old);
- await replace(two,copyActual(two),true);assert.equal(await reference(two).inputValue(),old.example);assert.equal(await confirmation(two).isChecked(),false);
+ await replace(two,copyActual(two),true);assert.equal(await reference(two).inputValue(),old.example);assert.equal(await confirmation(two).count(),0);
  await replace(two,copyReference(two),true);assert.deepEqual(await values(two),colorPair);
- await confirmation(two).check();await make(two);assert.deepEqual(await values(two),colorPair);assert.equal(await confirmation(two).isChecked(),true);
+ assert.equal(await confirmation(two).count(),0);await make(two);assert.deepEqual(await values(two),colorPair);assert.equal(await confirmation(two).count(),0);
  await generate(two,colorPair);await roundtrip(two,'both-unchanged',colorPair);
- results.push('both copies unchanged, replace/cancel for both fields, regeneration preserves inputs and confirmation');
+ results.push('both copies unchanged, replace/cancel for both fields, regeneration preserves inputs without a confirmation gate');
 
  const three=await load(true);await make(three);await copyActual(three).click();await copyReference(three).click();
  await actual(three).fill('주변에서 파란색과 빨간색을 찾아보고 10색상환을 완성했다.');await reference(three).fill('주변에서 파란색과 빨간색을 찾아보고 10색상환을 완성함.');
@@ -112,18 +112,18 @@ try{
  await make(three);assert.deepEqual(await values(three),finalThree);assert.equal(await three.locator('article.approved').count(),1);
  await roundtrip(three,'copied-then-edited',finalThree);
  // A copied replacement takes the same invalidation path as typing.
- await replace(three,copyActual(three),true);assert.equal(await confirmation(three).isChecked(),false);assert.equal(await three.locator('article.approved').count(),0);assert.equal(await three.locator('.sentence').count(),1);
+ await replace(three,copyActual(three),true);assert.equal(await confirmation(three).count(),0);assert.equal(await three.locator('article.approved').count(),0);assert.equal(await three.locator('.sentence').count(),1);
  assert.equal(await three.getByRole('button',{name:'승인하여 담기 ＋',exact:true}).isDisabled(),true);
  results.push('copy then edit: exact request/save/restore, explicit approval, regeneration keeps approval, replacement revokes approval');
 
  // Existing manual approval -> ordered combination -> downloaded XLSX regression.
  const exportPage=await load(false,`${dir}/copied-then-edited.json`);
- await confirmation(exportPage).check();await exportPage.locator('.sentence input[type=checkbox]').check();await exportPage.getByRole('button',{name:'승인하여 담기 ＋',exact:true}).click();
+ assert.equal(await confirmation(exportPage).count(),0);await exportPage.locator('.sentence input[type=checkbox]').check();await exportPage.getByRole('button',{name:'승인하여 담기 ＋',exact:true}).click();
  await exportPage.getByRole('button',{name:'← 평가계획 수정 · 선택',exact:true}).click();
  await exportPage.getByRole('button',{name:'＋ 누락 항목 직접 추가',exact:true}).click();
  await exportPage.getByLabel('교과',{exact:true}).fill('즐거운생활');await exportPage.getByLabel('평가 요소',{exact:true}).fill('나뭇잎의 모양 관찰하기');
  await exportPage.getByRole('button',{name:'선택한 평가계획 확정 →',exact:true}).click();
- await actual(exportPage).fill('나뭇잎의 모양을 관찰했다.');await reference(exportPage).fill('나뭇잎의 모양을 관찰함.');await confirmation(exportPage).check();
+ await actual(exportPage).fill('나뭇잎의 모양을 관찰했다.');await reference(exportPage).fill('나뭇잎의 모양을 관찰함.');assert.equal(await confirmation(exportPage).count(),0);
  await exportPage.getByLabel('검토할 문장',{exact:true}).fill('나뭇잎의 모양을 관찰함.');await exportPage.getByRole('button',{name:'후보에 추가',exact:true}).click();
  assert.equal(await exportPage.getByRole('button',{name:'승인하여 담기 ＋',exact:true}).isDisabled(),true);
  await exportPage.locator('.sentence input[type=checkbox]').check();await exportPage.getByRole('button',{name:'승인하여 담기 ＋',exact:true}).click();

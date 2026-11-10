@@ -1,5 +1,21 @@
 # AI 연결 설계와 운영 전 남은 결정
 
+## 2026-11-10 현재 구현과 활성화 차단
+
+공개 AI 활성화는 사용자 승인됨. 현재 운영 키/계약/공유 한도 저장소 미확인으로 비활성 상태를 유지한다. 과거의 승인 대기 설명과 구분한다. `public-ai.mjs`는 기존 NVIDIA 모델·generateBatch·독립 의미 검토를 재사용한다. 다른 모델이나 제공사를 자동 선택하지 않는다. 준비된 Redis REST 어댑터는 새 서비스 가입·결제를 실행하지 않으며 실제 운영 인프라 연결/검증을 완료한 것이 아니다.
+
+서버 설정: `PUBLIC_AI_ENABLED=true`, `PUBLIC_AI_VERIFIED=true`(계약·모델·시간·실호출 검증 후에만), `PUBLIC_NVIDIA_API_KEY`, `PUBLIC_AI_REDIS_URL`(HTTPS Upstash REST), `PUBLIC_AI_REDIS_TOKEN`, `PUBLIC_AI_LIMIT_SALT`(32자 이상). Vercel의 `VERCEL=1`, `VERCEL_ENV=production`도 요구한다. 로컬 `NVIDIA_API_KEY`/`LOCAL_AI_ENABLED`와 분리한다. 모든 값은 서버 전용이며 Git에 넣지 않는다. 키 존재/VERIFIED 문자열 자체는 계약 증거가 아니다.
+
+한도 기본값: 플랫폼이 설정한 `x-vercel-forwarded-for` 주소를 HMAC-SHA256으로 가명 처리하여 주소당 2회/UTC 분, 12회/UTC 일, 전역 100회/UTC 일, 주소당 동시 1개/전역 동시 2개 배치. 로그인 없는 앱이므로 개인 식별 한도가 아닌 IP 기준이며 같은 학교 NAT 사용자는 공유한다. 생성 1회+독립 검토 최대 1회, 따라서 전역 하루 최대 200 모델 호출. 실패/취소도 예약한 배치를 환급하지 않는다. Redis TIME+Lua 원자 실행, 공통 `{pyeoneo-ai-v1}` 키를 배포마다 유지한다. 카운터 TTL 120초/172800초, 실행 lease 300초, active 집합 TTL 600초. 원문/후보/IP 원문 저장 없음. salt/namespace 교체는 사용자 한도를 초기화하므로 운영 중 임의 변경 금지. Redis는 전용·영속 primary와 no-eviction 정책이 필요하며 읽기 replica 사용 금지.
+
+시간 예산(준비값): 본문 읽기 10초, 제한 서비스 작업당 3초, 모델 개별 최대 180초, 생성/검토 전체 270초, 브라우저 290초, 함수 `maxDuration=300`. 기존 로컬 360/370초를 운영에 복사하지 않는다. 실제 계정 플랜/Fluid 설정과 실모델 시간을 추가 확인해야 하며 이 수치만으로 운영 성공을 판정하지 않는다.
+
+중지: Redis `{pyeoneo-ai-v1}:disabled`를 `1`로 설정하면 신규 예약 및 다음 모델 호출을 막는다(진행 중인 한 번의 공급자 호출은 취소되지 않을 수 있음). 장기 비활성화는 `PUBLIC_AI_ENABLED=false`로 설정 후 정확한 소스로 재배포한다. 한도 서비스 오류는 우회하지 않으며 모델 호출 추가/자동 재시도/유료 대체 없음. 실패 응답은 입력과 기존 후보를 유지한다.
+
+허용 Origin/Host는 `https://pyeoneo-studio.vercel.app` 하나. JSON Content-Type, 32,000바이트 본문, 기존 길이/수준/기존문장 스키마 검사와 결과 12개/256KiB 상한. 구버전 confirmed true/false/누락은 수락하되 provider 입력에서 제거. 상세 근거와 미실행은 [인계](PUBLIC-AI-HANDOFF.md).
+
+아래는 과거 기록이다.
+
 현재 공개 앱은 외부 AI 호출을 하지 않는다. Checkpoint 5에서 로컬 전용 NVIDIA 어댑터를 추가했다. `lib/generation.mjs`는 공급자 독립 생성·검토 로직이며 `lib/server/nvidia.mjs`가 환경변수 NVIDIA_API_KEY로 공식 NVIDIA 엔드포인트를 호출한다. 모델은 `deepseek-ai/deepseek-v4.1-flash`이다. 비밀키 입력 UI나 클라이언트 공개 환경변수는 사용하지 않는다. 공개 AI 활성화와 운영 키 추가는 별도 사용자 결정 대상이다. AI 비활성을 유지한 일반 앱 배포는 2026-11-03 상시 승인에 따라 [운영 절차](PRODUCTION-OPERATIONS.md)로 완료한다.
 
 `LOCAL_AI_ENABLED=true`, `NODE_ENV=development`, `VERCEL` 변수 없음, 키 존재를 모두 만족할 때만 로컬 API가 켜진다. Host/Origin도 loopback 주소와 일치해야 한다. Vercel·production에서는 플래그와 키가 있어도 비활성화한다. 로컬 개발은 `.next-local`을 사용해 production 산출물과 분리한다.

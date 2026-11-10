@@ -34,11 +34,11 @@ test('four-level editing preserves exact other levels and never fills missing cr
  assert.equal(splitCriteria('잘함: 하나\n잘함: 둘').unassigned,'잘함: 하나\n잘함: 둘');
  assert.throws(()=>editCriterion('잘함: 하나\n잘함: 둘','보통','보충'));
 });
-test('plan edits invalidate fact confirmation and move approvals to review without losing sentences',()=>{
+test('plan edits invalidate inputs and move approvals to review without losing sentences',()=>{
  const i=make({actual:'직접 확인한 실제 활동',confirmed:true,approved:[{text:'낱말을 읽는 활동을 수행함.',level:'잘함'}]});
  for(const field of ['subject','unit','area','standard','element','method','criteria','page','sourceId']){
   const edited=editItem(i,{[field]:field==='page'?2:'수정'});
-  assert.equal(edited.confirmed,false);assert.equal(edited.actual,i.actual);assert.equal(edited.approved.length,0);assert.equal(edited.candidates[0].text,i.approved[0].text);
+  assert.equal(edited.confirmed,undefined);assert.equal(edited.actual,i.actual);assert.equal(edited.approved.length,0);assert.equal(edited.candidates[0].text,i.approved[0].text);
  }
  assert.deepEqual(editItem(i,{included:false}).approved,i.approved);
 });
@@ -52,11 +52,11 @@ test('version 2 round trip preserves confirmed plan, excluded rows, raw PDF byte
  const longCriteria=editCriterion('미분류 원문 '.repeat(1800),'잘함','교사가 입력한 기준');
  assert.equal(restoreProject(JSON.parse(serializeProject(project([make({criteria:longCriteria})])))).items[0].criteria,longCriteria);
 });
-test('repeated saves/restores keep all 240 sentences and require renewed fact confirmation and approval',()=>{
+test('repeated saves/restores keep all 240 sentences and require renewed candidate approval',()=>{
  let i=make({confirmed:true,candidates:Array.from({length:120},(_,n)=>({text:`후보 ${n} 함.`,level:'잘함',errors:['재검토 필요']})),approved:Array.from({length:120},(_,n)=>({text:`승인 ${n} 함.`,level:'보통'}))});
  for(let n=0;n<3;n++){
   const r=restoreProject(JSON.parse(serializeProject(project([i]))));i=r.items[0];
-  assert.equal(i.confirmed,false);assert.equal(i.approved.length,0);assert.equal(i.candidates.length,240);
+  assert.equal(i.confirmed,undefined);assert.equal(i.approved.length,0);assert.equal(i.candidates.length,240);
   assert.equal(i.candidates[239].text,'후보 119 함.');assert.deepEqual(i.candidates[239].errors,['재검토 필요']);
  }
 });
