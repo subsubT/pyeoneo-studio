@@ -1,5 +1,13 @@
 # 평어담 개발 상태
 
+## 인용부호 그릇 아이콘·파비콘 공개 반영 완료 (2026-11-10)
+
+- 공통 `public/icon.svg`를 첨부한 인용부호 두 개와 넓고 얕은 그릇의 두 색 path로 교체. 상단 PC 39px·모바일 32px, 장식 이미지·홈 링크 이름/포커스 유지. 같은 원본에서 ICO 16/32/48·Apple PNG 180 생성, metadata 버전 `quote-bowl-1` 적용. 이전 `/icon.svg`와 기본 `/favicon.ico`도 새 디자인 제공.
+- 개발/실제 배포 SHA `f39d0e16539c5b1495b573c3e9310fdb47f2d3eb`, Production `dpl_2GokWbQsbdS12Dji6NUXqxDBYgV5` **READY**, 공개 도메인·소스·업로드 72/72 파일 내용 hash 일치. 최신 운영 `394ad42`의 입력 확인 제거·공개 AI 준비 코드를 유지하고 아이콘 관련 7파일만 변경. 개발 자동 Preview 차단 유지.
+- 51/51 자동 검사·비밀값 검사·production build PASS. 로컬/공개 PC·모바일 × light/dark 새 세션의 head/자산 HTTP 200·MIME·크기·hash, 로고 정렬·CLS 0·키보드 접근성 PASS. 실제 PDF.js 합성 PDF 선택/드롭→계획 확정→예시/직접 입력·직접 작성→최종 승인→조합·XLSX 재열기→PDF 포함 저장/복원 대표 회귀 PASS.
+- 실제 API GET enabled=false / POST 503, 실모델 호출 없음. 공개 최소 점검 확인 30·미확인 5·해당 없음 1, fail 상태 0. 실제 브라우저 탭/북마크 UI는 도구 부재로 **미검증**, 새 세션의 자동 favicon 요청·head·자산 시각 대조를 대체 근거로 기록. 복구 불필요.
+- **공개 사이트 반영 완료**. 변경 파일·아이콘 URL·SHA/배포 ID·비교 화면·미실행/기존 AI 차단 사항·Work 후속은 [아이콘 WORK HANDOFF](ICON-HANDOFF.md). 후속 문서 커밋만으로 앱 재배포는 생략한다.
+
 ## PDF 끌어놓기 두 번째 묶음 공개 반영 완료 (2026-11-10)
 
 - 1단계 PDF 카드 전체에 드롭·강조·처리 표시와 두 입력 방식 안내를 추가했다. 파일 선택/드롭은 같은 `File → readPdf → encodePdf → serializeProject → 상태 반영` 경로를 쓴다. 다중 파일 반영 전 거부·동기 중복 잠금·취소/오류 시 기존 작업 보존.
