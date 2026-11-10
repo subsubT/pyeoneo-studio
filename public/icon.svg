@@ -1,1 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#245b48"/><text x="32" y="44" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="36">담</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <rect width="1000" height="1000" rx="165" fill="#245B48"/>
+  <g fill="#FFFDF5">
+    <path transform="translate(-12 0)" d="M469 185C494 183 503 205 484 222C450 246 420 278 401 316C451 323 488 364 488 424C488 485 440 535 382 535C322 535 275 486 275 416C274 308 370 200 460 186Z"/>
+    <path transform="translate(12 0)" d="M704 185C729 183 738 205 719 222C685 246 655 278 636 316C686 323 723 364 723 424C723 485 675 535 617 535C557 535 510 486 510 416C509 308 605 200 695 186Z"/>
+    <path d="M120 485C118 461 130 450 153 450H177C204 450 211 461 215 489C233 599 304 663 429 663H574C686 663 765 590 785 490C790 462 800 450 824 450H844C872 450 881 462 880 490C880 678 736 813 562 813H438C260 813 120 679 120 485Z"/>
+  </g>
+</svg>
