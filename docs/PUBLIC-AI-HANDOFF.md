@@ -1,6 +1,6 @@
 # [WORK HANDOFF] 마지막 묶음 — 입력 확인 제거 / 공개 AI 준비
 
-2026-11-10 KST. **부분 완료 — 공개 AI 활성화 BLOCKED.** 별도 활동 확인 체크 제거는 구현·로컬 검증 완료. 공개 배포 후 결과는 이 문서의 후속 기록과 최종 채팅에 구분한다. 실모델/공개 AI 성공을 주장하지 않는다.
+2026-11-10 KST. **부분 완료 — 공개 AI 활성화 BLOCKED.** 별도 활동 확인 체크 제거는 구현·운영 배포·공개 검증 완료. 배포 후 상세 결과는 이 문서의 후속 기록에 구분한다. 실모델/공개 AI 성공을 주장하지 않는다.
 
 ## 변경과 보존
 
@@ -50,3 +50,19 @@
 근거: `tmp/final-tests.log`, `tmp/final-build.log`, `tmp/confirmation-examples`, `tmp/confirmation-plan`, `tmp/confirmation-pdf`, `tmp/generation-browser`, `tmp/redis-integration/result.json`. Redis는 시스템 패키지 목록에서 찾지 못해 공식 download.redis.io의 7.4.2 소스를 tmp에서 빌드해 전용 loopback 프로세스로 시험 후 종료했다. 제품·운영 의존성에 포함하지 않는다.
 
 공개 AI가 막혔다는 이유로 미검증 활성 상태를 배포하지 않는다. 가능한 입력 흐름 개선 배포와 공개 회귀는 별도로 기록한다. Work의 Drive 보관/프로젝트 지식 readback은 담당 Work 후속이며 Codex가 수행했다고 보고하지 않는다. 인계 후 중단한다.
+
+## 배포 및 공개 검증 후속 — 2026-11-11 KST
+
+**입력 확인 제거는 공개 사이트 반영·검증 완료. 공개 AI 활성화는 BLOCKED/부분 완료.**
+
+- 이번 개발 및 실제 배포 SHA: `394ad428568d32e15faecb2400c96ad15e64b32c`. 원격 push 및 SHA 일치 직접 확인. 이 소스로 Production `dpl_Dqa8RS4QAUZWuqSodvwY6J1iNgCn`, URL https://pyeoneo-studio-mdtrj0wre-subsub-tschool.vercel.app 배포. READY, aliasError=null, 공개 alias/소스 일치, 업로드 69/69 파일 SHA-1 일치. manifest SHA-256 `82950fbb17344dc57c5e589d8071f6711799b2ab6f6a6f154e6414f70397a21a`. 원격 빌드 21초, Deployment completed 확인.
+- 채팅 중단 후 다른 작업에서 아이콘 변경이 배포됨. 재개 시 운영은 `f39d0e16539c5b1495b573c3e9310fdb47f2d3eb`, `dpl_2GokWbQsbdS12Dji6NUXqxDBYgV5`, https://pyeoneo-studio-ijyjbmpov-subsub-tschool.vercel.app, Production READY/aliasError=null이었다. 입력 확인 제거 코드는 그대로 포함되고 추가 앱 변경은 아이콘 관련임을 diff로 확인했다. 최신 개발 문서 `19a1b41a182749ddd1c3694978c4affdbaa42bc4`까지 fast-forward하여 보존했다. 아이콘 배포를 이 작업이 실행한 것으로 보고하지 않는다.
+- **이번 재개에서 현재 공개 URL에 직접 실행:** `input-examples-browser.mjs`, `release-plan-browser.mjs`, `pdf-drop-browser.mjs` 모두 PASS. 별도 사실 확인 체크 없이 직접 입력/예시 복사→직접 후보→후보별 최종 승인→조합/복사→XLSX 다운로드·재열기→PDF 포함 작업 저장·복원 흐름을 확인했다. 미승인 출력 제외/수정 시 승인 해제·후보 보존/복원 재승인 유지. PDF 오류·다중·중복 입력 보존 및 모바일 회귀도 PASS.
+- 공개 입력 예시 검사 중 후보 POST 3회만 모의. 공개 실모델 호출은 0. 실제 GET은 `enabled=false, mode=disabled, localOnly=false`, POST는 503. 모의 후보 표시를 공개 AI 완료로 판정하지 않는다.
+- 공개 브라우저 오류 0, PDF 손상 파일의 예상 경고 1건. 현재 Production 최근 30분 error/fatal 로그 조회는 해당 로그 없음. 장기 운영 관찰로 확대하지 않는다.
+- 최초 공개 브라우저 시도는 `ERR_CERT_AUTHORITY_INVALID`로 중단. CA 등록에 대한 자동 승인 거부 후 사용자가 이 Cloud 환경의 등록을 명시 승인했다. 환경 CA는 기존 NSS 신뢰 인증서와 같았고, Chromium이 NSS DB를 열 수 있도록 검사 명령에 `/home/agent/.pki/nssdb` 쓰기 접근을 부여한 뒤 성공했다. TLS 검증 비활성/사이트 보호 변경 없음. 이전 차단은 해소됨.
+- 공개 근거: `tmp/public-verified-input-examples/browser-result.json`, `tmp/public-verified-release-plan/result.json`, `tmp/public-verified-pdf-drop/result.json`. 로컬 최종 모의 생성 회귀는 `tmp/generation-final/result.json` PASS.
+- 사용자 후속 확인: 기존 NVIDIA 키 보유, 기존 어댑터 유지, 공유 한도 저장소 미확정. 이는 운영 Subscription 확인과 구분한다. 운영 환경변수는 재개 시에도 비어 있었다. **키 등록 화면/정확한 변수명/Free 및 유료 비용/설정 순서 구성안은 [PUBLIC-AI-SETUP](PUBLIC-AI-SETUP.md)**. 사용자 소유 Free Redis(월 $0) 권장, 신규 가입/결제/DB 생성/환경값 등록은 실행하지 않음.
+- 복구 실행 없음. 공개 핵심 장애 없음. 현재 앱은 다른 작업의 최신 아이콘 포함 운영 배포를 유지한다. 이번 후속 수정은 인계/설정안/STATUS 문서뿐이므로 앱 재배포 생략.
+- 미해결: NVIDIA 운영 권한·실제 모델 가용성, 서버 키/Redis 등록 및 실제 운영 한도/현재 함수 제한 검증, 비식별 실모델 품질·시간·토큰/비용과 공개 실호출 전체 흐름. 기존 CP5 품질 미충족은 해결됐다고 판정하지 않았다.
+- 도름스체크 v0.3.1 후속: 최초 Node 공개 fetch는 환경 프록시를 사용하지 못해 미완료였다. `NODE_USE_ENV_PROXY=1`로 정상 프록시/CA를 사용하여 재실행한 결과 **확인 30·미확인 5·해당 없음 1**. HTTP→HTTPS·TLS 세부 버전·개인정보 방침·Supabase/Firebase 권한은 미확인으로 유지(DB 두 종류는 사용 안 함). CSP/약관/OG/canonical·CORS·공개 상태 API 및 코드 패턴 검토 권고를 전체 안전 보증으로 확대하지 않는다. 공개 API GET은 비밀값 없는 enabled/mode/localOnly만 반환하며 POST는 비활성 503. 근거 `tmp/dorms-final.log`, ignored `.dorms-check/`.

@@ -1,5 +1,12 @@
 # 평어담 개발 상태
 
+## 입력 확인 제거 공개 검증 / 공개 AI 준비 부분 완료 (2026-11-11)
+
+- 별도 활동 확인 체크와 confirmed 조건 제거. v1/v2·true/false/누락 호환, 입력 유효성·계획 확정·후보별 최종 승인 유지. 입력 변경/복원 시 문장 보존과 재승인, 늦은 생성 응답 폐기 구현.
+- 개발/배포 `394ad428568d32e15faecb2400c96ad15e64b32c`, Production `dpl_Dqa8RS4QAUZWuqSodvwY6J1iNgCn` READY/69파일 hash 일치. 이후 아이콘 배포 `f39d0e1`에 그대로 포함. 이번 재개에서 현재 공개 사이트 입력 예시·계획·PDF 드롭 전체 회귀와 직접 후보/최종 승인/조합/XLSX 재열기/저장복원 PASS.
+- 51/51 자동 검사, production build, 비밀값 검사, 로컬 Redis 원자 한도/동시성/재시작 보존, 모의 생성 12후보/오류·늦은 응답 검사 PASS. 실모델 0회. 공개 AI는 disabled/503이며 운영 활성화 완료 아님.
+- 사용자 보유 NVIDIA 키는 운영 전용 `PUBLIC_NVIDIA_API_KEY`로 등록하도록 안내. 계약 권한/실제 모델 가용성·키 등록·운영 Redis·실호출 품질/시간/비용 검증 남음. 새 서비스 가입·결제 없음. [WORK HANDOFF](PUBLIC-AI-HANDOFF.md), [키 설정·저장소 비용 구성안](PUBLIC-AI-SETUP.md).
+
 ## 인용부호 그릇 아이콘·파비콘 공개 반영 완료 (2026-11-10)
 
 - 공통 `public/icon.svg`를 첨부한 인용부호 두 개와 넓고 얕은 그릇의 두 색 path로 교체. 상단 PC 39px·모바일 32px, 장식 이미지·홈 링크 이름/포커스 유지. 같은 원본에서 ICO 16/32/48·Apple PNG 180 생성, metadata 버전 `quote-bowl-1` 적용. 이전 `/icon.svg`와 기본 `/favicon.ico`도 새 디자인 제공.
