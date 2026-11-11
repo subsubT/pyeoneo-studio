@@ -1,10 +1,10 @@
 # AI 연결 설계와 운영 전 남은 결정
 
-## 2026-11-10 현재 구현과 활성화 차단
+## 2026-11-11 사전 검증과 활성 배포 순서
 
 공개 AI 활성화는 사용자 승인됨. 현재 운영 키/계약/공유 한도 저장소 미확인으로 비활성 상태를 유지한다. 과거의 승인 대기 설명과 구분한다. `public-ai.mjs`는 기존 NVIDIA 모델·generateBatch·독립 의미 검토를 재사용한다. 다른 모델이나 제공사를 자동 선택하지 않는다. 준비된 Redis REST 어댑터는 새 서비스 가입·결제를 실행하지 않으며 실제 운영 인프라 연결/검증을 완료한 것이 아니다.
 
-서버 설정: `PUBLIC_AI_ENABLED=true`, `PUBLIC_AI_VERIFIED=true`(계약·모델·시간·실호출 검증 후에만), `PUBLIC_NVIDIA_API_KEY`, `PUBLIC_AI_REDIS_URL`(HTTPS Upstash REST), `PUBLIC_AI_REDIS_TOKEN`, `PUBLIC_AI_LIMIT_SALT`(32자 이상). Vercel의 `VERCEL=1`, `VERCEL_ENV=production`도 요구한다. 로컬 `NVIDIA_API_KEY`/`LOCAL_AI_ENABLED`와 분리한다. 모든 값은 서버 전용이며 Git에 넣지 않는다. 키 존재/VERIFIED 문자열 자체는 계약 증거가 아니다.
+서버 설정: `PUBLIC_AI_ENABLED=true`, `PUBLIC_AI_VERIFIED=true`(계약·모델·Redis·한도·시간 예산 사전 검증 후에만), `PUBLIC_NVIDIA_API_KEY`, `PUBLIC_AI_REDIS_URL`(HTTPS Upstash REST), `PUBLIC_AI_REDIS_TOKEN`, `PUBLIC_AI_LIMIT_SALT`(32자 이상). Vercel의 `VERCEL=1`, `VERCEL_ENV=production`도 요구한다. 로컬 `NVIDIA_API_KEY`/`LOCAL_AI_ENABLED`와 분리한다. 모든 값은 서버 전용이며 Git에 넣지 않는다. 키 존재/VERIFIED 문자열 자체는 계약 증거가 아니다.
 
 한도 기본값: 플랫폼이 설정한 `x-vercel-forwarded-for` 주소를 HMAC-SHA256으로 가명 처리하여 주소당 2회/UTC 분, 12회/UTC 일, 전역 100회/UTC 일, 주소당 동시 1개/전역 동시 2개 배치. 로그인 없는 앱이므로 개인 식별 한도가 아닌 IP 기준이며 같은 학교 NAT 사용자는 공유한다. 생성 1회+독립 검토 최대 1회, 따라서 전역 하루 최대 200 모델 호출. 실패/취소도 예약한 배치를 환급하지 않는다. Redis TIME+Lua 원자 실행, 공통 `{pyeoneo-ai-v1}` 키를 배포마다 유지한다. 카운터 TTL 120초/172800초, 실행 lease 300초, active 집합 TTL 600초. 원문/후보/IP 원문 저장 없음. salt/namespace 교체는 사용자 한도를 초기화하므로 운영 중 임의 변경 금지. Redis는 전용·영속 primary와 no-eviction 정책이 필요하며 읽기 replica 사용 금지.
 
@@ -13,6 +13,8 @@
 중지: Redis `{pyeoneo-ai-v1}:disabled`를 `1`로 설정하면 신규 예약 및 다음 모델 호출을 막는다(진행 중인 한 번의 공급자 호출은 취소되지 않을 수 있음). 장기 비활성화는 `PUBLIC_AI_ENABLED=false`로 설정 후 정확한 소스로 재배포한다. 한도 서비스 오류는 우회하지 않으며 모델 호출 추가/자동 재시도/유료 대체 없음. 실패 응답은 입력과 기존 후보를 유지한다.
 
 허용 Origin/Host는 `https://pyeoneo-studio.vercel.app` 하나. JSON Content-Type, 32,000바이트 본문, 기존 길이/수준/기존문장 스키마 검사와 결과 12개/256KiB 상한. 구버전 confirmed true/false/누락은 수락하되 provider 입력에서 제거. 상세 근거와 미실행은 [인계](PUBLIC-AI-HANDOFF.md).
+
+활성화 순서: 사전 검증 → PUBLIC_AI_VERIFIED=true → PUBLIC_AI_ENABLED=true → 정확한 검증 소스로 운영 배포 → 공개 실제 생성/전체 흐름 → 완료 또는 즉시 중지/복구. VERIFIED는 공개 검증 완료를 뜻하지 않는다. 비활성 플래그 상태에서 `node scripts/public-ai-preflight.mjs`를 Vercel의 일회성 buildCommand로 실행하면 Production 비밀값을 서버에서 사용한다. 영구 디버그 API/Origin 우회는 추가하지 않는다. 검사 로그는 입력·후보·비밀값 없이 개수/단계별 시간/토큰만 포함한다.
 
 아래는 과거 기록이다.
 

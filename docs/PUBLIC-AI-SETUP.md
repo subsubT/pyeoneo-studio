@@ -12,7 +12,7 @@
 | --- | --- | --- |
 | `PUBLIC_NVIDIA_API_KEY` | 보유 NVIDIA API 키 / **Production** | 현재 배포 코드가 사용하는 운영 전용 변수명. 어댑터에는 apiKey 인자로 전달된다 |
 | `PUBLIC_AI_ENABLED` | `false` / Production | 설정·권한·검증 완료 전 비활성 유지 |
-| `PUBLIC_AI_VERIFIED` | `false` / Production | 운영 권한/모델/실호출/한도/시간 검증 후에만 true |
+| `PUBLIC_AI_VERIFIED` | `false` / Production | 운영 권한/모델/Redis/한도/시간 예산의 사전 검증 후에만 true |
 
 기존 로컬 시험 변수명은 `NVIDIA_API_KEY`이다. **현재 코드는 Vercel에 `NVIDIA_API_KEY`만 등록해도 공개 AI를 켜지 않는다.** 같은 키 값이라도 운영에서는 `PUBLIC_NVIDIA_API_KEY`라는 이름으로 분리한다. 로컬 `.env.local`을 통째로 Vercel에 복사하지 않는다. Vercel의 `VERCEL`/`VERCEL_ENV`는 플랫폼 제공값이므로 직접 추가하지 않는다.
 
@@ -52,10 +52,14 @@ NVIDIA 키 보유는 사용자 확인됨. 다만 무료 체험 약관 1.2/1.4는
 
 4. salt와 `{pyeoneo-ai-v1}` namespace는 배포마다 바꾸지 않는다. 테스트/Preview를 운영 DB에 연결하지 않는다. EVAL을 EVAL_RO로 바꾸지 않는다. [공식 EVAL 문서](https://upstash.com/docs/redis/commands/scripting/eval)에 따라 스크립트는 원자 실행하며 primary에서 처리한다. 일반 read replica의 지연된 카운터를 허용 근거로 쓰지 않는다.
 5. 운영 DB REST 전송·한도·동시 실행·장애·lease 만료·재배포 보존을 시험한다. 로컬 Redis 통과는 이 실제 서비스 검증을 대체하지 않는다. 현재 Vercel 플랜/Fluid/300초 함수 허용 설정과 NVIDIA 생성·검토 실측도 대조한다.
-6. 운영 NVIDIA 권한/가용성·소수 비식별 실모델 품질·호출 예산·공개 전체 흐름이 검증되기 전 `PUBLIC_AI_ENABLED`/`PUBLIC_AI_VERIFIED`를 켜지 않는다. 실제 활성화/배포는 기존 승인 범위로 이어갈 수 있으나 새 유료 플랜 선택은 별도 결정 대상이다.
+6. 운영 NVIDIA 권한/가용성·소수 비식별 실모델·Redis·호출 예산·시간 예산을 사전 검증한 뒤 `PUBLIC_AI_VERIFIED=true`, `PUBLIC_AI_ENABLED=true`로 설정해 정확한 소스를 배포한다. 공개 실제 전체 흐름은 활성 배포 직후 검증한다. 실패 시 신규 호출 중지와 비활성화/복구를 수행한다. 새 유료 플랜 선택은 별도 결정 대상이다.
 
 즉시 중지: Redis 콘솔에서 `{pyeoneo-ai-v1}:disabled` 값을 `1`로 설정하면 신규 예약과 다음 모델 호출이 중지된다. 장기 중지는 Vercel `PUBLIC_AI_ENABLED=false` 후 재배포한다. 한도 서비스 장애 시 메모리 카운터나 다른 유료 모델로 우회하지 않는다.
 
 ## 상태
 
 키 등록 안내·구성안·로컬 실제 Redis/모의 공급자 검증까지 준비 완료. Upstash 생성/계약, 운영 키/Redis 설정, NVIDIA 운영 권한 확인, 실모델 및 공개 AI 실호출은 미완료다. 무료 구성안에 동의하거나 기존 운영 계약 근거/설정 등록이 완료되면 후속 실제 연결 검증을 진행할 수 있다.
+
+## 2026-11-11 후속 요청의 승인 범위
+
+사용자 소유 Upstash Free 생성·연결과 Vercel Production 설정·검증 소스 활성 배포는 승인됨. 공개 전체 흐름을 사전 검증 조건에 넣지 않는다. 본문의 비용표는 공개 요금이며 생성 직전 소유 계정의 실제 Free 플랜을 확인한다. `PUBLIC_AI_LIMIT_SALT`와 비활성 플래그 두 개는 후속 작업에서 Production에 생성했고, 비밀값은 출력하지 않았다. 기존 NVIDIA 키/Redis URL·토큰은 사용자 직접 등록이 필요하다.

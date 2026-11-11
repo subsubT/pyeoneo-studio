@@ -74,3 +74,13 @@ test('overall timeout aborts provider and prevents review, releasing the shared 
  const keepAlive=setTimeout(()=>{},100);
  try{assert.equal((await h(req())).status,504);assert.equal(calls,1);assert.equal(released,1);}finally{clearTimeout(keepAlive);}
 });
+test('preflight namespaces are isolated and HTTP default namespace is stable',async()=>{
+ const roots=[];const capture=async(_,o)=>{roots.push(JSON.parse(o.body)[3]);return Response.json({result:1});};
+ await createPublicLimiter(env,capture).acquire('test');
+ const namespace='{pyeoneo-ai-preflight-00000000-0000-4000-8000-000000000001}';await createPublicLimiter(env,capture,{namespace}).acquire('test');
+ assert.deepEqual(roots,['{pyeoneo-ai-v1}',namespace]);assert.throws(()=>createPublicLimiter(env,capture,{namespace:'{other-project}'}));
+});
+test('server preflight does not run with public activation flags enabled',async()=>{
+ const {main}=await import('../scripts/public-ai-preflight.mjs');
+ await assert.rejects(main([],env),/PREFLIGHT_REQUIRES_DISABLED_FLAGS/);
+});

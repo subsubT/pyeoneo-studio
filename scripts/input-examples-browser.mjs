@@ -1,6 +1,7 @@
 // Synthetic browser regression. No live AI; API mocks exist only in Playwright.
 // Work files, request captures, downloads and screenshots stay in ignored tmp/.
 import assert from 'node:assert/strict';
+import {checkAiState} from './check-ai-state.mjs';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
 import ExcelJS from 'exceljs';
@@ -68,13 +69,12 @@ async function roundtrip(p,name,expected){
  await restored.close();
 }
 try{
- const status=await context.request.get(`${base}/api/generate`);assert.equal((await status.json()).enabled,false);
- assert.equal((await context.request.post(`${base}/api/generate`,{data:{}})).status(),503);
+ const realApi=await checkAiState(context,base);
  const offline=await load();let offlinePosts=0;offline.on('request',r=>{if(r.method()==='POST')offlinePosts++;});
  await make(offline);const colorPair=await pair(offline);
  assert.deepEqual(await values(offline),{actual:'',example:''});assert.equal(await confirmation(offline).count(),0);
  assert.equal(await offline.getByRole('button',{name:'후보에 추가',exact:true}).isDisabled(),true);
- assert.equal(await offline.getByRole('button',{name:'AI 후보 12개 생성 · 연결 대기',exact:true}).isDisabled(),true);
+ assert.equal(await offline.getByRole('button',{name:/^AI 후보 12개 생성/}).isDisabled(),true);
  assert.equal(await offline.getByText('수업에서 실제로 한 활동과 일치하는지 확인한 뒤 사용하세요.',{exact:true}).count(),1);
  await copyActual(offline).click();assert.equal(await reference(offline).inputValue(),'');assert.equal(await confirmation(offline).count(),0);
  await offline.locator('.sidebar .item').nth(1).click();assert.equal(await offline.locator('.input-example').count(),0);assert.deepEqual(await values(offline),{actual:'',example:''});
@@ -142,6 +142,6 @@ try{
  await make(offline);assert.equal((await pair(offline)).example,'식물의 잎을 관찰함.');
  results.push('plan editing invalidates old previews');
  assert.deepEqual(errors,[]);assert.deepEqual(warnings,[]);assert.deepEqual(external,[]);assert.equal(payloads.length,3);
- const report={ok:true,realApi:{enabled:false,postStatus:503},mockCandidateRequests:payloads.length,examples:{colors:colorPair,numbers:numberPair},results,errors,warnings,externalRequests:external.length};
+ const report={ok:true,realApi,mockCandidateRequests:payloads.length,examples:{colors:colorPair,numbers:numberPair},results,errors,warnings,externalRequests:external.length};
  await writeFile(`${dir}/browser-result.json`,JSON.stringify(report,null,2));await writeFile(`${dir}/mock-request-payloads.json`,JSON.stringify(payloads,null,2));console.log(JSON.stringify(report,null,2));
 }finally{await browser.close();}
