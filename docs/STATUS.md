@@ -1,5 +1,12 @@
 # 평어담 개발 상태
 
+## 공개 AI 후속: 사전 검사 준비·비활성 배포 / 설정 입력 대기 (2026-11-11)
+
+- 개발/배포 `3365053bf018e20335c7fa986a7e5236007c9723`, Production `dpl_9kqs9GWfLah2oysSEbLYBCWPfutt` READY/소스·공개 도메인·78파일 hash 일치. 최신 아이콘과 기존 기능 보존. 공개 AI는 disabled/503으로 유지하며 활성화 완료 아님.
+- Production에 HMAC salt(Sensitive)와 ENABLED=false/VERIFIED=false 생성. 키·Redis URL/쓰기토큰, NVIDIA 운영권한과 Vercel 실제 함수 제한 정보는 사용자 입력 대기. 소유 Free 계정 생성/플랜 확인을 대신할 연결 도구/CLI 인증이 없으며 임시 DB를 만들지 않음.
+- 공개 전체 흐름 검증은 활성 배포 직후의 최종 조건으로 정정. Vercel 서버 비밀값으로 실행할 일회성 CLI 사전 검사·독립 시험 namespace·실제 공개 생성 브라우저 스크립트 준비. 영구 디버그 API/Origin 우회 없음.
+- 이번 직접 검사: 자동53/53, production build·비밀값·로컬 Redis 및 로컬/공개 입력예시·계획·PDF/승인·출력·복원 3종 회귀 PASS. 로고/파비콘 자산 hash/모바일 PASS. 실제 NVIDIA/Upstash 호출0, 실모델 품질/시간/토큰/비용 미측정. [후속 WORK HANDOFF](PUBLIC-AI-ACTIVATION-HANDOFF.md).
+
 ## 입력 확인 제거 공개 검증 / 공개 AI 준비 부분 완료 (2026-11-11)
 
 - 별도 활동 확인 체크와 confirmed 조건 제거. v1/v2·true/false/누락 호환, 입력 유효성·계획 확정·후보별 최종 승인 유지. 입력 변경/복원 시 문장 보존과 재승인, 늦은 생성 응답 폐기 구현.

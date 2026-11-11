@@ -43,3 +43,15 @@
 5. 실패 시 Redis `{pyeoneo-ai-v1}:disabled=1`로 신규/다음 호출 차단, ENABLED=false 후 재배포 또는 위 정상 ID로 복구. 진행 중 공급자 호출은 중지키만으로 취소되지 않을 수 있음. 데이터/카운터를 삭제하지 않는다.
 
 설정 안내만으로 목표 완료를 판정하지 않는다. 사용자 입력이 등록되면 이미 승인된 실제 사전 검사·활성 배포·공개 검증을 같은 작업에서 이어간다. 아직 실모델 후보/토큰/비용/품질 측정과 실제 Upstash 검증은 0회/미실행이며 과거 CP5 품질 동등성 미충족은 그대로다.
+
+## 이번 배포와 최종 관찰
+
+- **부분 완료/BLOCKED**: 사전 검사 코드와 비활성 상태의 공개 회귀 배포 완료. 공개 AI 활성화/실모델 검증은 미완료. 키·소유 계정 설정과 운영 이용권한을 요청한 상태이며, 없는 자격정보를 추정하거나 모의 응답으로 대체하지 않았다.
+- 개발/실제 배포 커밋 `3365053bf018e20335c7fa986a7e5236007c9723`, 정상 push 후 원격 일치. Production **`dpl_9kqs9GWfLah2oysSEbLYBCWPfutt`**, https://pyeoneo-studio-bd181pr9j-subsub-tschool.vercel.app. READY/aliasError=null, 공개 도메인 연결 및 소스 일치. 업로드 **78/78 소스 파일 SHA-1 일치**, manifest SHA-256 `7f98b39af7c726dd0e89ea07b19d4e8aa7913626012e301a00b1765e5648f4b3`. 기존 정상 소스/아이콘 유지. 일회성 실모델 buildCommand는 필요한 설정/권한이 없어 아직 실행하지 않았고 일반 build만 실행했다.
+- 새 공개 배포에서 입력 예시·계획·PDF 드롭 브라우저 3종 PASS. 직접 후보/교사 최종 승인/조합/복사/XLSX 재열기/저장복원/미승인 제외/오류·중복 보존/모바일을 확인. 활성 플래그는 false, 실제 API GET enabled=false/mode=disabled/localOnly=false, POST503. 공개 모델 호출0, 모의 후보 요청3. 이번 검사를 실제 생성 성공으로 보고하지 않는다.
+- 최신 로고 `/icon.svg?v=quote-bowl-1`, icon.svg/favicon.ico/apple-touch-icon.png의 공개 HTTP200·로컬 SHA-256 일치, 390px 넘침 없음 PASS. 근거 `tmp/activation-icons.json`, `tmp/activation-icons-mobile.png`.
+- 공개 회귀 콘솔/pageerror 0. 손상 PDF 예상 경고1. 새 Production 최근30분 error/fatal 조회 해당 로그 없음. 최소 보안 검사 v0.3.1 공개 scan 확인30/미확인5/해당없음1 유지; HTTP→HTTPS/TLS 세부·정책·DB 권한 미확인을 PASS로 변경하지 않는다. 새 검사기의 코드 패턴 권고는 CLI의 로컬 테스트용 child_process와 기존 PDF worker 패턴이며 공개 입력의 shell 실행 경로를 추가하지 않았다. 근거 `tmp/activation-dorms.log`, ignored `.dorms-check/`.
+- 최종 환경 metadata 재조회: `PUBLIC_AI_LIMIT_SALT`, `PUBLIC_AI_ENABLED`, `PUBLIC_AI_VERIFIED`만 Production에 존재. NVIDIA 키/Redis URL·쓰기토큰 미등록. 계정의 실제 Free 적용, NVIDIA Subscription, Vercel Fluid/실행시간 정보는 사용자 입력 대기. CLI 인증이나 브라우저 제어가 없는 상태에서 소유 계정 로그인을 대신하거나 임시 DB를 만들지 않았다.
+- 새로 필요한 사용자 입력은 이미 한 번에 요청함: Vercel Production `PUBLIC_NVIDIA_API_KEY`(Secret), `PUBLIC_AI_REDIS_URL`, `PUBLIC_AI_REDIS_TOKEN`(Secret), NVIDIA 운영 Subscription/계약 근거, Vercel Functions 플랜/Fluid/300초 설정. salt·두 플래그 재등록/Cloud 중복 키 등록은 요구하지 않는다. Free 생성 비용이 실제 계정에서 월 $0인지 확인 후 진행한다.
+- 복구 실행 없음. 신규 공급자 호출도 없으므로 긴급 중지키 사용 없음. 이후 활성화 직전에는 이 비활성 READY 배포를 다시 조회해 복구 대상으로 기록할 수 있다. 문서 후속 변경만으로 앱 재배포는 생략한다. 후속 문서 SHA는 최종 채팅 및 `git log -1 --format=%H -- docs/PUBLIC-AI-ACTIVATION-HANDOFF.md`로 확인.
+- Work의 Drive 보관·프로젝트 지식 readback은 이번 Codex 실행에서 수행하지 않음. 설정 입력이 오면 사전 검증→활성 배포→공개 실제 모델 전체 흐름을 이어가며, 현재 BLOCKED 판정은 유지한다.
