@@ -45,3 +45,9 @@ test('Gemini review requires a concrete rejection reason and cannot pass with is
   await assert.rejects(p.complete('review rules',{candidates:output.candidates.slice(0,1)},{stage:'review',maxTokens:2400}),e=>e.code==='INVALID_SCHEMA');
  }
 });
+
+test('400 diagnostics expose only a fixed classification, never upstream text',async()=>{
+ for(const [message,expected] of [['sensitive schema too complex request','SCHEMA_COMPLEXITY'],['sensitive maxOutput token limit','TOKEN_ARGUMENT'],['private invalid argument','OTHER']]){
+  const p=createGeminiProvider({apiKey:'key',fetchImpl:async()=>Response.json({error:{message}},{status:400})});await assert.rejects(p.complete('rules',input,options));assert.equal(p.metrics[0].rejectionCategory,expected);assert(!JSON.stringify(p.metrics).includes(message));
+ }
+});

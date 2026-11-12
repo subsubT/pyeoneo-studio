@@ -1,6 +1,6 @@
 // Synthetic materials. REAL_PUBLIC_AI=1 makes exactly two real public batch requests.
 import assert from 'node:assert/strict';
-import {mkdir,readFile,writeFile} from 'node:fs/promises';
+import {mkdir,readFile,writeFile,access} from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
 import ExcelJS from 'exceljs';
 import {blankItem} from '../lib/core.mjs';
@@ -47,7 +47,13 @@ try{
   if(!real)continue;
   // Explicit test-teacher review: rejected candidates must block the whole operation first.
   const blocked=data.candidates.filter(c=>c.errors?.length||!c.semanticPass);
-  if(blocked.length){await bulk.check();await approve.click();assert.equal(await p.locator('article.approved').count(),0);await p.getByRole('status').filter({hasText:/번:/}).waitFor();await save(`blocked-${index}`);throw Error('TEST_TEACHER_REVIEW_REQUIRED: inspect saved batch before correction; no automatic acceptance');}
+  if(blocked.length){await bulk.check();await approve.click();assert.equal(await p.locator('article.approved').count(),0);await p.getByRole('status').filter({hasText:/번:/}).waitFor();await save(`blocked-${index}`);}
+  console.log(`TEST_TEACHER_REVIEW: ${dir}/response-${index}.json; write teacher-${index}.json with {approved:true,edits:[{index,text}]} after factual review`);
+  const gate=`${dir}/teacher-${index}.json`;let reviewed=false;
+  for(let k=0;k<1800;k++){try{await access(gate);reviewed=true;break;}catch{}await new Promise(r=>setTimeout(r,500));}
+  assert(reviewed,'test-teacher review timed out');const decision=JSON.parse(await readFile(gate,'utf8'));assert.equal(decision.approved,true);
+  for(const edit of decision.edits||[]){const original=data.candidates[edit.index];assert(original);let changed=false;for(const row of await p.locator('.candidate-row').all()){if(await row.locator('textarea').inputValue()===original.text&&await row.locator('select').inputValue()===original.levelId){await row.locator('textarea').fill(edit.text);changed=true;break;}}assert(changed);}
+  report.batches.at(-1).testTeacherReviewed=true;report.batches.at(-1).testTeacherEdits=decision.edits?.length||0;
   await bulk.check();assert.equal(await p.locator('article.approved').count(),0);await approve.click();
   assert.equal(await p.locator('article.approved').count(),n);report.batches.at(-1).bulkApproved=n;await save(`progress-${index}`);
  }
