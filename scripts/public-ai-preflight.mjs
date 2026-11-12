@@ -27,32 +27,32 @@ async function cleanup(env,namespace){
 }
 export async function runRedisPreflight(env,namespace){
  const command=(...c)=>redisCommand(env,c),limiter=()=>createPublicLimiter(env,fetch,{namespace});
- const checks=[];
+ const checks=[];const mark=name=>{checks.push(name);emit({stage:'redis-check',check:name,ok:true});};
  const empty=()=>cleanup(env,namespace);
  const uid=address=>createHmac('sha256',env.PUBLIC_AI_LIMIT_SALT).update(address).digest('hex');
  assert.equal(await command('PING'),'PONG');
  const attempts=await Promise.all(Array.from({length:20},(_,n)=>limiter().acquire(`preflight-concurrent-${n}`)));
- assert.equal(attempts.filter(Boolean).length,2);await Promise.all(attempts.filter(Boolean).map(l=>l.release()));checks.push('atomic-global-concurrency-2');await empty();
- const permits=await Promise.all(Array.from({length:20},()=>limiter().reserveProvider(1000)));assert.equal(permits.filter(p=>p.allowed).length,12);assert.equal((await limiter().reserveProvider(1000)).allowed,false);checks.push('atomic-provider-rolling-12-across-clients');await empty();
- for(let n=0;n<5;n++)assert((await limiter().reserveProvider(40000)).allowed);assert.equal((await limiter().reserveProvider(1)).allowed,false);checks.push('rolling-input-budget-200000-bytes');await empty();
- await limiter().cooldown(60);assert.equal((await limiter().reserveProvider(1000)).allowed,false);checks.push('shared-provider-429-cooldown');await empty();
- const a=await limiter().acquire('preflight-user');assert(a);assert.equal(await limiter().acquire('preflight-user'),null);assert(await a.check());await a.release();checks.push('user-concurrency-1-and-release');
+ assert.equal(attempts.filter(Boolean).length,2);await Promise.all(attempts.filter(Boolean).map(l=>l.release()));mark('atomic-global-concurrency-2');await empty();
+ const permits=await Promise.all(Array.from({length:20},()=>limiter().reserveProvider(1000)));assert.equal(permits.filter(p=>p.allowed).length,12);assert.equal((await limiter().reserveProvider(1000)).allowed,false);mark('atomic-provider-rolling-12-across-clients');await empty();
+ for(let n=0;n<5;n++)assert((await limiter().reserveProvider(40000)).allowed);assert.equal((await limiter().reserveProvider(1)).allowed,false);mark('rolling-input-budget-200000-bytes');await empty();
+ await limiter().cooldown(60);assert.equal((await limiter().reserveProvider(1000)).allowed,false);mark('shared-provider-429-cooldown');await empty();
+ const a=await limiter().acquire('preflight-user');assert(a);assert.equal(await limiter().acquire('preflight-user'),null);assert(await a.check());await a.release();mark('user-concurrency-1-and-release');
  const b=await limiter().acquire('preflight-user');assert(b);await b.release();
  // Inspect the authoritative window before checking its counter, so a minute rollover is explicit.
  let clock=await command('TIME');const minute=Math.floor(Number(clock[0])/60),day=Math.floor(Number(clock[0])/86400);
- await command('SET',`${namespace}:m:${minute}:${uid('preflight-user')}`,'2','EX','120');assert.equal(await limiter().acquire('preflight-user'),null);checks.push('per-minute-2');await empty();
+ await command('SET',`${namespace}:m:${minute}:${uid('preflight-user')}`,'2','EX','120');assert.equal(await limiter().acquire('preflight-user'),null);mark('per-minute-2');await empty();
  await command('SET',`${namespace}:d:${day}:${uid('preflight-daily')}`,'12','EX','172800');assert.equal(await limiter().acquire('preflight-daily'),null);
- await command('SET',`${namespace}:d:${day}`,'100','EX','172800');assert.equal(await limiter().acquire('preflight-other'),null);checks.push('user-day-12-global-day-100');await empty();
+ await command('SET',`${namespace}:d:${day}`,'100','EX','172800');assert.equal(await limiter().acquire('preflight-other'),null);mark('user-day-12-global-day-100');await empty();
  const held=await limiter().acquire('preflight-persist');assert(held);
- assert.equal(await limiter().acquire('preflight-persist'),null);checks.push('recreated-client-preserves-lease');
- await command('SET',`${namespace}:disabled`,'1');assert.equal(await held.check(),false);await assert.rejects(limiter().acquire('preflight-stop'),e=>e.code==='SHARED_STOP');assert((await limiter().reserveProvider(1000)).stopped);checks.push('shared-stop-before-next-provider-call');await command('DEL',`${namespace}:disabled`);
+ assert.equal(await limiter().acquire('preflight-persist'),null);mark('recreated-client-preserves-lease');
+ await command('SET',`${namespace}:disabled`,'1');assert.equal(await held.check(),false);await assert.rejects(limiter().acquire('preflight-stop'),e=>e.code==='SHARED_STOP');assert((await limiter().reserveProvider(1000)).stopped);mark('shared-stop-before-next-provider-call');await command('DEL',`${namespace}:disabled`);
  // Shorten only this isolated test lease, while keeping the real acquisition's 300-second TTL check.
  const userKey=`${namespace}:user:${uid('preflight-persist')}`;
  const ttl=await command('TTL',userKey);assert(ttl>0&&ttl<=300);
  await command('PEXPIRE',userKey,'1');const tokens=await command('ZRANGE',`${namespace}:active`,'0','-1');clock=await command('TIME');
  for(const token of tokens)await command('ZADD',`${namespace}:active`,String(Number(clock[0])-1),token);
- await new Promise(r=>setTimeout(r,25));assert.equal(await held.check(),false);const recovered=await limiter().acquire('preflight-persist');assert(recovered);await recovered.release();checks.push('lease-ttl-and-expiry-recovery');
- const unavailable=createPublicLimiter(env,async()=>{throw Error('SIMULATED_NETWORK')},{namespace});await assert.rejects(unavailable.acquire('preflight-unavailable'));checks.push('transport-failure-closed-simulated');
+ await new Promise(r=>setTimeout(r,25));assert.equal(await held.check(),false);const recovered=await limiter().acquire('preflight-persist');assert(recovered);await recovered.release();mark('lease-ttl-and-expiry-recovery');
+ const unavailable=createPublicLimiter(env,async()=>{throw Error('SIMULATED_NETWORK')},{namespace});await assert.rejects(unavailable.acquire('preflight-unavailable'));mark('transport-failure-closed-simulated');
  return {stage:'redis',ok:true,actualService:true,namespaceIsolated:true,checks};
 }
 export async function measureMaxTokens(env){
@@ -131,5 +131,5 @@ export async function main(args=process.argv.slice(2),env=process.env){
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
  try{const report=await main();emit({stage:'complete',ok:report.ok});}
- catch(e){emit({stage:'failed',ok:false,status:e instanceof GeminiError?e.status:0,code:e instanceof GeminiError?e.code:e instanceof assert.AssertionError?'CHECK_FAILED':['MISSING_SERVER_SETTING','PREFLIGHT_REQUIRES_DISABLED_FLAGS','INVALID_ARGUMENTS','INVALID_REDIS_URL'].includes(e.message)?e.message:'PREFLIGHT_FAILED'});process.exitCode=1;}
+ catch(e){emit({stage:'failed',ok:false,status:e instanceof GeminiError?e.status:0,assertLocation:e instanceof assert.AssertionError?e.stack?.match(/public-ai-preflight\.mjs:\d+:\d+/)?.[0]:undefined,assertActual:e instanceof assert.AssertionError&&['number','boolean'].includes(typeof e.actual)?e.actual:undefined,assertExpected:e instanceof assert.AssertionError&&['number','boolean'].includes(typeof e.expected)?e.expected:undefined,code:e instanceof GeminiError?e.code:e instanceof assert.AssertionError?'CHECK_FAILED':['MISSING_SERVER_SETTING','PREFLIGHT_REQUIRES_DISABLED_FLAGS','INVALID_ARGUMENTS','INVALID_REDIS_URL'].includes(e.message)?e.message:'PREFLIGHT_FAILED'});process.exitCode=1;}
 }
