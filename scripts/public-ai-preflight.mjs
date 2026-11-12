@@ -99,7 +99,8 @@ export async function runModelPreflight(env,namespace){
   try{
    const result=await generateBatch(guarded(transport,lease,signal),input),metrics=transport.metrics,totalMs=Math.round(performance.now()-started);
    const accepted=result.candidates.filter(c=>c.semanticPass&&c.errors.length===0).length;
-   const report={stage:'model',case:id,model:GEMINI_MODEL,candidates:result.candidates.length,accepted,flagged:result.candidates.length-accepted,totalMs,calls:metrics.length,metrics,costUsd:null,manualApproval:false};
+   const errorCounts={};for(const c of result.candidates)for(const e of c.errors){const category=e.startsWith('종결')?'ending':e.startsWith('금지 표현')?'banned':e.startsWith('이미 있는')?'duplicate':e.startsWith('실제 활동에서 근거')?'evidence':'semantic';errorCounts[category]=(errorCounts[category]||0)+1;}
+   const report={stage:'model',case:id,errorCounts,model:GEMINI_MODEL,candidates:result.candidates.length,accepted,flagged:result.candidates.length-accepted,totalMs,calls:metrics.length,metrics,costUsd:null,manualApproval:false};
    emit(report);reports.push(report);
    assert.equal(result.candidates.length,12);assert(accepted>0);
    const core={colors:[['surroundings',/주변|주위/],['colors',/색/],['exploration',/탐색|찾|살펴/],['wheel',/10색상환/],['completion',/완성/]],words:[['words',/낱말|단어/],['all',/모두|모든|빠짐|전부/],['correctness',/바르|바른|바르게|정확|올바|맞게/],['writing',/쓰|써|쓴|작성|적/],['accurate-reading',/정확|바르|바른|바르게|올바|맞게/],['reading',/읽|낭독/]],numbers:[['objects',/구체물/],['range',/9/],['two-numbers',/두 수|두수|두 개의 수/],['magnitude',/크기/],['comparison',/비교/]]}[id];

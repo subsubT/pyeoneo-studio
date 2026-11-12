@@ -2,7 +2,7 @@
 
 ## 2026-11-12 Gemini 전환·사전 검사 진행 중
 
-사용자 확정: Google Gemini Free `gemini-3.5-flash-lite`, Production 키/Redis 준비 완료. 아래 NVIDIA 권한 대기·키 미등록은 과거 기록이다. Gemini REST·새변수명·공유rolling12RPM/200k입력bytes·429 cooldown 구현, 기존53+신규7=60검사 및 로컬실제Redis/브라우저4종/production빌드 PASS. 아직 실제 Upstash/Gemini 사전 검사와 활성 배포·공개 실제 생성 미완료. 실행 증거/현재 판정은 [Gemini WORK HANDOFF](GEMINI-PUBLIC-AI-HANDOFF.md)를 따른다.
+사용자 확정: Google Gemini Free `gemini-3.5-flash-lite`, Production 키/Redis 준비 완료. 아래 NVIDIA 권한 대기·키 미등록은 과거 기록이다. Gemini REST·새변수명·공유rolling12RPM/200k입력bytes·429 cooldown 구현, 기존53+신규8=61검사 및 로컬실제Redis/브라우저4종/production빌드 PASS. 아직 실제 Upstash/Gemini 사전 검사와 활성 배포·공개 실제 생성 미완료. 실행 증거/현재 판정은 [Gemini WORK HANDOFF](GEMINI-PUBLIC-AI-HANDOFF.md)를 따른다.
 
 
 ## 공개 AI 후속: 사전 검사 준비·비활성 배포 / 설정 입력 대기 (2026-11-11)

@@ -8,7 +8,7 @@ test('Gemini uses server header/fixed endpoint, stage JSON schemas, token caps a
  const seen=[],p=createGeminiProvider({apiKey:'server-test-key',fetchImpl:async(url,o)=>{seen.push({url,o,body:JSON.parse(o.body)});return seen.length===1?answer():answer({reviews:[{index:0,pass:true,issues:[]}]});}});
  assert.deepEqual(await p.complete('rules',input,options),output);
  await p.complete('review-rules',{candidates:output.candidates.slice(0,1)},{stage:'review',maxTokens:2400,model:'evil',endpoint:'https://evil.test'});
- for(const c of seen){assert.equal(c.url,`${GEMINI_ENDPOINT}:generateContent`);assert.equal(c.o.headers['x-goog-api-key'],'server-test-key');assert(!c.url.includes('server-test-key'));assert.equal(c.o.redirect,'error');assert.equal(c.body.generationConfig.responseMimeType,'application/json');assert.equal(c.body.generationConfig.maxOutputTokens,2400);assert.deepEqual(c.body.generationConfig.thinkingConfig,{thinkingLevel:'MINIMAL',includeThoughts:false});assert.equal(c.body.chat_template_kwargs,undefined);assert.equal(c.body.model,undefined);}
+ for(const c of seen){assert.equal(c.url,`${GEMINI_ENDPOINT}:generateContent`);assert.equal(c.o.headers['x-goog-api-key'],'server-test-key');assert(!c.url.includes('server-test-key'));assert.equal(c.o.redirect,'error');assert.equal(c.body.generationConfig.responseMimeType,'application/json');assert.equal(c.body.generationConfig.maxOutputTokens,2400);assert.deepEqual(c.body.generationConfig.thinkingConfig,{thinkingLevel:'LOW',includeThoughts:false});assert.equal(c.body.chat_template_kwargs,undefined);assert.equal(c.body.model,undefined);}
  assert(seen[0].body.generationConfig.responseJsonSchema.properties.candidates);assert(seen[1].body.generationConfig.responseJsonSchema.properties.reviews);
  assert.equal(p.metrics[0].responseModel,GEMINI_MODEL);assert.equal(p.metrics[0].inputTokens,123);assert.equal(p.metrics[0].outputTokens,45);assert.equal(p.metrics[0].thoughtTokens,6);
  await assert.rejects(p.complete('rules',input,options),e=>e.code==='CALL_LIMIT');assert.equal(seen.length,2);
@@ -37,4 +37,11 @@ test('Gemini cancellation/timeout abort fetch and prevent further stages',async(
 });
 test('Gemini transport bounds keep the existing 40k input limit and reject unknown stages',()=>{
  assert.throws(()=>buildGeminiRequest('x'.repeat(40000),input,options),e=>e.code==='INPUT_TOO_LARGE');assert.throws(()=>buildGeminiRequest('rules',input,{stage:'unknown'}),GeminiError);
+});
+
+test('Gemini review requires a concrete rejection reason and cannot pass with issues',async()=>{
+ for(const review of [{index:0,pass:false,issues:[]},{index:0,pass:true,issues:['unsupported fact']}]){
+  const p=createGeminiProvider({apiKey:'test',fetchImpl:async()=>answer({reviews:[review]})});
+  await assert.rejects(p.complete('review rules',{candidates:output.candidates.slice(0,1)},{stage:'review',maxTokens:2400}),e=>e.code==='INVALID_SCHEMA');
+ }
 });

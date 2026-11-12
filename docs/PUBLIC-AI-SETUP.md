@@ -12,7 +12,7 @@
 
 두 플래그, VERCEL=1/Production, 키·URL·쓰기토큰·salt가 모두 있어야 공개 경로가 켜진다. NVIDIA 키는 공개 활성 조건이 아니다. 내부 NVIDIA 로컬 시험은 기존처럼 별도 유지된다. Secret은 로컬 env pull로 추출하지 않고 Vercel 서버 build/runtime에서만 사용한다.
 
-Google 공식 REST generateContent를 직접 호출한다. 생성→기존 Zod/문장/근거 검사→독립 의미 검토는 최대2호출, 숨은 재시도·재생성·다른 모델 자동 전환 없음. 지원 JSON Schema·MINIMAL thinking을 지정하고 STOP으로 완료된 구조 전체만 검사한다. 빈/잘림/안전차단/스키마불일치/403/429/네트워크/취소/시간초과 시 부분 후보를 반환하지 않는다. 서버에는 원문 없이 모델 응답 ID(제공 시 모델 version), 시간·토큰·호출 수만 기록한다. 실제 response model이 없으면 null이다.
+Google 공식 REST generateContent를 직접 호출한다. 생성→기존 Zod/문장/근거 검사→독립 의미 검토는 최대2호출, 숨은 재시도·재생성·다른 모델 자동 전환 없음. 지원 JSON Schema·LOW thinking을 지정하고 STOP으로 완료된 구조 전체만 검사한다. 빈/잘림/안전차단/스키마불일치/403/429/네트워크/취소/시간초과 시 부분 후보를 반환하지 않는다. 서버에는 원문 없이 모델 응답 ID(제공 시 모델 version), 시간·토큰·호출 수만 기록한다. 실제 response model이 없으면 null이다. 생성 응답은 사실이 충분한12개 또는 부족안내0개이고, 검토의 true/빈issues·false/구체적issues를 구조화스키마로 함께 강제한다.
 
 ## 공유 제한
 
