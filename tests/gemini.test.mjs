@@ -2,12 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createGeminiProvider,GEMINI_ENDPOINT,GEMINI_MODEL,GeminiError,buildGeminiRequest} from '../lib/server/gemini.mjs';
 const options={stage:'generation',maxTokens:2400},input={actual:'주변의 색을 탐색하고 10색상환을 완성함.',example:'주변의 색을 탐색하고 10색상환을 완성함.',level:'잘함',existing:[]};
-const output={candidates:[{text:input.actual,evidence:[input.actual]}],reasons:[]};
+const output={candidates:Array.from({length:12},()=>({text:input.actual,evidence:[input.actual]})),reasons:[]};
 const answer=(data=output,extra={})=>Response.json({modelVersion:GEMINI_MODEL,candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify(data)}]}}],usageMetadata:{promptTokenCount:123,candidatesTokenCount:45,thoughtsTokenCount:6,totalTokenCount:174},...extra});
 test('Gemini uses server header/fixed endpoint, stage JSON schemas, token caps and supported thinking options',async()=>{
  const seen=[],p=createGeminiProvider({apiKey:'server-test-key',fetchImpl:async(url,o)=>{seen.push({url,o,body:JSON.parse(o.body)});return seen.length===1?answer():answer({reviews:[{index:0,pass:true,issues:[]}]});}});
  assert.deepEqual(await p.complete('rules',input,options),output);
- await p.complete('review-rules',{candidates:output.candidates},{stage:'review',maxTokens:2400,model:'evil',endpoint:'https://evil.test'});
+ await p.complete('review-rules',{candidates:output.candidates.slice(0,1)},{stage:'review',maxTokens:2400,model:'evil',endpoint:'https://evil.test'});
  for(const c of seen){assert.equal(c.url,`${GEMINI_ENDPOINT}:generateContent`);assert.equal(c.o.headers['x-goog-api-key'],'server-test-key');assert(!c.url.includes('server-test-key'));assert.equal(c.o.redirect,'error');assert.equal(c.body.generationConfig.responseMimeType,'application/json');assert.equal(c.body.generationConfig.maxOutputTokens,2400);assert.deepEqual(c.body.generationConfig.thinkingConfig,{thinkingLevel:'MINIMAL',includeThoughts:false});assert.equal(c.body.chat_template_kwargs,undefined);assert.equal(c.body.model,undefined);}
  assert(seen[0].body.generationConfig.responseJsonSchema.properties.candidates);assert(seen[1].body.generationConfig.responseJsonSchema.properties.reviews);
  assert.equal(p.metrics[0].responseModel,GEMINI_MODEL);assert.equal(p.metrics[0].inputTokens,123);assert.equal(p.metrics[0].outputTokens,45);assert.equal(p.metrics[0].thoughtTokens,6);
