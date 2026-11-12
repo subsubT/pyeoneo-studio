@@ -1,6 +1,10 @@
 # 평어담 작업 완료·Production 운영 절차
 
-## 2026-11-11 공개 AI 활성화의 우선 지침
+## 2026-11-12 Gemini 우선 지침
+
+현재 공개 제공사는 Google Gemini Free, 서버 모델 `gemini-3.5-flash-lite`로 전환한다. [현재 설정](PUBLIC-AI-SETUP.md)과 [이번 실행 인계](GEMINI-PUBLIC-AI-HANDOFF.md)가 아래 NVIDIA/미등록 대기 기록보다 우선한다. 사전 검사는 Production Secret을 쓰는 배포별 buildCommand override이며 일반 프로젝트 buildCommand는 수정하지 않는다. 활성 배포에서는 일반 `npm run build`만 실행한다. 실제 Hobby/Fluid/300초 설정을 조회·확인하고 모의/실제/공개 검증을 구분한다. 공유 stop/counters/salt 보존, 실제 외부 생성·검토 최대24회, 공개 실제2배치와 교사 승인·출력까지 완료해야 PASS다.
+
+## 과거 2026-11-11 공개 AI 활성화 지침
 
 사용자가 별도 활동 사실 확인 체크 제거와 공개 AI 활성화를 명시적으로 승인했다. 아래 과거의 공개 AI 비활성 고정/confirmed 필수 지침은 이번 범위에서 대체한다. 계획 확정·후보별 최종 검토/승인·승인 전용 출력은 유지한다. 운영 제공사 권한·서버 키·공유 한도·실제 모델·시간 예산의 **사전 검증**을 통과하면 PUBLIC_AI_VERIFIED/ENABLED를 true로 설정하고 검증 소스를 배포한다. **공개 전체 흐름 검증은 활성 배포 직후의 최종 완료 조건**이다. 실패하면 신규 호출 중지 후 비활성화/복구한다. 사용자 소유 Upstash Free(월 $0, 단일 primary, read region 없음) 생성·연결도 이번 승인 범위다. 추가 유료 계약이나 비용 증액은 별도 결정 대상이다. 현재 준비 구현과 미해결은 [마지막 묶음 인계](PUBLIC-AI-HANDOFF.md)를 따른다.
 

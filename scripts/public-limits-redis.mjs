@@ -14,7 +14,7 @@ const cli=async(...args)=>(await exec(process.env.REDIS_CLI,['-h','127.0.0.1','-
 let server;
 async function start(){server=spawn(process.env.REDIS_SERVER,['--bind','127.0.0.1','--port',String(port),'--dir',dir,'--appendonly','yes','--appendfsync','always','--save',''],{stdio:'ignore'});for(let n=0;n<100;n++){if(server.exitCode!==null)throw Error('Redis start failed');try{if(await cli('PING')==='PONG')return;}catch{}await new Promise(r=>setTimeout(r,50));}throw Error('Redis start timeout');}
 async function stop(){if(server?.exitCode===null){const exited=new Promise(r=>server.once('exit',r));server.kill('SIGTERM');await exited;}}
-const env={PUBLIC_AI_REDIS_URL:'https://test.upstash.io',PUBLIC_AI_REDIS_TOKEN:'test',PUBLIC_AI_LIMIT_SALT:'test-salt'};
+const env={PUBLIC_AI_REDIS_URL:'https://test.upstash.io',PYEONEO_AI_REDIS_TOKEN:'test',PUBLIC_AI_LIMIT_SALT:'test-salt'};
 const fetchImpl=async(_,options)=>Response.json({result:Number(await cli(...JSON.parse(options.body)))});
 const limiter=()=>createPublicLimiter(env,fetchImpl),root='{pyeoneo-ai-v1}';
 const id=address=>createHmac('sha256',env.PUBLIC_AI_LIMIT_SALT).update(address).digest('hex');
@@ -26,7 +26,7 @@ try{
  await cli('FLUSHDB');const day=Math.floor(Number((await cli('TIME')).split('\n')[0])/86400);
  await cli('SET',`${root}:d:${day}:${id('192.0.2.1')}`,'12');assert.equal(await limiter().acquire('192.0.2.1'),null);await cli('SET',`${root}:d:${day}`,'100');assert.equal(await limiter().acquire('192.0.2.2'),null);results.push('per-address daily 12 and global daily 100 block atomically');
  await cli('FLUSHDB');a=await limiter().acquire('192.0.2.1');assert(a);await stop();await start();assert.equal(await limiter().acquire('192.0.2.1'),null);const b=await limiter().acquire('192.0.2.2');assert(b);assert.equal(await limiter().acquire('192.0.2.3'),null);assert(await a.check());results.push('Redis restart with AOF preserves quota and active leases across recreated clients');
- await cli('SET',`${root}:disabled`,'1');assert.equal(await a.check(),false);assert.equal(await limiter().acquire('192.0.2.4'),null);results.push('shared emergency stop blocks new reservations and next provider call');
+ await cli('SET',`${root}:disabled`,'1');assert.equal(await a.check(),false);await assert.rejects(limiter().acquire('192.0.2.4'),e=>e.code==='SHARED_STOP');results.push('shared emergency stop blocks new reservations and next provider call');
  const keys=await cli('KEYS','*');assert(!keys.includes('192.0.2.'));await stop();await assert.rejects(limiter().acquire('192.0.2.1'));results.push('storage failure rejects with no local fallback; keys contain no raw address');
  await writeFile(`${dir}/result.json`,JSON.stringify({ok:true,realLocalRedis:true,productionRedis:false,results},null,2));console.log(JSON.stringify({ok:true,results}));
 }finally{await stop();}
