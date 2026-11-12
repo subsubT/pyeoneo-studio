@@ -1,5 +1,7 @@
 # 평어담 작업 완료·Production 운영 절차
 
+현재공개상태(2026-11-12 재개): **활성PASS**, 두플래그true·stop해제, 앱b9443ef/Production dpl_2ZR1G7iFFrt7ZURs3wFaYXxngd2t READY. 실제PC/390px 생성·수정/승인·출력/복원및실제503재시도성공. [현재인계](GEMINI-PUBLIC-AI-ACTIVATION-HANDOFF.md).
+
 ## 현재 우선: 공개 활성화 재개 지시 (2026-11-12)
 
 이전 실제 서버 사전 검사/공개 첫 성공 근거는 재사용한다. 이전24회 총량·무조건 재시도 금지·한 번 실패하면 전체 비활성화 규칙은 대체됐다. 같은 모델에서 실패한503단계만 한 번 추가(총최대3호출), Retry-After/취소/시간/공유한도를 지킨다. 각실시도는 rolling12RPM/200k입력bytes 및 **450호출/rolling26시간** 공유예산에 포함한다. 26시간은 Pacific DST의25시간 하루도 보호하며 500RPD에50회 여유를 둔다. 기존카운터/salt/namespace는 유지한다. 무조건100배치×2호출이라는 과거 계산은 이제 최대3호출로 보정한다.

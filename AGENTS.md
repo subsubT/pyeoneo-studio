@@ -8,7 +8,9 @@
 
 검증·push 후 두 플래그true로 Production 배포하고 READY·도메인 연결 확인 **이후** 기존 `{pyeoneo-ai-v1}:disabled` 키만 해제한다. 일반 Google503/429나 검사 종료코드만으로 전체서비스를 끄지 않고 요청 오류·작업보존을 확인해 실패한 사례부터 재개한다. 지속 장애이면 반복 호출을 멈추되 활성 배포 유지. 공유한도/키/독립검토 등 실제 운영 결함은 필요한 차단·수정 후 같은 작업에서 다시 활성화한다. 다음 기능 착수 없음. 현재 결과는 [재개 인계](docs/GEMINI-PUBLIC-AI-ACTIVATION-HANDOFF.md)를 따른다. 아래 첫 실행 기록과 상충하면 이 지침이 우선한다.
 
-## 2026-11-12 Gemini 공개 AI 우선 지침
+현재최종상태(2026-11-12 재개): 공개AI활성/두플래그true/stop해제, Production dpl_2ZR1G7iFFrt7ZURs3wFaYXxngd2t READY. 앱b9443ef, 실제PC·390px각12후보/승인/출력/복원PASS, 실제503단계재시도성공. [현재인계](docs/GEMINI-PUBLIC-AI-ACTIVATION-HANDOFF.md). 아래첫실행의실패/비활성상태·제한은과거기록이다.
+
+## 첫 실행의 과거 지침 — 재개 지시가 우선
 
 사용자가 Google Gemini Free API의 `gemini-3.5-flash-lite`를 확정하고 구현·실제 서버 사전 검사·활성 배포·공개 실호출 회귀·push·인계를 승인했다. 아래 NVIDIA 운영 권한 대기·키 미등록·사실 확인 필수·비활성 고정 기록은 현재 지침이 아니다. 사용자 확인: Gemini Free·Upstash Free·키 등록 완료. 공개 경로는 `PYEONEO_GEMINI_API_KEY`, `PUBLIC_AI_REDIS_URL`, `PYEONEO_AI_REDIS_TOKEN`, 기존 `PUBLIC_AI_LIMIT_SALT` 및 두 활성 플래그를 사용한다. NVIDIA 내부 시험 경로는 보존하며 공개 fallback으로 쓰지 않는다.
 
