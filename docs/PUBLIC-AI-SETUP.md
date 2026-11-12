@@ -1,5 +1,12 @@
 # Gemini 공개 AI 설정과 무료 한도
 
+## 현재 우선: 공개 활성화 재개 지시 (2026-11-12)
+
+이전 실제 서버 사전 검사/공개 첫 성공 근거는 재사용한다. 이전24회 총량·무조건 재시도 금지·한 번 실패하면 전체 비활성화 규칙은 대체됐다. 같은 모델에서 실패한503단계만 한 번 추가(총최대3호출), Retry-After/취소/시간/공유한도를 지킨다. 각실시도는 rolling12RPM/200k입력bytes 및 **450호출/rolling26시간** 공유예산에 포함한다. 26시간은 Pacific DST의25시간 하루도 보호하며 500RPD에50회 여유를 둔다. 기존카운터/salt/namespace는 유지한다. 무조건100배치×2호출이라는 과거 계산은 이제 최대3호출로 보정한다.
+
+검증 소스·두 플래그true 배포 READY/공개도메인 확인 후에만 서버 일회성 `node scripts/public-ai-control.mjs --resume`으로 중지키 하나를 제거한다. 사전검사를매번반복하지 않는다. 제공사503/429만으로전역중지하지않고오류안내와입력·후보보존을확인해실패한공개사례부터재개한다. 지속공급자장애는미확인검사를남기고활성배포유지. `--resume`은API가아닌Production Secret주입CLI이며카운터/salt는건드리지않는다. 상태CLI는 `--status`, 마지막배포는일반 `npm run build`를사용한다. [현재 실행 인계](GEMINI-PUBLIC-AI-ACTIVATION-HANDOFF.md). 아래는첫실행의역사/기존기능설명이다.
+
+
 2026-11-12 KST 사용자 결정. 제공사는 Google Gemini API, 모델은 서버 고정 `gemini-3.5-flash-lite`다. Google Free·Vercel Hobby·사용자 소유 Upstash Free만 사용한다. 키 발급/Free 확인/Production 등록은 사용자 완료 확인과 이번 metadata 조회가 있으므로 재등록하지 않는다. [과거 NVIDIA 구성안](history/NVIDIA-PUBLIC-AI-SETUP-2026-11-11.md)은 역사다.
 
 | Production 변수 | 역할 |

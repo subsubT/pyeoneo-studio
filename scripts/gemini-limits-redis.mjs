@@ -26,6 +26,10 @@ try{
  await limiter().cooldown(90);assert.equal((await limiter().reserveProvider(1000)).allowed,false);await limiter().cooldown(60);assert(Number(JSON.parse(await cli('TTL','{pyeoneo-ai-v1}:gemini:cooldown')))>=89);checks.push('429 cooldown survives client recreation and cannot shorten another cooldown');
  await clear();nowMs=300000;
  const held=await limiter().acquire('192.0.2.1');assert(held);for(let n=0;n<11;n++)assert((await limiter().reserveProvider(1000)).allowed);assert((await limiter().reserveProvider(1000)).allowed);assert.equal((await limiter().reserveProvider(1000)).allowed,false);await held.release();checks.push('second review call denied at 12, lease released');
+ await clear();nowMs=400000;
+ for(let n=0;n<449;n++)await cli('ZADD','{pyeoneo-ai-v1}:gemini:daily-calls',String(nowMs),`old-${n}`);
+ const dailyRace=await Promise.all(Array.from({length:10},()=>limiter().reserveProvider(1000)));assert.equal(dailyRace.filter(p=>p.allowed).length,1);assert.equal(JSON.parse(await cli('ZCARD','{pyeoneo-ai-v1}:gemini:daily-calls')),450);
+ nowMs+=93600000;assert((await limiter().reserveProvider(1000)).allowed);checks.push('actual attempts including retries share 450 calls/26h atomically across instances and expire normally');
  await clear();nowMs=500000;
  const expired=await limiter().acquire('192.0.2.1');assert(expired);nowMs+=301000;assert.equal(await expired.check(),false);const renewed=await limiter().acquire('192.0.2.1');assert(renewed);await expired.release();assert(await renewed.check());await renewed.release();checks.push('server time expires stale leases even before passive key expiry; old release cannot delete renewed lease');
  await clear();nowMs=null;

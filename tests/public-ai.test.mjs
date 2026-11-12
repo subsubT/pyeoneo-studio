@@ -37,7 +37,7 @@ test('origin, host, address, content-type, bytes, schema reject before quota/pro
 });
 test('enabled public request generates and independently reviews, at most twice; no confirmation exposed',async()=>{
  const calls=[];const p=providerFactory();
- const h=createPublicAiHandler({env,limiterFactory,providerFactory:options=>{assert.equal(options.maxCalls,2);return {complete:async(s,d,o)=>{calls.push({d,o});return p.complete(s,d,o)}};}});
+ const h=createPublicAiHandler({env,limiterFactory,providerFactory:options=>{assert.equal(options.maxCalls,3);return {complete:async(s,d,o)=>{calls.push({d,o});return p.complete(s,d,o)}};}});
  const r=await h(req({...input,confirmed:false}));assert.equal(r.status,200);const data=await r.json();assert.equal(data.candidates.length,1);assert.equal(data.candidates[0].semanticPass,true);assert.deepEqual(calls.map(c=>c.o.stage),['generation','review']);assert.equal(calls[0].d.confirmed,undefined);
 });
 test('shared limiter rejects concurrent requests across handler recreation; service failure stops calls',async()=>{

@@ -1,5 +1,13 @@
 # 프로젝트 식별
 
+## 현재 우선 지침 — 2026-11-12 공개 활성화 재개
+
+사용자가 이전 db1d7e7/a4d1192의 실제 Gemini·Upstash 사전 검사와 공개 첫 배치 생성/수정/선택 승인 근거 재사용을 지시했다. 이전24회 총량·모든 자동 재시도 금지·공개 한 건 실패 시 전체 비활성화 규칙은 이번 지시로 대체된다. 기존 무료 Gemini 3.5 Flash-Lite/Vercel Hobby/Upstash Free·키·salt·namespace를 사용하며 재등록/요금제 재확인을 요구하지 않는다.
+
+공개 요청은 생성→독립 의미 검토, 평상시2호출/추가503시도1회로 최대3호출이다. 503이 난 단계만 같은 모델로 재시도하고 검토 실패에는 생성 결과를 재사용한다. Retry-After를 존중하며 없으면1~2초 무작위 대기. 취소/시간초과/공유중지/한도 소진 시 요청 종료, 미검토 후보 반환 금지. 매 실제 시도에 공유rolling12RPM·200k입력bytes·450호출/rolling26시간 예산 적용, 기존100배치/IP한도 보존. 키·원문·프롬프트는 로그에 남기지 않는다.
+
+검증·push 후 두 플래그true로 Production 배포하고 READY·도메인 연결 확인 **이후** 기존 `{pyeoneo-ai-v1}:disabled` 키만 해제한다. 일반 Google503/429나 검사 종료코드만으로 전체서비스를 끄지 않고 요청 오류·작업보존을 확인해 실패한 사례부터 재개한다. 지속 장애이면 반복 호출을 멈추되 활성 배포 유지. 공유한도/키/독립검토 등 실제 운영 결함은 필요한 차단·수정 후 같은 작업에서 다시 활성화한다. 다음 기능 착수 없음. 현재 결과는 [재개 인계](docs/GEMINI-PUBLIC-AI-ACTIVATION-HANDOFF.md)를 따른다. 아래 첫 실행 기록과 상충하면 이 지침이 우선한다.
+
 ## 2026-11-12 Gemini 공개 AI 우선 지침
 
 사용자가 Google Gemini Free API의 `gemini-3.5-flash-lite`를 확정하고 구현·실제 서버 사전 검사·활성 배포·공개 실호출 회귀·push·인계를 승인했다. 아래 NVIDIA 운영 권한 대기·키 미등록·사실 확인 필수·비활성 고정 기록은 현재 지침이 아니다. 사용자 확인: Gemini Free·Upstash Free·키 등록 완료. 공개 경로는 `PYEONEO_GEMINI_API_KEY`, `PUBLIC_AI_REDIS_URL`, `PYEONEO_AI_REDIS_TOKEN`, 기존 `PUBLIC_AI_LIMIT_SALT` 및 두 활성 플래그를 사용한다. NVIDIA 내부 시험 경로는 보존하며 공개 fallback으로 쓰지 않는다.

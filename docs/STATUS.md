@@ -1,5 +1,10 @@
 # 평어담 개발 상태
 
+## 공개 활성화 재개 — 실행 중 (2026-11-12)
+
+최신 개발a4d1192/운영db1d7e7·비활성READY를재조회했다. 사용자가이전실제사전검사/공개첫성공근거재사용·503단계재시도1회·활성인계를지시했다. 구현/검사/배포/공개검증진행중이며아래실패복구기록은첫실행의역사다. [이번 인계](GEMINI-PUBLIC-AI-ACTIVATION-HANDOFF.md).
+
+
 ## 2026-11-12 Gemini 구현·사전검사 PASS / 공개 활성화 FAIL·비활성 복구 완료
 
 - Google Gemini Free `gemini-3.5-flash-lite` 서버고정 REST/새키명/독립검토/공유rolling12RPM·200k입력bytes·429 cooldown 구현. 기존NVIDIA운영대기·키미등록기록은현재지침아님. 61/61자동검사·production빌드·로컬실제Redis·브라우저회귀PASS.
