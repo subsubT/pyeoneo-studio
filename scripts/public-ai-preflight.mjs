@@ -102,8 +102,10 @@ export async function runModelPreflight(env,namespace){
    const report={stage:'model',case:id,model:GEMINI_MODEL,candidates:result.candidates.length,accepted,flagged:result.candidates.length-accepted,totalMs,calls:metrics.length,metrics,costUsd:null,manualApproval:false};
    emit(report);reports.push(report);
    assert.equal(result.candidates.length,12);assert(accepted>0);
-   const core={colors:[/주변/,/색/,/탐색|찾|살펴/,/10색상환/,/완성/],words:[/낱말/,/모두/,/바르게|정확/,/쓰|작성/,/정확/,/읽/],numbers:[/구체물/,/9/,/두 수/,/크기/,/비교/]}[id];
-   for(const c of result.candidates.filter(c=>c.semanticPass&&!c.errors.length))assert(core.every(re=>re.test(c.text)));
+   const core={colors:[['surroundings',/주변|주위/],['colors',/색/],['exploration',/탐색|찾|살펴/],['wheel',/10색상환/],['completion',/완성/]],words:[['words',/낱말|단어/],['all',/모두|모든|빠짐|전부/],['correctness',/바르|바른|바르게|정확|올바|맞게/],['writing',/쓰|써|쓴|작성|적/],['accurate-reading',/정확|바르|바른|바르게|올바|맞게/],['reading',/읽|낭독/]],numbers:[['objects',/구체물/],['range',/9/],['two-numbers',/두 수|두수|두 개의 수/],['magnitude',/크기/],['comparison',/비교/]]}[id];
+   const acceptedCandidates=result.candidates.filter(c=>c.semanticPass&&!c.errors.length);
+   const missing=core.map(([activity,re])=>({activity,missing:acceptedCandidates.filter(c=>!re.test(c.text)).length})).filter(c=>c.missing);
+   emit({stage:'core-activity-check',case:id,missing});assert.deepEqual(missing,[]);
    assert.deepEqual(metrics.map(m=>m.stage),['generation','review']);assert(totalMs<PUBLIC_TIMEOUT_MS);
   }finally{emit({stage:'model-calls',case:id,metrics:transport.metrics});await lease.release();}
  }
