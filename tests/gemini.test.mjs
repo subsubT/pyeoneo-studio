@@ -51,3 +51,9 @@ test('400 diagnostics expose only a fixed classification, never upstream text',a
   const p=createGeminiProvider({apiKey:'key',fetchImpl:async()=>Response.json({error:{message}},{status:400})});await assert.rejects(p.complete('rules',input,options));assert.equal(p.metrics[0].rejectionCategory,expected);assert(!JSON.stringify(p.metrics).includes(message));
  }
 });
+
+test('24-candidate response schema keeps one exact evidence span per sentence to bound structured-output states',()=>{
+ const p=buildGeminiRequest('rules',{...input,levels:[{...input.levels[0],count:24}]},options).payload.generationConfig.responseJsonSchema;
+ const items=p.properties.candidates.anyOf[0].items;
+ assert.equal(items.properties.evidence.maxItems,1);assert.equal(p.properties.candidates.anyOf[0].minItems,24);
+});
