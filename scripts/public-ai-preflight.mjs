@@ -49,9 +49,9 @@ export async function runRedisPreflight(env,namespace){
  // Shorten only this isolated test lease, while keeping the real acquisition's 300-second TTL check.
  const userKey=`${namespace}:user:${uid('preflight-persist')}`;
  const ttl=await command('TTL',userKey);assert(ttl>0&&ttl<=300);
- await command('PEXPIRE',userKey,'1');const tokens=await command('ZRANGE',`${namespace}:active`,'0','-1');clock=await command('TIME');
+ assert.equal(await command('PEXPIRE',userKey,'1000'),1);const shortenedTtl=await command('PTTL',userKey);emit({stage:'redis-shortened-lease',ttlMs:shortenedTtl});const tokens=await command('ZRANGE',`${namespace}:active`,'0','-1');clock=await command('TIME');
  for(const token of tokens)await command('ZADD',`${namespace}:active`,String(Number(clock[0])-1),token);
- await new Promise(r=>setTimeout(r,25));assert.equal(await held.check(),false);const recovered=await limiter().acquire('preflight-persist');assert(recovered);await recovered.release();mark('lease-ttl-and-expiry-recovery');
+ await new Promise(r=>setTimeout(r,1500));assert.equal(await held.check(),false);const recovered=await limiter().acquire('preflight-persist');assert(recovered);await recovered.release();mark('lease-ttl-and-expiry-recovery');
  const unavailable=createPublicLimiter(env,async()=>{throw Error('SIMULATED_NETWORK')},{namespace});await assert.rejects(unavailable.acquire('preflight-unavailable'));mark('transport-failure-closed-simulated');
  return {stage:'redis',ok:true,actualService:true,namespaceIsolated:true,checks};
 }
