@@ -14,7 +14,8 @@ const browser=await chromium.launch({headless:true,proxy,executablePath:'/usr/bi
 const actual='주변에서 여러 가지 색을 찾아보고, 찾은 색을 10색상환에 나타내어 색상환을 완성했다.',example='주변에서 여러 가지 색을 찾아보고 찾은 색을 10색상환에 나타내어 완성할 수 있음.';
 const names=['활동 완성','활동 표현','색 탐색','색상환 표현','추가 확인'];
 const levels=n=>Array.from({length:n},(_,k)=>({id:`stable-${k}`,name:names[k],description:'주변에서 색을 찾고 찾은 색을 10색상환에 나타내어 완성한 사실을 표현한다. 도움·태도·성취를 추가하지 않는다.'}));
-const seed={version:2,items:[3,5].map((n,k)=>({...blankItem(),element:`색 탐색과 색상환 ${k+1}`,actual,example,levels:levels(n),target:120})),examples:[],sources:[],planConfirmed:true};
+const initialSeed={version:2,items:[3,5].map((n,k)=>({...blankItem(),element:`색 탐색과 색상환 ${k+1}`,actual,example,levels:levels(n),target:120})),examples:[],sources:[],planConfirmed:true};
+const resume=process.env.TEST_RESUME_WORK?JSON.parse(await readFile(process.env.TEST_RESUME_WORK,'utf8')):null,seed=resume||initialSeed;
 const report={realPublicModel:real,mocked:!real,batches:[],errors:[],ok:false},p=await ctx.newPage();p.on('pageerror',e=>report.errors.push(e.message));
 let mode='ok',posts=0,release;const payloads=[];
 if(!real)await p.route('**/api/generate',async route=>{
@@ -40,10 +41,10 @@ try{
   if(index===1)await p.locator('.sidebar .item').nth(1).click();
   if(index===2){while(await p.locator('.candidate-row').count())await p.locator('.candidate-row').first().getByRole('button',{name:'삭제',exact:true}).click();}
   const counts=distributions[index],n=counts.reduce((a,b)=>a+b,0);if(real&&index===1)await p.setViewportSize({width:390,height:844});
-  const {data,requested}=await generate(counts);await p.locator('.candidate-row').nth(n-1).waitFor();assert.equal(await p.locator('.candidate-row').count(),n);assert.equal(await p.locator('.candidate-row input[type=checkbox]').count(),0);assert.equal(await bulk.count(),1);assert.equal(await p.locator('.candidate-row .muted,.candidate-row .error,.candidate-row .warning').count(),0);
+  const reused=real&&index===0&&!!resume;const {data,requested}=reused?{data:{candidates:[...resume.items[0].approved,...resume.items[0].candidates].map(c=>({...c,semanticPass:true,errors:[]}))},requested:seed.items[0].levels.map((l,n)=>({...l,count:counts[n]}))}:await generate(counts);await p.locator('.candidate-row').nth(n-1).waitFor();assert.equal(await p.locator('.candidate-row').count(),n);assert.equal(await p.locator('.candidate-row input[type=checkbox]').count(),0);assert.equal(await bulk.count(),1);assert.equal(await p.locator('.candidate-row .muted,.candidate-row .error,.candidate-row .warning').count(),0);
   assert.deepEqual(await p.locator('.candidate-number').allTextContents(),Array.from({length:n},(_,k)=>String(k+1)));
   await assertNoOverflow(`batch-${index}`);
-  report.batches.push({requested:requested.map(l=>({id:l.id,name:l.name,count:l.count})),response:data.candidates.length,newList:n,distribution:requested.map(l=>({id:l.id,count:data.candidates.filter(c=>c.levelId===l.id).length})),semanticPassed:data.candidates.filter(c=>c.semanticPass&&!c.errors?.length).length});
+  report.batches.push({reusedPriorBatch:reused,requested:requested.map(l=>({id:l.id,name:l.name,count:l.count})),response:data.candidates.length,newList:n,distribution:requested.map(l=>({id:l.id,count:data.candidates.filter(c=>c.levelId===l.id).length})),semanticPassed:data.candidates.filter(c=>c.semanticPass&&!c.errors?.length).length});
   if(!real)continue;
   // Explicit test-teacher review: rejected candidates must block the whole operation first.
   const blocked=data.candidates.filter(c=>c.errors?.length||!c.semanticPass);

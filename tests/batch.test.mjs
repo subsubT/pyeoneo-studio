@@ -13,7 +13,7 @@ test('one batch across arbitrary stages, zero counts, 1/12/24, exact distributio
   const levels=plan(counts),seen=[];
   const candidates=levels.flatMap(l=>Array.from({length:l.count},(_,n)=>({text:`${l.name} 표현 ${n} ${actual}`,levelId:l.id,evidence:[actual]})));
   const result=await generateBatch({complete:async(_,data,o)=>{seen.push({data,o});return o.stage==='generation'?{candidates}:{reviews:data.candidates.map((_,index)=>({index,pass:true,issues:[]}))};}},{...base,levels});
-  assert.equal(seen.length,2);assert.deepEqual(seen[0].data.levels,levels);assert.equal(seen[1].data.candidates.length,counts.reduce((a,b)=>a+b,0));assert.equal(result.candidates.length,candidates.length);
+  assert.equal(seen.length,2);assert(seen[0].o.maxTokens<=6000);assert.deepEqual(seen[0].data.levels,levels);assert.equal(seen[1].data.candidates.length,counts.reduce((a,b)=>a+b,0));assert.equal(result.candidates.length,candidates.length);
   for(const l of levels)assert.equal(result.candidates.filter(c=>c.levelId===l.id).length,l.count);
   const req=buildGeminiRequest('rules',{...base,levels},{stage:'generation',maxTokens:counts.reduce((a,b)=>a+b,0)*500});assert.equal(req.payload.generationConfig.responseJsonSchema.properties.candidates.anyOf[0].minItems,candidates.length);
  }
