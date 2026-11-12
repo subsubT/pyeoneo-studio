@@ -6,10 +6,11 @@ import {blankItem} from '../lib/core.mjs';
 const {chromium}=await import(pathToFileURL(process.env.PLAYWRIGHT_MODULE||`${process.cwd()}/tmp/tools/node_modules/playwright/index.mjs`).href);
 const base=process.env.TEST_BASE_URL||'http://127.0.0.1:3010',dir=process.env.TEST_OUTPUT_DIR||'tmp/generation-browser';
 await mkdir(dir,{recursive:true});
-const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/chromium'});
+const proxy=['127.0.0.1','localhost'].includes(new URL(base).hostname)?undefined:process.env.HTTPS_PROXY?{server:process.env.HTTPS_PROXY}:undefined;
+const browser=await chromium.launch({headless:true,proxy,executablePath:process.env.BROWSER_EXECUTABLE||'/usr/bin/chromium'});
 const errors=[],report=[];
 try{
- const context=await browser.newContext();
+ const context=await browser.newContext({proxy});
  for(const version of [1,2])for(const confirmed of [true,false,undefined]){
   const seed={version,items:[{...blankItem(),confirmed,element:'색 탐색',actual:'주변의 색을 탐색하고 색상환을 완성했다.',example:'주변의 색을 탐색하고 색상환을 완성함.'}],examples:[]};
   const p=await context.newPage();p.on('pageerror',e=>errors.push(e.message));
@@ -28,7 +29,7 @@ try{
   const generate=p.getByRole('button',{name:'AI 후보 12개 생성',exact:true});
   await generate.click();await p.locator('.sentence').nth(11).waitFor();assert.equal(count,1);assert.equal(payloads[0].confirmed,undefined);assert.equal(await p.locator('article.approved').count(),0);
   if(version===2&&confirmed===undefined){
-   for(const status of [429,504,502,'network']){
+   for(const status of [429,503,504,502,'network']){
     mode=status;await generate.click();await p.getByRole('status').filter({hasText:status==='network'?'서버에 연결하지 못했습니다':'시험 오류'}).waitFor();assert.equal(await p.locator('.sentence').count(),12);
    }
    for(const field of ['actual','example','level']){

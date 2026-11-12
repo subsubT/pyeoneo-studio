@@ -14,6 +14,10 @@
 
 Google 공식 REST generateContent를 직접 호출한다. 생성→기존 Zod/문장/근거 검사→독립 의미 검토는 최대2호출, 숨은 재시도·재생성·다른 모델 자동 전환 없음. 지원 JSON Schema·LOW thinking을 지정하고 STOP으로 완료된 구조 전체만 검사한다. 빈/잘림/안전차단/스키마불일치/403/429/네트워크/취소/시간초과 시 부분 후보를 반환하지 않는다. 서버에는 원문 없이 모델 응답 ID(제공 시 모델 version), 시간·토큰·호출 수만 기록한다. 실제 response model이 없으면 null이다. 생성 응답은 사실이 충분한12개 또는 부족안내0개이고, 검토의 true/빈issues·false/구체적issues를 구조화스키마로 함께 강제한다.
 
+## 이번 실행 결과
+
+2026-11-12: 실제 서버사전검사PASS후활성배포했으나공개두번째배치가Google503으로실패했다. 최종공개AI는비활성, 두플래그false와공유stop1, 일반build비활성Production READY다. 키미등록이유가아니다. 이번실호출23/24회, countTokens별도10회. [실행 인계](GEMINI-PUBLIC-AI-HANDOFF.md)의실제/모의/미실행과재개조건을따른다.
+
 ## 공유 제한
 
 운영 `{pyeoneo-ai-v1}`의 기존 전체동시2·전체UTC하루100배치, IP동시1·분2·UTC하루12배치를 유지한다. 같은 학교 NAT는 IP 한도를 공유한다. Redis에는 HMAC 주소 식별자·카운터·무작위 lease만 저장한다. 입력/후보/IP 원문 저장 없음.

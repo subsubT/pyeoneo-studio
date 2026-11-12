@@ -1,9 +1,12 @@
 # 평어담 개발 상태
 
-## 2026-11-12 Gemini 전환·사전 검사 진행 중
+## 2026-11-12 Gemini 구현·사전검사 PASS / 공개 활성화 FAIL·비활성 복구 완료
 
-사용자 확정: Google Gemini Free `gemini-3.5-flash-lite`, Production 키/Redis 준비 완료. 아래 NVIDIA 권한 대기·키 미등록은 과거 기록이다. Gemini REST·새변수명·공유rolling12RPM/200k입력bytes·429 cooldown 구현, 기존53+신규8=61검사 및 로컬실제Redis/브라우저4종/production빌드 PASS. 아직 실제 Upstash/Gemini 사전 검사와 활성 배포·공개 실제 생성 미완료. 실행 증거/현재 판정은 [Gemini WORK HANDOFF](GEMINI-PUBLIC-AI-HANDOFF.md)를 따른다.
-
+- Google Gemini Free `gemini-3.5-flash-lite` 서버고정 REST/새키명/독립검토/공유rolling12RPM·200k입력bytes·429 cooldown 구현. 기존NVIDIA운영대기·키미등록기록은현재지침아님. 61/61자동검사·production빌드·로컬실제Redis·브라우저회귀PASS.
+- 실제Production Upstash와Gemini3합성사례사전검사PASS: 후보각12, 승인가능11/5/8, review-only부적합5거부/적합1통과. 최종앱소스 `db1d7e769a198dc40c1079096d23bd8ec1f8f355`.
+- 공개첫배치12/통과12·선택승인성공, 두번째390px생성이Google503→앱502로FAIL. 생성/검토총23/24호출(사전20+공개3), countTokens별도10회. 공개실제2배치/전체출력미완료이며활성화완료로보고하지않음.
+- 공유중지키1·ENABLED=false/VERIFIED=false, 일반build비활성복구 `dpl_ADr4PmG8CyygeqEN5YwKks2aDDRq` READY, 도메인/84파일hash일치, 복구후PC/390px예시·계획·PDF·승인/출력/복원회귀PASS. 최초대상rollback은Hobby402로거부되어새비활성배포로안전복구했다. 유료전환없음.
+- 현재공개AI비활성/503, 직접작성·승인·출력정상. 키재등록·계약재질문불필요. 실제결과/23행지표/미실행/재개조건은 [Gemini WORK HANDOFF](GEMINI-PUBLIC-AI-HANDOFF.md).
 
 ## 공개 AI 후속: 사전 검사 준비·비활성 배포 / 설정 입력 대기 (2026-11-11)
 

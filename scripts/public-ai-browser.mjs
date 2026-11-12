@@ -23,6 +23,7 @@ try{
  await p.getByRole('button',{name:'선택한 평가계획 확정 →',exact:true}).click();
  const approved=[];
  for(let n=0;n<2;n++){
+  if(n===1)await p.setViewportSize({width:390,height:844});
   await p.locator('.sidebar .item').nth(n).click();await p.getByLabel('실제 교육활동',{exact:true}).fill(cases[0].actual);await p.getByLabel('참고 예시문장',{exact:true}).fill(cases[0].example);await p.getByLabel('평가 수준',{exact:true}).selectOption(cases[0].level);
   assert.equal(await p.getByRole('checkbox',{name:'실제 수행한 활동과 확인된 성취임을 확인했습니다.',exact:true}).count(),0);
   const wait=p.waitForResponse(r=>r.url()===`${base}/api/generate`&&r.request().method()==='POST',{timeout:300000}),started=performance.now();await p.getByRole('button',{name:'AI 후보 12개 생성',exact:true}).click();
