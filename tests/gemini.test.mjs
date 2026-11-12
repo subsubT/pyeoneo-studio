@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createGeminiProvider,GEMINI_ENDPOINT,GEMINI_MODEL,GeminiError,buildGeminiRequest} from '../lib/server/gemini.mjs';
-const options={stage:'generation',maxTokens:2400},input={actual:'주변의 색을 탐색하고 10색상환을 완성함.',example:'주변의 색을 탐색하고 10색상환을 완성함.',level:'잘함',existing:[]};
-const output={candidates:Array.from({length:12},()=>({text:input.actual,evidence:[input.actual]})),reasons:[]};
+const options={stage:'generation',maxTokens:2400},input={actual:'주변의 색을 탐색하고 10색상환을 완성함.',example:'주변의 색을 탐색하고 10색상환을 완성함.',levels:[{id:'잘함',name:'잘함',description:'',count:12}],existing:[]};
+const output={candidates:Array.from({length:12},()=>({text:input.actual,levelId:'잘함',evidence:[input.actual]})),reasons:[]};
 const answer=(data=output,extra={})=>Response.json({modelVersion:GEMINI_MODEL,candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify(data)}]}}],usageMetadata:{promptTokenCount:123,candidatesTokenCount:45,thoughtsTokenCount:6,totalTokenCount:174},...extra});
 test('Gemini uses server header/fixed endpoint, stage JSON schemas, token caps and supported thinking options',async()=>{
  const seen=[],p=createGeminiProvider({apiKey:'server-test-key',maxCalls:2,fetchImpl:async(url,o)=>{seen.push({url,o,body:JSON.parse(o.body)});return seen.length===1?answer():answer({reviews:[{index:0,pass:true,issues:[]}]});}});
@@ -19,10 +19,10 @@ test('Gemini blocks empty/truncated/unsafe/schema responses without exposing par
   [()=>answer(output,{candidates:[{finishReason:'MAX_TOKENS',content:{parts:[{text:'partial'}]}}]}),'INCOMPLETE_RESPONSE'],
   [()=>answer(output,{promptFeedback:{blockReason:'SAFETY'}}),'SAFETY_BLOCK'],
   [()=>answer(output,{candidates:[{finishReason:'SAFETY'}]}),'SAFETY_BLOCK'],
-  [()=>answer({candidates:[{text:'bad',evidence:[]}],reasons:[]}),'INVALID_SCHEMA'],
+  [()=>answer({candidates:[{text:'bad',levelId:'잘함',evidence:[]}],reasons:[]}),'INVALID_SCHEMA'],
   [()=>answer(output,{candidates:[{finishReason:'STOP',content:{parts:[{text:''}]}}]}),'EMPTY_CONTENT'],
   [()=>answer(output,{candidates:[{finishReason:'STOP',content:{parts:[{text:'{'}]}}]}),'INVALID_CONTENT_JSON'],
-  [()=>answer({candidates:[{text:'private-test-key',evidence:['x']}],reasons:[]}),'UNSAFE_RESPONSE'],
+  [()=>answer({candidates:[{text:'private-test-key',levelId:'잘함',evidence:['x']}],reasons:[]}),'UNSAFE_RESPONSE'],
   [()=>new Response('x'.repeat(256*1024+1)),'RESPONSE_TOO_LARGE'],
  ];
  for(const [response,code]of failures){let calls=0;const p=createGeminiProvider({apiKey:'private-test-key',fetchImpl:async()=>{calls++;return response();}});await assert.rejects(p.complete('rules',input,options),e=>e.code===code);assert.equal(calls,1);assert.equal(p.metrics.length,1);assert.equal(p.metrics[0].ok,false);assert(!JSON.stringify(p.metrics).includes('private-test-key'));}

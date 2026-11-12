@@ -9,7 +9,7 @@ import {createGeminiProvider,GEMINI_MODEL,GEMINI_ENDPOINT,GeminiError,buildGemin
 import {GENERATION_RULES,REVIEW_RULES} from '../lib/prompt.mjs';
 import {PUBLIC_TIMEOUT_MS} from '../lib/server/public-ai.mjs';
 import {generateBatch,reviewCandidates} from '../lib/generation.mjs';
-import {cases,negativeCandidates} from './checkpoint5-cases.mjs';
+import {cases,negativeCandidates,caseInput} from './checkpoint5-cases.mjs';
 
 const stageOptions=new Set(['--redis-only','--models-only']);
 function emit(report){console.log(JSON.stringify({publicAiPreflight:report}));}
@@ -56,13 +56,13 @@ export async function runRedisPreflight(env,namespace){
  return {stage:'redis',ok:true,actualService:true,namespaceIsolated:true,checks};
 }
 export async function measureMaxTokens(env){
- // Fill the unchanged 32k HTTP / 40k provider ceilings, including rules and all 12 candidates.
+ // Fill the unchanged 32k HTTP / 40k provider ceilings, including rules and all 24 candidates.
  // Adversarial ASCII and rare Hangul reduce accidental compression by the tokenizer.
  let state=17;const noise=n=>Array.from({length:n},()=>{state=(Math.imul(state,1664525)+1013904223)>>>0;return String.fromCharCode(33+state%90);}).join('');
  const actual=Array.from({length:4000},(_,n)=>String.fromCharCode(0xac00+n%11172)).join(''),example=noise(2000);
- const input={actual,example,level:'잘함',existing:[]};
+ const input={actual,example,levels:[{id:'잘함',name:'잘함',description:'',count:24}],existing:[]};
  for(let n=0;n<120;n++){const next={...input,existing:[...input.existing,noise(1200)]};if(Buffer.byteLength(JSON.stringify(next))>32000)break;input.existing=next.existing;}
- const review={actual,example,level:'잘함',candidates:Array.from({length:12},()=>({text:noise(1200),evidence:[actual.slice(0,100)]}))};
+ const review={actual,example,levels:input.levels,candidates:Array.from({length:24},()=>({text:noise(1200),levelId:'잘함',evidence:[actual.slice(0,100)]}))};
  // Increase evidence to the transport boundary without changing product limits.
  for(let n=100;n<4000;n+=10){const next={...review,candidates:review.candidates.map(c=>({...c,evidence:[actual.slice(0,n)]}))};try{buildGeminiRequest(REVIEW_RULES,next,{stage:'review',maxTokens:2400});review.candidates=next.candidates;}catch{break;}}
  const result=[];
@@ -93,7 +93,7 @@ export async function runModelPreflight(env,namespace){
  }});
  await measureMaxTokens(env);
  for(const c of cases.filter(c=>['colors','words','numbers'].includes(c.id))){
-  const {id,...facts}=c,input={...facts,existing:[]},started=performance.now(),signal=AbortSignal.timeout(PUBLIC_TIMEOUT_MS);
+  const {id,...facts}=c,input=caseInput(c),started=performance.now(),signal=AbortSignal.timeout(PUBLIC_TIMEOUT_MS);
   const lease=await createPublicLimiter(env,fetch,{namespace}).acquire(`preflight-case-${id}`);assert(lease);
   const transport=createGeminiProvider({apiKey:env.PYEONEO_GEMINI_API_KEY,maxCalls:2,timeoutMs:180000,signal});
   try{
@@ -114,7 +114,7 @@ export async function runModelPreflight(env,namespace){
  const {id,...facts}=cases[0],signal=AbortSignal.timeout(PUBLIC_TIMEOUT_MS),transport=createGeminiProvider({apiKey:env.PYEONEO_GEMINI_API_KEY,maxCalls:1,timeoutMs:180000,signal});
  const lease=await createPublicLimiter(env,fetch,{namespace}).acquire('preflight-negative-controls');assert(lease);
  try{
-  assert(await lease.check());const reviews=await reviewCandidates(guarded(transport,lease,signal),{...facts,existing:[]},negativeCandidates);
+  assert(await lease.check());const reviews=await reviewCandidates(guarded(transport,lease,signal),caseInput(cases[0]),negativeCandidates.map(c=>({...c,levelId:cases[0].level})));
   const rejected=reviews.filter(r=>r.index<5&&!r.pass).length,control=reviews.some(r=>r.index===5&&r.pass&&r.issues.length===0);
   emit({stage:'negative-controls',rejected,expected:5,positiveControlPassed:control,calls:transport.metrics.length,metrics:transport.metrics});assert.equal(rejected,5);assert(control);
  }finally{emit({stage:'review-control-calls',metrics:transport.metrics});await lease.release();}

@@ -77,8 +77,8 @@ test('oversized/invalid requests blocked before provider; global local quota bou
  let called=0;const handler=createLocalAiHandler({env,providerFactory:()=>{called++;return {complete:async()=>({candidates:[]})};}});
  assert.equal((await handler(req('x'.repeat(33000)))).status,413);
  assert.equal((await handler(req('{}'))).status,400);assert.equal(called,0);
- const body=JSON.stringify({actual:'주변의 색을 탐색하고 10색상환을 완성함.',example:'색을 탐색하고 색상환을 완성함.',level:'잘함',confirmed:true,existing:[]});
- for(let n=0;n<12;n++)assert.equal((await handler(req(body))).status,200);
+ const body=JSON.stringify({actual:'주변의 색을 탐색하고 10색상환을 완성함.',example:'색을 탐색하고 색상환을 완성함.',levels:[{id:'잘함',name:'잘함',description:'',count:1}],confirmed:true,existing:[]});
+ for(let n=0;n<12;n++)assert.equal((await handler(req(body))).status,502);
  assert.equal((await handler(req(body))).status,429);assert.equal(called,12);
 });
 
@@ -86,12 +86,12 @@ test('local concurrent calls rejected and upstream failure unlocks safely',async
  let resolve;
  const waiting=new Promise(r=>{resolve=r});
  const handler=createLocalAiHandler({env,providerFactory:()=>({complete:async()=>waiting})});
- const body=JSON.stringify({actual:'주변의 색을 탐색하고 색상환을 완성함.',example:'가상의 활동에 참여함.',level:'보통',confirmed:true,existing:[]});
+ const body=JSON.stringify({actual:'주변의 색을 탐색하고 색상환을 완성함.',example:'가상의 활동에 참여함.',levels:[{id:'보통',name:'보통',description:'',count:1}],confirmed:true,existing:[]});
  const first=handler(req(body));
  // Wait for the handler to finish reading its bounded request stream.
  await new Promise(r=>setImmediate(r));
  assert.equal((await handler(req(body))).status,429);
- resolve({candidates:[]});assert.equal((await first).status,200);
+ resolve({candidates:[]});assert.equal((await first).status,502);
  let attempts=0;
  const failing=createLocalAiHandler({env,providerFactory:()=>({complete:async()=>{attempts++;throw Error(fakeKey)}})});
  const a=await failing(req(body));assert.equal(a.status,502);assert.ok(!(await a.text()).includes(fakeKey));
@@ -104,7 +104,7 @@ test('review timeout returns 504 without candidates, preserves stage and release
   assert.ok(options.signal instanceof AbortSignal);
   return {metrics:[{stage:'review',durationMs:15,ok:false,code:'TIMEOUT'}],complete:async()=>{calls++;throw new NvidiaError('TIMEOUT');}};
  }});
- const body=JSON.stringify({actual:'주변의 색을 탐색하고 색상환을 완성함.',example:'가상의 활동에 참여함.',level:'보통',confirmed:true,existing:[]});
+ const body=JSON.stringify({actual:'주변의 색을 탐색하고 색상환을 완성함.',example:'가상의 활동에 참여함.',levels:[{id:'보통',name:'보통',description:'',count:1}],confirmed:true,existing:[]});
  for(let i=0;i<2;i++){
   const response=await handler(req(body)),data=await response.json();
   assert.equal(response.status,504);assert.equal(data.retryable,true);assert.equal(data.code,'TIMEOUT');assert.ok(data.error.startsWith('의미 검증'));assert.equal(data.candidates,undefined);

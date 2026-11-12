@@ -2,7 +2,7 @@ import {loadEnvFile} from 'node:process';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {createNvidiaProvider,NvidiaError} from '../lib/server/nvidia.mjs';
 import {generateBatch,reviewCandidates} from '../lib/generation.mjs';
-import {cases,negativeCandidates} from './checkpoint5-cases.mjs';
+import {cases,negativeCandidates,caseInput} from './checkpoint5-cases.mjs';
 
 loadEnvFile('.env.local');
 const colorsOnly=process.argv.includes('--colors-only');
@@ -18,12 +18,12 @@ const transport=createNvidiaProvider({maxCalls:20});
 const report={startedAt:new Date().toISOString(),model:transport.model,syntheticOnly:true,cases:[],negativeTest:null,metrics:[],responses:[]};
 report.generationReplay=reuseGeneration;
 let usedCache=false;
-const provider={model:transport.model,get metrics(){return transport.metrics},async complete(system,input){let output;if(cached&&!usedCache){usedCache=true;output=cached.responses[0];}else output=await transport.complete(system,input);report.responses.push(output);await save();return output;}};
+const provider={model:transport.model,get metrics(){return transport.metrics},async complete(system,input,options){let output;if(cached&&!usedCache){usedCache=true;output=cached.responses[0];}else output=await transport.complete(system,input,options);report.responses.push(output);await save();return output;}};
 await mkdir('tmp/checkpoint5',{recursive:true});
 async function save(){report.metrics=provider.metrics;await writeFile(reportPath,JSON.stringify(report,null,2));}
 try {
  for(const c of negativeOnly?[]:selectedCase?cases.filter(c=>c.id===selectedCase):cases){
-  const input={...c,confirmed:true,existing:[]};delete input.id;
+  const input=caseInput(c);
   const result=await generateBatch(provider,input);
   const accepted=result.candidates.filter(x=>x.semanticPass&&!x.errors.length);
   const entry={id:c.id,input,result,generated:result.candidates.length,accepted:accepted.length,flagged:result.candidates.length-accepted.length};
@@ -31,7 +31,7 @@ try {
   console.log(JSON.stringify({case:c.id,generated:entry.generated,accepted:entry.accepted,flagged:entry.flagged}));
  }
  if(!skipNegative){
- const input={...cases[0],confirmed:true,existing:[]};delete input.id;
+ const input=caseInput(cases[0]);
  const reviews=await reviewCandidates(provider,input,negativeCandidates);
  const rejected=reviews.filter(r=>r.index<5&&!r.pass).length;
  report.negativeTest={input,candidates:negativeCandidates,reviews,expectedRejected:5,rejected,positiveControlPassed:reviews.find(r=>r.index===5)?.pass===true};

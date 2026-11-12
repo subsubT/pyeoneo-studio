@@ -13,3 +13,6 @@ export const negativeCandidates=[
  {text:'주변의 색을 탐색하고 10색상환을 완성하며 친구를 도와 협력함.',evidence:['주변의 색을 탐색하고 10색상환을 완성함.']},
  {text:'주변의 색을 탐색하고 10색상환을 완성함.',evidence:['주변의 색을 탐색하고 10색상환을 완성함.']},
 ];
+
+// Preserve historical cases while passing the current multi-stage API shape.
+export function caseInput(c,count=12){return {actual:c.actual,example:c.example,levels:[{id:c.level,name:c.level,description:'',count}],existing:[]};}

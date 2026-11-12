@@ -2,7 +2,7 @@
 import {loadEnvFile} from 'node:process';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
-import {cases,negativeCandidates} from './checkpoint5-cases.mjs';
+import {cases,negativeCandidates,caseInput} from './checkpoint5-cases.mjs';
 loadEnvFile('.env.local');
 const mode=process.argv[2];
 if(!['baseline','optimized'].includes(mode))throw Error('Use baseline or optimized');
@@ -30,7 +30,7 @@ for(const c of [...cases,{...cases[0],id:'negative'}].filter(c=>!selected||c.id=
   catch(e){call.fetchError=e.name;throw e;}
  }});
  const provider={async complete(...args){const start=performance.now();try{const result=await transport.complete(...args);entry.responses.push(structuredClone(result));return result;}finally{if(entry.calls.length)entry.calls.at(-1).durationMs=Math.round(performance.now()-start);entry.metrics=transport.metrics;await save();}}};
- const input={...c,confirmed:true,existing:[]};delete input.id;
+ const input=mode==='baseline'?{actual:c.actual,example:c.example,level:c.level,confirmed:true,existing:[]}:caseInput(c);
  const start=performance.now();
  try{
   entry.result=c.id==='negative'?await reviewCandidates(provider,input,negativeCandidates):await generateBatch(provider,input);

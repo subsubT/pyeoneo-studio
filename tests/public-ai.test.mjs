@@ -7,11 +7,11 @@ import {inputSchema} from '../lib/generation.mjs';
 import {blankItem} from '../lib/core.mjs';
 import {restoreProject} from '../lib/restore.mjs';
 const env={PUBLIC_AI_ENABLED:'true',PUBLIC_AI_VERIFIED:'true',VERCEL:'1',VERCEL_ENV:'production',PYEONEO_GEMINI_API_KEY:'test-only',PUBLIC_AI_REDIS_URL:'https://test.upstash.io',PYEONEO_AI_REDIS_TOKEN:'fake-token',PUBLIC_AI_LIMIT_SALT:'s'.repeat(32)};
-const input={actual:'주변의 색을 탐색하고 10색상환을 완성함.',example:'주변의 색을 탐색하고 10색상환을 완성함.',level:'잘함',existing:[]};
+const input={actual:'주변의 색을 탐색하고 10색상환을 완성함.',example:'주변의 색을 탐색하고 10색상환을 완성함.',levels:[{id:'잘함',name:'잘함',description:'',count:1}],existing:[]};
 const req=(body=input,headers={})=>new Request(PUBLIC_ORIGIN+'/api/generate',{method:'POST',headers:{host:'pyeoneo-studio.vercel.app',origin:PUBLIC_ORIGIN,'x-vercel-forwarded-for':'192.0.2.1','content-type':'application/json',...headers},body:typeof body==='string'?body:JSON.stringify(body)});
 const lease=()=>({check:async()=>true,release:async()=>{}});
 const limiterFactory=()=>({reserveProvider:async()=>({allowed:true}),cooldown:async()=>true,acquire:async()=>lease()});
-const providerFactory=()=>({complete:async(_,data,o)=>o.stage==='generation'?{candidates:[{text:input.actual,evidence:[input.actual]}]}:{reviews:data.candidates.map((_,index)=>({index,pass:true,issues:[]}))}});
+const providerFactory=()=>({complete:async(_,data,o)=>o.stage==='generation'?{candidates:[{text:input.actual,levelId:'잘함',evidence:[input.actual]}]}:{reviews:data.candidates.map((_,index)=>({index,pass:true,issues:[]}))}});
 test('legacy true/false/absent inputs are accepted but never sent to provider; v1/v2 restore only needs candidate approval',()=>{
  for(const confirmed of [true,false,undefined]){
   assert.deepEqual(inputSchema.parse({...input,confirmed}),input);
@@ -44,7 +44,7 @@ test('shared limiter rejects concurrent requests across handler recreation; serv
  let held=false,releaseGeneration;const wait=new Promise(r=>releaseGeneration=r);
  const shared=()=>({reserveProvider:async()=>({allowed:true}),cooldown:async()=>true,acquire:async()=>{if(held)return null;held=true;return {check:async()=>true,release:async()=>{held=false}}}});
  const h=()=>createPublicAiHandler({env,limiterFactory:shared,providerFactory:()=>({complete:async()=>wait})});
- const first=h()(req());await new Promise(r=>setImmediate(r));assert.equal((await h()(req())).status,429);releaseGeneration({candidates:[]});assert.equal((await first).status,200);
+ const first=h()(req());await new Promise(r=>setImmediate(r));assert.equal((await h()(req())).status,429);releaseGeneration({candidates:[]});assert.equal((await first).status,502);
  for(const acquire of [async()=>{throw Error('secret')},async()=>({check:async()=>{throw Error('secret')},release:async()=>{}})]){
   const failed=await createPublicAiHandler({env,providerFactory:()=>({complete:()=>assert.fail()}),limiterFactory:()=>({acquire})})(req());assert.equal(failed.status,503);assert.ok(!(await failed.text()).includes('secret'));
  }
