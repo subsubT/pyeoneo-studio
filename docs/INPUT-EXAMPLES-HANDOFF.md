@@ -1,3 +1,5 @@
+현재 규칙 변경(2026-11-12): 아래는 예시 기능 도입 당시의 기록이다. 현재 validateText에는 특정 종결 강제가 없으며, 후보 확인은 목록 전체 체크 하나와 일괄 승인이다. [최신 WORK HANDOFF](CANDIDATE-BATCH-WORK-HANDOFF.md).
+
 # [WORK HANDOFF] 2단계 입력 예시 생성·복사
 
 > 운영 규칙 갱신(2026-11-03): 아래의 배포 없음·배포 보류·별도 승인·push 후 중단은 해당 작업 당시 기록이다. 이후 승인한 구현의 일반 운영 배포는 재승인 없이 검증·push·배포·공개 검증·인계까지 수행한다. 최신 규칙은 [AGENTS](../AGENTS.md)와 [운영 절차](PRODUCTION-OPERATIONS.md)를 따른다. 개발 자동 Preview 차단·공개 AI 비활성·교사 최종 승인은 유지한다.
