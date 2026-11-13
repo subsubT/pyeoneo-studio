@@ -1,5 +1,7 @@
 # 프로젝트 식별
 
+현재 운영(2026-11-13): 생성 결과·신규 위치 안내 수정 앱 `a3a20a4862ba7af3a48ea325760de401587fb1b1` / Production `dpl_4gpupMTbqmwQWkGc4v3Pt6gNG1Yg` READY·공개 실모델3개/버튼 옆 결과/출력·복원 PASS. 원래 사용자 작업 자체는 미재현이며 합성 재현과 구분한다. [이번 오류 인계](docs/GENERATION-FEEDBACK-FIX-HANDOFF.md)가 아래 이전 운영 ID보다 최신이다. 단계별 개수·전체 확인·특정 종결 강제 폐지·기존 운영/공유 한도 규칙은 유지한다.
+
 ## 현재 우선 규칙 — 2026-11-12 단계별 배치·전체 확인
 
 현재 운영: 앱 `fe2eed23ddeb9945e0ed9177f10420a95f4b7ca3` / Production `dpl_6iiovimru2TsV8P2nQJwMQcTB3gb` READY·공개검증 PASS. 단계별 실제6/24·전체승인/출력·복원 검증, 실제7호출(실패3포함). [최신 WORK HANDOFF](docs/CANDIDATE-BATCH-WORK-HANDOFF.md). 아래 활성화 당시 ID는 역사다.
