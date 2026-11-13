@@ -44,3 +44,17 @@ test('without reference, v1/v2 save/restore retains editable candidates, flags a
   const edited={...restored,candidates:restored.candidates.map(c=>({...c,errors:[],edited:true}))};assert.deepEqual(activityIssues(edited),[]);assert.deepEqual(approvalIssues(edited),[]);
  }
 });
+
+test('live-discovered invented help cannot pass approval even if independent review misses it; rows remain visible',async()=>{
+ const {groundingIssues}=await import('../lib/core.mjs');
+ const invented='교사의 도움을 받아 독서 활동에 참여함.';
+ assert(groundingIssues(invented,'독서 활동').length);
+ assert.deepEqual(groundingIssues(invented,'교사의 지원으로 독서 활동에 참여함.'),[]);
+ assert.deepEqual(groundingIssues('읽기 활동에 참여함.','읽기'),[]);
+ for(const text of ['스스로 독서 활동을 함.','정확하게 읽음.','적극적으로 읽음.','친구와 함께 읽음.'])assert(groundingIssues(text,'읽기').length);
+ let calls=0;const result=await generateBatch({complete:async(_,d,o)=>{calls++;return o.stage==='generation'?{candidates:[{text:invented,levelId:'a',evidence:['독서 활동']}]}:{reviews:[{index:0,pass:true,issues:[]}]};}},{actual:'독서 활동',levels:[{...levels[0],count:1}],existing:[]});
+ assert.equal(calls,2);assert.equal(result.candidates.length,1);assert.equal(result.candidates[0].semanticPass,true);assert(result.candidates[0].errors.some(e=>e.includes('도움')));
+ const item={...blankItem(),actual:'독서 활동',levels:levels.map(({count,...l})=>l),candidates:[{...result.candidates[0],source:'AI 후보'}]};assert(approvalIssues(item).length);
+ assert(approvalIssues({...item,candidates:[{...item.candidates[0],edited:true,errors:[]}]}).length,'editing metadata must not bypass the grounding check');
+ assert.deepEqual(approvalIssues({...item,candidates:[{...item.candidates[0],text:'독서 활동을 수행함.',edited:true,errors:[]}]}),[]);
+});

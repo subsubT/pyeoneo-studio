@@ -19,7 +19,7 @@ const browser=await chromium.launch({headless:true,proxy,executablePath:process.
 const errors=[],warnings=[],results=[];
 try{
  const context=await browser.newContext({proxy,acceptDownloads:true,viewport:{width:1440,height:1000},permissions:['clipboard-read','clipboard-write']});
-await verifiedBrowserTransport(context,base);
+ await verifiedBrowserTransport(context,base);
  const watch=p=>{p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());if(m.type()==='warning')warnings.push(m.text())});};
  const page=async()=>{const p=await context.newPage();watch(p);await p.goto(base);return p;};
  const input=p=>p.getByLabel('평가계획 PDF 선택',{exact:true}),card=p=>p.locator('.pdf-upload');
@@ -83,7 +83,7 @@ await verifiedBrowserTransport(context,base);
  const limit=await page();const sources=Array.from({length:10},(_,i)=>({id:`pdf-${i}`,name:'supported.pdf',data:bytes.toString('base64'),pages:choiceWork.sources[0].pages}));await writeFile(`${dir}/limit-seed.json`,serializeProject({items:[{...blankItem(),element:'보존할 항목',sourceId:sources[0].id,page:1}],sources,examples:[],planConfirmed:true}));await limit.locator('input[accept=".json"]').setInputFiles(`${dir}/limit-seed.json`);await extracted(limit,1);const limitBefore=await save(limit,'limit-before');await drop(limit);await limit.getByRole('status').filter({hasText:/PDF 10개/}).waitFor();assert.deepEqual(await save(limit,'limit-after'),limitBefore);
 
  results.push('unsupported/image-only PDF guidance retained; 10-source limit fails atomically; real 200MB aggregate checks live in file-limits-browser.mjs');
- const touch=await browser.newContext({proxy,hasTouch:true,isMobile:true,viewport:{width:390,height:844},acceptDownloads:true});const mobile=await touch.newPage();watch(mobile);await mobile.goto(base);chooser=mobile.waitForEvent('filechooser');await card(mobile).tap();await(await chooser).setFiles(supported);await extracted(mobile,2);assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await mobile.screenshot({path:`${dir}/touch-mobile.png`,fullPage:true});results.push('touch file chooser and keyboard Space file chooser retained; 390px no overflow');
+ const touch=await browser.newContext({proxy,hasTouch:true,isMobile:true,viewport:{width:390,height:844},acceptDownloads:true});await verifiedBrowserTransport(touch,base);const mobile=await touch.newPage();watch(mobile);await mobile.goto(base);chooser=mobile.waitForEvent('filechooser');await card(mobile).tap();await(await chooser).setFiles(supported);await extracted(mobile,2);assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await mobile.screenshot({path:`${dir}/touch-mobile.png`,fullPage:true});results.push('touch file chooser and keyboard Space file chooser retained; 390px no overflow');
  const api=await checkAiState(context,base);
  assert.deepEqual(errors,[]);const unexpected=warnings.filter(w=>!w.includes('Indexing all PDF objects')&&!w.includes('standardFontDataUrl'));assert.deepEqual(unexpected,[]);
  const report={ok:true,base,results,realDataTransfer:true,realPdfExtraction:true,candidateMocks:0,liveAiCalls:0,delayedRealRead:true,previewSha256:selectedCanvas,api,errors,expectedParserWarnings:warnings};await writeFile(`${dir}/result.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
