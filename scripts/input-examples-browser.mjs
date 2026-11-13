@@ -74,7 +74,7 @@ try{
  await make(offline);const colorPair=await pair(offline);
  assert.deepEqual(await values(offline),{actual:'',example:''});assert.equal(await confirmation(offline).count(),0);
  assert.equal(await offline.getByRole('button',{name:'후보에 추가',exact:true}).isDisabled(),true);
- assert.equal(await offline.getByRole('button',{name:/^AI 후보 1개 생성/}).isDisabled(),true);
+ assert.equal(await offline.getByRole('button',{name:/^AI 후보 1개 생성/}).isDisabled(),process.env.TEST_PUBLIC_AI_ENABLED!=='true');
  assert.equal(await offline.getByText('수업에서 실제로 한 활동과 일치하는지 확인한 뒤 사용하세요.',{exact:true}).count(),1);
  await copyActual(offline).click();assert.equal(await reference(offline).inputValue(),'');assert.equal(await confirmation(offline).count(),0);
  await offline.locator('.sidebar .item').nth(1).click();assert.equal(await offline.locator('.input-example').count(),0);assert.deepEqual(await values(offline),{actual:'',example:''});

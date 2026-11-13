@@ -1,5 +1,7 @@
 # 프로젝트 식별
 
+현재 운영(2026-11-13): PDF **50MB**·원본 포함 작업 **200MB** 상향 앱 `de3a4639c6f11c70a4ff4d4aa5782f2f0d322dbc` / Production `dpl_FJ34MLsPywuM1RcCrBzKhArXp8Yz` READY. 자동86·로컬/공개 실제50MB/200MB 경계·합산 초과 작업보존·PC/390px/승인·출력·복원 PASS. 공개AI 활성 유지/실모델 호출0. [파일 용량 WORK HANDOFF](docs/FILE-LIMITS-HANDOFF.md)가 아래 이전 운영 ID보다 최신이다.
+
 현재 운영(2026-11-13): 생성 결과·신규 위치 안내 수정 앱 `a3a20a4862ba7af3a48ea325760de401587fb1b1` / Production `dpl_4gpupMTbqmwQWkGc4v3Pt6gNG1Yg` READY·공개 실모델3개/버튼 옆 결과/출력·복원 PASS. 원래 사용자 작업 자체는 미재현이며 합성 재현과 구분한다. [이번 오류 인계](docs/GENERATION-FEEDBACK-FIX-HANDOFF.md)가 아래 이전 운영 ID보다 최신이다. 단계별 개수·전체 확인·특정 종결 강제 폐지·기존 운영/공유 한도 규칙은 유지한다.
 
 ## 현재 우선 규칙 — 2026-11-12 단계별 배치·전체 확인

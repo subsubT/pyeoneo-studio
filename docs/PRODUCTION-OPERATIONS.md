@@ -1,5 +1,7 @@
 # 평어담 작업 완료·Production 운영 절차
 
+현재 운영(2026-11-13): PDF **50MB**·원본 포함 작업 **200MB** 상향 앱 `de3a4639c6f11c70a4ff4d4aa5782f2f0d322dbc` / Production `dpl_FJ34MLsPywuM1RcCrBzKhArXp8Yz` READY. 자동86·로컬/공개 실제50MB/200MB 경계·합산 초과 작업보존·PC/390px/승인·출력·복원 PASS. 공개AI 활성 유지/실모델 호출0. [파일 용량 WORK HANDOFF](FILE-LIMITS-HANDOFF.md)가 아래 이전 운영 ID보다 최신이다.
+
 현재 운영(2026-11-13): 생성 결과·신규 위치 안내 수정 앱 `a3a20a4862ba7af3a48ea325760de401587fb1b1` / Production `dpl_4gpupMTbqmwQWkGc4v3Pt6gNG1Yg` READY·공개 실모델3개/버튼 옆 결과/출력·복원 PASS. 원래 사용자 작업 자체는 미재현이며 합성 재현과 구분한다. [이번 오류 인계](GENERATION-FEEDBACK-FIX-HANDOFF.md)가 아래 이전 운영 ID보다 최신이다. 단계별 개수·전체 확인·특정 종결 강제 폐지·기존 운영/공유 한도 규칙은 유지한다.
 
 ## 현재 우선 규칙 — 2026-11-12 단계별 배치·전체 확인
@@ -115,6 +117,10 @@ TEST_BASE_URL=https://pyeoneo-studio.vercel.app TEST_OUTPUT_DIR=tmp/pdf-drop-pub
 ```
 
 기존과 같이 `PLAYWRIGHT_MODULE`·`BROWSER_EXECUTABLE`을 지정한다. `TEST_FIXTURE_DIR`로 생성 자료 위치를 바꿀 수 있다. 지원 평가표의 선택/드롭 일치, 실제 DataTransfer 이벤트, 입력 오류/50MB/30쪽/복수 파일/빈 입력, 승인 작업 보존, 처리 중 중복 입력, 10개 원본/200MB 저장 한도, 직접 승인·조합·복사·XLSX·PDF 포함 복원, 키보드/터치를 검사한다. 처리 중 상태 관찰에만 실제 File 읽기를 잠시 지연하며 추출 결과나 API를 모의 처리하지 않는다. 손상 PDF의 예상 파서 경고는 일반 오류와 구분한다.
+
+### 2026-11-13 동일 소스의 SHA1 참조 업로드 경로
+
+파일 전체 inline 요청의 응답이 중단되면 먼저 `list_deployments`와 공개 도메인을 조회해 생성 여부를 확인한다. 같은 요청을 무조건 반복하지 않는다. 이번에는 새 배포가 없음을 확인한 뒤 정확한 커밋의 변경 19파일을 `upload_file(requestBody=base64, contentLength=bytes, xVercelDigest=SHA1, teamId=기존팀)`로 업로드했다. 변경 없는 소스의 기존 content-addressed 파일은 재사용했고, `create_deployment`의 files에는 전체 103파일의 `{file, sha, size}`를 전달했다. target/project/team/gitMetadata/meta는 위 절차와 동일하다. 실제 배포 `src/`의 전체 SHA1을 Git 바이트와 다시 비교했다. 로컬 작업 트리·교육 파일·환경 파일은 업로드하지 않는다. 공개 검사에서는 환경 프록시 CA의 정상 NSS 신뢰와 `/home/agent/.pki/nssdb` 접근을 적용했으며 TLS 검증/배포 보호를 끄지 않았다.
 
 ## 검증한 커밋의 push와 재현 가능한 소스 업로드
 
