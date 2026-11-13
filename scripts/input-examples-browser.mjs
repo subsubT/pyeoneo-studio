@@ -17,7 +17,8 @@ const colors={...blankItem(),generationCounts:{'매우 잘함':'1','잘함':'0',
 const numbers={...blankItem(),generationCounts:{'매우 잘함':'1','잘함':'0','보통':'0','노력 요함':'0'},subject:'수학',element:'구체물을 이용하여 9까지의 두 수의 크기 비교하기'};
 await writeFile(`${dir}/seed.json`,serializeProject({items:[colors,numbers],examples:[],sources:[],planConfirmed:true,activeItemId:colors.id}));
 const browser=await chromium.launch({headless:true,proxy,...(process.env.BROWSER_EXECUTABLE?{executablePath:process.env.BROWSER_EXECUTABLE}:{channel:process.env.BROWSER_CHANNEL||'chrome'})});
-const context=await browser.newContext({proxy,viewport:{width:1440,height:1000},acceptDownloads:true});
+const workflowWidth=Number(process.env.TEST_VIEWPORT_WIDTH||1440);
+const context=await browser.newContext({proxy,viewport:{width:workflowWidth,height:1000},acceptDownloads:true});
 await verifiedBrowserTransport(context,base);
 const errors=[],warnings=[],external=[],payloads=[],results=[];
 context.on('page',p=>{
@@ -144,6 +145,6 @@ try{
  await make(offline);assert.equal((await pair(offline)).example,'식물의 잎을 관찰함.');
  results.push('plan editing invalidates old previews');
  assert.deepEqual(errors,[]);assert.deepEqual(warnings,[]);assert.deepEqual(external,[]);assert.equal(payloads.length,3);
- const report={ok:true,realApi,mockCandidateRequests:payloads.length,examples:{colors:colorPair,numbers:numberPair},results,errors,warnings,externalRequests:external.length};
+ const report={ok:true,workflowWidth,realApi,mockCandidateRequests:payloads.length,examples:{colors:colorPair,numbers:numberPair},results,errors,warnings,externalRequests:external.length};
  await writeFile(`${dir}/browser-result.json`,JSON.stringify(report,null,2));await writeFile(`${dir}/mock-request-payloads.json`,JSON.stringify(payloads,null,2));console.log(JSON.stringify(report,null,2));
 }finally{await browser.close();}

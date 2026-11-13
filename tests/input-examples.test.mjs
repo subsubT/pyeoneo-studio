@@ -17,11 +17,11 @@ test('two assessment tasks produce concrete distinct local pairs with identical 
 });
 test('compound tasks and observed qualifiers are retained without extra achievements or broken adverbs',()=>{
  const tasks=[
-  ['그림에 알맞은 낱말을 모두 바르게 쓰고 정확하게 소리 내어 읽기','그림에 알맞은 낱말을 모두 바르게 쓰고 정확하게 소리 내어 읽는 활동을 수행함.'],
-  ['교사의 도움을 받아 낱말 일부를 따라 쓰기','교사의 도움을 받아 낱말 일부를 따라 쓰는 활동을 수행함.'],
-  ['주변의 색 탐색과 10색상환 완성','주변의 색을 탐색하고 10색상환을 완성함.'],
-  ['주변의 색 찾아보기, 10색상환 완성하기','주변의 색을 찾아보고 10색상환을 완성함.'],
-  ['그림에 맞는 낱말 읽기와 쓰기','그림에 맞는 낱말을 읽고 쓰는 활동을 수행함.'],
+  ['그림에 알맞은 낱말을 모두 바르게 쓰고 정확하게 소리 내어 읽기','그림에 알맞은 낱말을 모두 바르게 쓰고 정확하게 소리 내어 읽음.'],
+  ['교사의 도움을 받아 낱말 일부를 따라 쓰기','교사의 도움을 받아 낱말 일부를 따라 씀.'],
+  ['주변의 색 탐색과 10색상환 완성','주변의 색을 탐색하며, 10색상환을 완성함.'],
+  ['주변의 색 찾아보기, 10색상환 완성하기','주변의 색을 찾아보고, 10색상환을 완성함.'],
+  ['그림에 맞는 낱말 읽기와 쓰기','그림에 맞는 낱말을 읽으며, 씀.'],
   ['식물의 잎 관찰하기','식물의 잎을 관찰함.'],
  ];
  for(const [element,expected] of tasks){const pair=createInputExamples({element});assert.equal(pair.example,expected);assert.deepEqual(validateText(pair.example).errors,[]);}
@@ -38,7 +38,7 @@ test('short, broad, unknown, prose, lists, long and blank tasks always produce e
   assert(pair.actual.trim());assert(pair.example.trim());assert(pair.actual.length<=4000);assert(pair.example.length<=2000);assert.deepEqual(item,before);
  }
  assert.deepEqual(createInputExamples({}),{actual:'수업 활동에 참여했다.',example:'수업 활동에 참여함.'});
- assert.equal(createInputExamples({element:'',method:'읽기'}).example,'읽는 활동을 수행함.');
+ assert.equal(createInputExamples({element:'',method:'읽기'}).example,'읽음.');
  assert.equal(createInputExamples({element:'식물',method:'식물의 잎 관찰하기'}).example,'식물의 잎을 관찰함.');
 });
 test('copy-sized patches share fact editing invalidation and final values survive save/restore',()=>{
