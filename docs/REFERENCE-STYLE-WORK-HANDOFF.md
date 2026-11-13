@@ -1,6 +1,6 @@
 # 참고 예시문장 문체 개선 WORK HANDOFF
 
-2026-11-13 KST. 관찰 주체: Codex 직접 실행. 최종 배포 결과는 아래 공개 검증 절에 기록한다.
+**판정: PASS — 공개 사이트 반영 완료.** 2026-11-13 KST. 관찰 주체: Codex 직접 실행.
 
 ## 범위와 시작점
 
@@ -30,7 +30,16 @@
 
 ## 공개 검증
 
-배포 전: 위 로컬 필수 검사를 통과한 정확한 개발 커밋을 정상 push한 뒤 기존 프로젝트에 Production 소스로 업로드한다. 이 절의 최종 SHA·배포 ID·공개 결과는 실행 후 기록한다. 공개 검증 전 완료로 판정하지 않는다.
+- 개발 기능/실제 배포 앱 SHA: `8c1a9bc461d2420c52f197c1a24322c140d0bd3a`. 정상 push 후 원격 개발 HEAD 일치를 확인했다.
+- Production `dpl_5s3pA6L3giQKGsUqkfzzptd9pnc1`, **READY**, target=production, aliasError=null. 공개 도메인 조회로 배포 ID·소스·팀/프로젝트를 대조했고 실제 `src/` **115/115 파일 SHA1**이 정확한 Git 커밋과 일치했다. 이전 배포와 다른 16개 파일만 업로드하고 나머지 content-addressed 파일은 재사용했다.
+- 공개 URL: https://pyeoneo-studio.vercel.app/ . 배포 URL: https://pyeoneo-studio-dihikg56g-subsub-tschool.vercel.app/ . 서버 빌드 성공(22초). 기존 npm cache-dir 환경 설정 경고는 빌드 실패가 아니며 새 설정을 추가하지 않았다.
+- 공개 직접 브라우저 **PASS**: PC1440px/390px 각각16개 출력·입력 자동 덮어쓰기 없음·개별 복사/수정/교체 취소 보존·가로 넘침 없음. 예시 생성 POST **0**, 실제 모델 호출 **0**.
+- 공개 기존 예시 흐름 **두 폭 모두 PASS**: 각각 후보 모의 POST3개, 실제/참고 개별 복사·교체 확인/취소·직접 수정·재생성 시 승인 보존·입력 교체 시 승인 해제·전체 확인/승인·조합 순서·XLSX 다운로드/재열기·저장/복원. 희소 입력 회귀는 모의2배치·공란4종 사전 차단·검토 지적 후보 유지·수정 후 승인·조합 복사/XLSX/v1·v2 재승인 PASS. 공개 계획/PDF·기존 XLSX 예시 원문 보존 회귀 PASS.
+- 공개 API 직접 상태: GET enabled=true/mode=public, Origin 없는 잘못된 POST403, 허용 Origin의 잘못된 입력400. 정상 모델 요청은 보내지 않았다. 후보 모의 응답은 실제 API 상태 검사 및 실제 로컬 예시 함수 실행과 구분한다.
+- HTTPS는 기존 `VERIFIED_HTTPS_RELAY=1`로 Node가 환경 제공 CA를 사용하여 실제 공개 응답 인증서를 검증한 뒤 전달했다. 영구 신뢰 설정·TLS 검증·Vercel 보호 변경 없음. 명시적 후보 모의 요청 외에는 실제 공개 응답이다.
+- 브라우저 page/console 오류/경고0, 기존 예시 회귀의 외부 요청0. 해당 신규 배포 error/fatal 런타임 로그 조회(최근15분)는 해당 기록 없음이며 모든 오류가 없다는 보증은 아니다. 배포 후 도름스체크 확인30/미확인5/해당없음1로 기존 미확인·권고를 유지했다.
+- 복구 대상 `dpl_5fs6M3NfhjoA9CCvoCHf9foHnnt6` / `a988750e63f0213c82af5a4ee28eda72473432bd`, 공개 alias 두 개. 핵심 운영 장애가 없어 rollback **미실행**. 키·모델·무료 플랜·공유 stop/counters/salt/namespace·활성 플래그 변경 없음.
+- 운영/인계 문서는 후속 **문서 전용 커밋**이며 최종 대화에 정확한 원격 HEAD를 기록한다. `git log -1 -- docs/REFERENCE-STYLE-WORK-HANDOFF.md`로 조회 가능하다. 문서 마무리로 앱을 재배포하지 않는다.
 
 ## 미실행과 다음 작업
 

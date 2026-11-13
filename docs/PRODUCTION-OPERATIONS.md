@@ -1,4 +1,8 @@
-최신 공개 적용(2026-11-13): 앱 `a988750e63f0213c82af5a4ee28eda72473432bd` / Production `dpl_5fs6M3NfhjoA9CCvoCHf9foHnnt6` READY, 공개 검증 PASS. 입력 부족으로 생성 거절하지 않으며, 미확인 도움·정확성·태도 등은 후보 목록을 유지한 채 검토/승인에서 검사한다. 실제 검토 의견을 PASS로 고치지 않는다. 공개 실모델 최종2배치5호출(503실패1포함), 작업 전체9호출. [최종 WORK HANDOFF](INPUT-READINESS-WORK-HANDOFF.md).
+최신 공개 적용(2026-11-13): 참고 예시 문체 개선 앱 `8c1a9bc461d2420c52f197c1a24322c140d0bd3a` / Production `dpl_5s3pA6L3giQKGsUqkfzzptd9pnc1` READY·aliasError=null·공개 소스115/115 SHA1 일치. 자동105·로컬/공개 PC/390px의 원형8+변형8·복사/수정/교체·승인/조합/XLSX/복원 PASS, 실모델0. [현재 WORK HANDOFF](REFERENCE-STYLE-WORK-HANDOFF.md). 입력 선택 규칙·무료 모델·키·공유 한도·활성 상태는 유지한다. 아래 배포 ID/실모델 호출 수는 각 기능 당시 기록이다.
+
+문체 재현: `node scripts/reference-style-report.mjs`로 비교표를 갱신한다. `TEST_BASE_URL=http://127.0.0.1:3006 node scripts/reference-style-browser.mjs`는 두 폭에서 각각16개를 실제 UI로 확인하며 정상 후보 POST를 금지한다. 기존 예시 전체 흐름은 아래 명령을 기본폭과 `TEST_VIEWPORT_WIDTH=390`에서 각각 실행한다. 공개에서는 `VERIFIED_HTTPS_RELAY=1 TEST_PUBLIC_AI_ENABLED=true TEST_BASE_URL=https://pyeoneo-studio.vercel.app`를 사용한다. 후보 생성은 명시적 모의 응답이며 실모델0. 공개 계획 회귀에도 같은 검증 HTTPS 전달 helper가 적용된다. 상세 명령·근거·미실행은 위 인계를 따른다.
+
+이전 입력 기준 적용(2026-11-13): 앱 `a988750e63f0213c82af5a4ee28eda72473432bd` / Production `dpl_5fs6M3NfhjoA9CCvoCHf9foHnnt6` READY, 공개 검증 PASS. 입력 부족으로 생성 거절하지 않으며, 미확인 도움·정확성·태도 등은 후보 목록을 유지한 채 검토/승인에서 검사한다. 실제 검토 의견을 PASS로 고치지 않는다. 공개 실모델 최종2배치5호출(503실패1포함), 작업 전체9호출. [최종 WORK HANDOFF](INPUT-READINESS-WORK-HANDOFF.md).
 
 ## 2026-11-13 예시·AI 입력 기준 변경
 
