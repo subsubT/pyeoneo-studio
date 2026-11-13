@@ -94,3 +94,10 @@ test('upstream 429 persists shared cooldown; Gemini key is passed only to the se
  const h=createPublicAiHandler({env,limiterFactory:()=>({...limiterFactory(),cooldown:async seconds=>cooldown=seconds}),providerFactory:options=>{assert.equal(options.apiKey,env.PYEONEO_GEMINI_API_KEY);return {complete:async()=>{throw new GeminiError('PROVIDER_RATE_LIMIT',429,90);}};}});
  const r=await h(req());assert.equal(r.status,429);assert.equal(cooldown,90);assert.equal(r.headers.get('retry-after'),'90');
 });
+
+test('empty model output with validated reasons returns safe 422; no reasons remains invalid 502',async()=>{
+ for(const reasons of [['실제 활동 정보 부족 PRIVATE'],[]]){let calls=0,released=0;
+ const h=createPublicAiHandler({env,limiterFactory:()=>({...limiterFactory(),acquire:async()=>({...lease(),release:async()=>released++})}),providerFactory:()=>({complete:async()=>{calls++;return {candidates:[],reasons};}})});
+ const r=await h(req());assert.equal(r.status,reasons.length?422:502);const body=await r.json();assert.equal(body.code,reasons.length?'NEEDS_INPUT':'INVALID_AI_RESPONSE');assert(!JSON.stringify(body).includes('PRIVATE'));assert.equal(body.candidates,undefined);assert.equal(calls,1);assert.equal(released,1);
+ }
+});
