@@ -1,3 +1,4 @@
+import {verifiedBrowserTransport} from './verified-browser-transport.mjs';
 // Real files, actual PDF.js, downloads and restoration. No live model calls.
 import assert from 'node:assert/strict';
 import {mkdir,readFile,writeFile,stat} from 'node:fs/promises';
@@ -12,9 +13,10 @@ await mkdir(dir,{recursive:true});
 const proxy=['127.0.0.1','localhost'].includes(new URL(base).hostname)?undefined:{server:process.env.HTTPS_PROXY};
 const browser=await chromium.launch({headless:true,proxy,executablePath:process.env.BROWSER_EXECUTABLE||'/usr/bin/chromium'});
 const context=await browser.newContext({proxy,acceptDownloads:true,viewport:{width:1440,height:1000},permissions:['clipboard-read','clipboard-write']});
+await verifiedBrowserTransport(context,base);
 context.setDefaultTimeout(180000);
 const report={ok:false,base,browser:browser.version(),cases:[],pageErrors:[],consoleErrors:[],warnings:[],memory:[],liveModelCalls:0,blockedGenerationPosts:0};
-await context.route('**/api/generate',r=>r.request().method()==='POST'?(report.blockedGenerationPosts++,r.abort()):r.continue());
+await context.route('**/api/generate',r=>r.request().method()==='POST'?(report.blockedGenerationPosts++,r.abort()):r.fallback());
 const hash=async path=>{const h=createHash('sha256');for await(const bytes of createReadStream(path))h.update(bytes);return h.digest('hex');};
 async function timed(name,fn){if(process.env.TEST_CASES&&!new RegExp(process.env.TEST_CASES).test(name))return;const start=performance.now();const result=await fn();report.cases.push({name,seconds:+((performance.now()-start)/1000).toFixed(2),...result});console.log(JSON.stringify(report.cases.at(-1)));}
 async function page(){const p=await context.newPage();p.on('pageerror',e=>report.pageErrors.push(e.message));p.on('console',m=>{if(m.type()==='error')report.consoleErrors.push(m.text());if(m.type()==='warning')report.warnings.push(m.text());});await p.goto(base);await p.evaluate(()=>{window.fileReads=[];for(const method of ['text','arrayBuffer']){const read=File.prototype[method];File.prototype[method]=function(...args){window.fileReads.push({name:this.name,method});return read.apply(this,args);};}});return p;}

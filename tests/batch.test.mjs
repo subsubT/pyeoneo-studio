@@ -15,7 +15,7 @@ test('one batch across arbitrary stages, zero counts, 1/12/24, exact distributio
   const result=await generateBatch({complete:async(_,data,o)=>{seen.push({data,o});return o.stage==='generation'?{candidates}:{reviews:data.candidates.map((_,index)=>({index,pass:true,issues:[]}))};}},{...base,levels});
   assert.equal(seen.length,2);assert(seen[0].o.maxTokens<=6000);assert.deepEqual(seen[0].data.levels,levels);assert.equal(seen[1].data.candidates.length,counts.reduce((a,b)=>a+b,0));assert.equal(result.candidates.length,candidates.length);
   for(const l of levels)assert.equal(result.candidates.filter(c=>c.levelId===l.id).length,l.count);
-  const req=buildGeminiRequest('rules',{...base,levels},{stage:'generation',maxTokens:counts.reduce((a,b)=>a+b,0)*500});assert.equal(req.payload.generationConfig.responseJsonSchema.properties.candidates.anyOf[0].minItems,candidates.length);
+  const req=buildGeminiRequest('rules',{...base,levels},{stage:'generation',maxTokens:counts.reduce((a,b)=>a+b,0)*500});assert.equal(req.payload.generationConfig.responseJsonSchema.properties.candidates.minItems,candidates.length);
  }
 });
 test('invalid UI/server counts, duplicate IDs, empty/decimal/negative/over-limit/all zero reject before model',async()=>{

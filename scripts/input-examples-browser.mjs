@@ -1,3 +1,4 @@
+import {verifiedBrowserTransport} from './verified-browser-transport.mjs';
 // Synthetic browser regression. No live AI; API mocks exist only in Playwright.
 // Work files, request captures, downloads and screenshots stay in ignored tmp/.
 import assert from 'node:assert/strict';
@@ -17,6 +18,7 @@ const numbers={...blankItem(),generationCounts:{'매우 잘함':'1','잘함':'0'
 await writeFile(`${dir}/seed.json`,serializeProject({items:[colors,numbers],examples:[],sources:[],planConfirmed:true,activeItemId:colors.id}));
 const browser=await chromium.launch({headless:true,proxy,...(process.env.BROWSER_EXECUTABLE?{executablePath:process.env.BROWSER_EXECUTABLE}:{channel:process.env.BROWSER_CHANNEL||'chrome'})});
 const context=await browser.newContext({proxy,viewport:{width:1440,height:1000},acceptDownloads:true});
+await verifiedBrowserTransport(context,base);
 const errors=[],warnings=[],external=[],payloads=[],results=[];
 context.on('page',p=>{
  p.on('pageerror',e=>errors.push(e.message));

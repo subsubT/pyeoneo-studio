@@ -14,12 +14,12 @@ test('malformed/empty HTTP bodies, status codes and hostile messages never escap
   try{await readGenerationResponse(response,levels);assert.fail();}catch(e){assert(e instanceof GenerationResultError);assert(!/PRIVATE|ZodError|SyntaxError/.test(generationFailureMessage(e)));if(response.status===429||response.status===503)assert.match(generationFailureMessage(e),/7초/);}
  }
 });
-test('wrong count/distribution and model input insufficiency are distinct safe failures',async()=>{
- for(const [data,code] of [[{candidates:[],reasons:[]},'INVALID_RESPONSE'],[{candidates:[],reasons:['실제 활동 정보가 부족합니다. PRIVATE']},'NEEDS_INPUT'],[{candidates:[c,c]},'COUNT_MISMATCH'],[{candidates:[{...c,levelId:'wrong'}]},'DISTRIBUTION_MISMATCH']])await assert.rejects(readGenerationResponse(Response.json(data),levels),e=>e.code===code&&!generationFailureMessage(e).includes('PRIVATE'));
+test('wrong count/distribution and empty model output are safe technical failures',async()=>{
+ for(const [data,code] of [[{candidates:[],reasons:[]},'INVALID_RESPONSE'],[{candidates:[],reasons:['실제 활동 정보가 부족합니다. PRIVATE']},'INVALID_RESPONSE'],[{candidates:[c,c]},'COUNT_MISMATCH'],[{candidates:[{...c,levelId:'wrong'}]},'DISTRIBUTION_MISMATCH']])await assert.rejects(readGenerationResponse(Response.json(data),levels),e=>e.code===code&&!generationFailureMessage(e).includes('PRIVATE'));
 });
-test('server empty candidates need validated reasons and never trigger independent review or zero-success',async()=>{
+test('server empty candidates with any reasons are technical errors without review or zero-success',async()=>{
  for(const reasons of [[],['실제 활동 정보가 부족합니다. PRIVATE'],['단계 기준과 충돌 PRIVATE'],[null]]){let calls=0;
-  await assert.rejects(generateBatch({complete:async()=>{calls++;return {candidates:[],reasons};}},{actual,example:actual,existing:[],levels}),e=>e.code===(reasons.length&&typeof reasons[0]==='string'?'NEEDS_INPUT':'INVALID_AI_RESPONSE'));
+  await assert.rejects(generateBatch({complete:async()=>{calls++;return {candidates:[],reasons};}},{actual,example:actual,existing:[],levels}),e=>e.code==='INVALID_AI_RESPONSE');
   assert.equal(calls,1);
  }
 });

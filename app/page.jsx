@@ -31,7 +31,7 @@ export default function Home(){
   const revision=generationRevision.current;let controller,requestSignal;
   setGenerationResult({itemId:item.id,kind:'pending',message:'후보 생성과 독립 검토를 요청합니다. 완료를 기다려 주세요.'});
   try{
-   const snapshot={id:item.id,signature:generationSignature(item),actual:item.actual,example:item.example,levels:generationPlan(item).map(l=>({...l,count:Number(l.count)})),existing:[...item.approved,...item.candidates].map(c=>c.text)};
+   const snapshot={id:item.id,signature:generationSignature(item),actual:item.actual,example:item.example??'',levels:generationPlan(item).map(l=>({...l,count:Number(l.count)})),existing:[...item.approved,...item.candidates].map(c=>c.text)};
    controller=new AbortController();generationController.current=controller;
    requestSignal=AbortSignal.any([controller.signal,AbortSignal.timeout(aiTimeout)]);
    let response;
@@ -71,7 +71,7 @@ export default function Home(){
  function editPlan(patch){update(patch);setPlanConfirmed(false);}
  function toggle(id,included){setItems(prev=>prev.map(i=>i.id===id?{...i,included}:i));setPlanConfirmed(false);setIds(a=>a.filter(x=>x!==id));setAck({});}
  function subjectSelection(subject,included){setItems(prev=>selectSubject(prev,subject,included));setPlanConfirmed(false);setIds([]);setAck({});}
- function confirmPlan(){const issues=planIssues(items);if(issues.length){setNotice(issues.join(' '));return;}setPlanConfirmed(true);setSelected(activeItems.some(i=>i.id===selected)?selected:activeItems[0].id);setStep(2);setView('review');setAck({});setNotice('선택한 평가계획을 확정했습니다. 실제 수행한 활동과 예시문장은 별도로 입력·확인하세요.');}
+ function confirmPlan(){const issues=planIssues(items);if(issues.length){setNotice(issues.join(' '));return;}setPlanConfirmed(true);setSelected(activeItems.some(i=>i.id===selected)?selected:activeItems[0].id);setStep(2);setView('review');setAck({});setNotice('선택한 평가계획을 확정했습니다. 실제 수행한 활동을 입력하세요. 참고 예시문장은 선택 입력입니다.');}
  async function saveWork(){await run(async()=>download(serializeProject({items,examples,sources,planConfirmed,activeItemId:selected,combinationIds:ids}),'평어담-작업.json','application/json'));}
  async function openWork(e){const input=e.currentTarget,f=input.files?.[0];input.value='';if(!f)return;await run(async()=>{
   assertWorkSize(f.size);

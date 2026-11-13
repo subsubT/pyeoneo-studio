@@ -1,3 +1,4 @@
+import {verifiedBrowserTransport} from './verified-browser-transport.mjs';
 // Real DataTransfer/File events + real parser. No API/candidate mocks or live AI.
 // Generate non-identifying fixtures with create-drop-fixtures.py before running.
 import assert from 'node:assert/strict';
@@ -18,6 +19,7 @@ const browser=await chromium.launch({headless:true,proxy,executablePath:process.
 const errors=[],warnings=[],results=[];
 try{
  const context=await browser.newContext({proxy,acceptDownloads:true,viewport:{width:1440,height:1000},permissions:['clipboard-read','clipboard-write']});
+await verifiedBrowserTransport(context,base);
  const watch=p=>{p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());if(m.type()==='warning')warnings.push(m.text())});};
  const page=async()=>{const p=await context.newPage();watch(p);await p.goto(base);return p;};
  const input=p=>p.getByLabel('평가계획 PDF 선택',{exact:true}),card=p=>p.locator('.pdf-upload');

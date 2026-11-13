@@ -1,3 +1,9 @@
+## 2026-11-13 예시·AI 입력 기준 변경
+
+actual은 문자열 trim 후 1자 이상, example은 선택 입력(누락→빈 문자열)이다. 공백 actual은 “실제 교육활동을 입력해 주세요.”/HTTP400 EMPTY_ACTUAL이며 공유 예약·모델을 호출하지 않는다. 길이/예시 없음/단계 충돌 우려로 생성 거절하지 않는다. 정상 생성은 요청 총수·분포를 맞추며, 제공사 빈 배열·거절은 입력 보완 422 대신 기술 응답 오류다. 독립 검토 지적 후보도 수정 가능한 목록에 남고 자동 승인은 없다. 기존 2호출·503추가1회/최대3·무료/공유한도·최종 전체승인 유지. [이번 인계](INPUT-READINESS-WORK-HANDOFF.md).
+
+신규 회귀: `TEST_BASE_URL=http://127.0.0.1:3006 node scripts/input-readiness-browser.mjs`. 실제 공개2배치만 실행할 때 `REAL_PUBLIC_AI=1 TEST_BASE_URL=https://pyeoneo-studio.vercel.app TEST_OUTPUT_DIR=tmp/readiness-public node scripts/input-readiness-browser.mjs`. 실모델 응답 원본을 읽고 합성 자료의 교사 검토 결정을 `teacher-0.json`/`teacher-1.json`로 전달한다. 사용자 자료 승인 자동화로 사용하지 않는다. 프록시 CA 때문에 Chromium 직접 검증이 실패하는 관리 환경에서는 `VERIFIED_HTTPS_RELAY=1`로 기존 환경 CA를 검증하는 HTTPS 전달을 사용한다. 영구 인증서·TLS검증·보호 설정을 바꾸지 않는다.
+
 # 평어담 작업 완료·Production 운영 절차
 
 현재 운영(2026-11-13): PDF **50MB**·원본 포함 작업 **200MB** 상향 앱 `de3a4639c6f11c70a4ff4d4aa5782f2f0d322dbc` / Production `dpl_FJ34MLsPywuM1RcCrBzKhArXp8Yz` READY. 자동86·로컬/공개 실제50MB/200MB 경계·합산 초과 작업보존·PC/390px/승인·출력·복원 PASS. 공개AI 활성 유지/실모델 호출0. [파일 용량 WORK HANDOFF](FILE-LIMITS-HANDOFF.md)가 아래 이전 운영 ID보다 최신이다.

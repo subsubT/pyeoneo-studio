@@ -32,8 +32,13 @@ test('preview generation is pure and never borrows original references, levels, 
  assert.deepEqual(item,before);assert.equal(pair.example,'10색상환을 완성함.');
  assert.doesNotMatch(pair.example,/발표|협력|스스로|정확/);
 });
-test('vague or invalid tasks request clarification instead of emitting a fixed or forbidden example',()=>{
- for(const element of ['', '학습', '차분히 색 탐색하기', '식별하기', '색'.repeat(601)+' 탐색하기'])assert.throws(()=>createInputExamples({element}));
+test('short, broad, unknown, prose, lists, long and blank tasks always produce editable draft pairs',()=>{
+ for(const element of ['', '학습', '차분히 색 탐색하기', '식별하기', '글을 읽었다.', '- 읽기\n- 이야기 나눔', '색'.repeat(601)+' 탐색하기', '활동'.repeat(2500)]){
+  const item={element},before=structuredClone(item),pair=createInputExamples(item);
+  assert(pair.actual.trim());assert(pair.example.trim());assert(pair.actual.length<=4000);assert(pair.example.length<=2000);assert.deepEqual(item,before);
+ }
+ assert.deepEqual(createInputExamples({}),{actual:'수업 활동에 참여했다.',example:'수업 활동에 참여함.'});
+ assert.equal(createInputExamples({element:'',method:'읽기'}).example,'읽는 활동을 수행함.');
  assert.equal(createInputExamples({element:'식물',method:'식물의 잎 관찰하기'}).example,'식물의 잎을 관찰함.');
 });
 test('copy-sized patches share fact editing invalidation and final values survive save/restore',()=>{

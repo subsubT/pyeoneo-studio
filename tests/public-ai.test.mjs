@@ -95,9 +95,9 @@ test('upstream 429 persists shared cooldown; Gemini key is passed only to the se
  const r=await h(req());assert.equal(r.status,429);assert.equal(cooldown,90);assert.equal(r.headers.get('retry-after'),'90');
 });
 
-test('empty model output with validated reasons returns safe 422; no reasons remains invalid 502',async()=>{
+test('empty model output with or without reasons returns technical 502',async()=>{
  for(const reasons of [['실제 활동 정보 부족 PRIVATE'],[]]){let calls=0,released=0;
  const h=createPublicAiHandler({env,limiterFactory:()=>({...limiterFactory(),acquire:async()=>({...lease(),release:async()=>released++})}),providerFactory:()=>({complete:async()=>{calls++;return {candidates:[],reasons};}})});
- const r=await h(req());assert.equal(r.status,reasons.length?422:502);const body=await r.json();assert.equal(body.code,reasons.length?'NEEDS_INPUT':'INVALID_AI_RESPONSE');assert(!JSON.stringify(body).includes('PRIVATE'));assert.equal(body.candidates,undefined);assert.equal(calls,1);assert.equal(released,1);
+ const r=await h(req());assert.equal(r.status,502);const body=await r.json();assert.equal(body.code,'INVALID_AI_RESPONSE');assert(!JSON.stringify(body).includes('PRIVATE'));assert.equal(body.candidates,undefined);assert.equal(calls,1);assert.equal(released,1);
  }
 });
