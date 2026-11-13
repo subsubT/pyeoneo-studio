@@ -1,5 +1,9 @@
 # 프로젝트 식별
 
+## 현재 우선 입력 규칙 — 2026-11-13
+
+현재 앱 `a988750e63f0213c82af5a4ee28eda72473432bd` / Production `dpl_5fs6M3NfhjoA9CCvoCHf9foHnnt6` READY·공개 검증 PASS. 인계 문서 `21739f3793a715b4148ade6ded8c0f87b8a4be34`, [예시·입력 WORK HANDOFF](docs/INPUT-READINESS-WORK-HANDOFF.md). actual은 문자열 trim 후1자 이상이면 생성, example은 선택·생략 시 빈 문자열이다. 과거 최소8/5자·예시필수·구체성·단계충돌로 생성 거절 규칙을 대체한다. 현재 항목의 두 예시는 변환 실패/포괄/긴 입력/공란도 초안으로 제공한다. 빈 모델 후보는 입력보완이 아닌 기술 오류이며 정상 총수·분포를 지킨다. 독립 검토 지적 후보도 전원 편집 목록에 남기고 미확인 도움·정확성·태도 등은 검토/승인에서 검사한다. 검토 PASS 강제·자동승인·후보별 자동검토 문구·종결 강제는 하지 않는다. 전체 확인과 교사 최종 승인·승인 전용 출력, PDF50MB·작업200MB, 기존 무료모델·키·공유 한도·2호출/503추가1회·최대3호출 규칙 유지. 아래 과거 인계와 충돌하면 이 규칙이 우선한다.
+
 현재 운영(2026-11-13): PDF **50MB**·원본 포함 작업 **200MB** 상향 앱 `de3a4639c6f11c70a4ff4d4aa5782f2f0d322dbc` / Production `dpl_FJ34MLsPywuM1RcCrBzKhArXp8Yz` READY. 자동86·로컬/공개 실제50MB/200MB 경계·합산 초과 작업보존·PC/390px/승인·출력·복원 PASS. 공개AI 활성 유지/실모델 호출0. [파일 용량 WORK HANDOFF](docs/FILE-LIMITS-HANDOFF.md)가 아래 이전 운영 ID보다 최신이다.
 
 현재 운영(2026-11-13): 생성 결과·신규 위치 안내 수정 앱 `a3a20a4862ba7af3a48ea325760de401587fb1b1` / Production `dpl_4gpupMTbqmwQWkGc4v3Pt6gNG1Yg` READY·공개 실모델3개/버튼 옆 결과/출력·복원 PASS. 원래 사용자 작업 자체는 미재현이며 합성 재현과 구분한다. [이번 오류 인계](docs/GENERATION-FEEDBACK-FIX-HANDOFF.md)가 아래 이전 운영 ID보다 최신이다. 단계별 개수·전체 확인·특정 종결 강제 폐지·기존 운영/공유 한도 규칙은 유지한다.
