@@ -4,12 +4,13 @@ import {itemLevels,generationPlan,countIssues,orderedCandidates,confirmationSnap
 import {GenerationResultError,generationSignature,appendGeneratedBatch,readGenerationResponse,generationFailureMessage} from '../lib/generation-result.mjs';
 import {activityIssues} from '../lib/activity.mjs';
 import {blankItem,LEVELS,combine} from '../lib/core.mjs';
-import {readPdf,readExamples,workbookBuffer,download,encodePdf} from '../lib/files.mjs';
+import {readPdf,readExamples,workbookBuffer,download} from '../lib/files.mjs';
 
 import PlanReview from './components/plan-review';
 import ActivityInputs from './components/activity-inputs';
-import {selectedItems,selectSubject,editItem,planIssues,WORK_FILE_LIMIT} from '../lib/plan.mjs';
+import {selectedItems,selectSubject,editItem,planIssues} from '../lib/plan.mjs';
 import {serializeProject,restoreProject} from '../lib/restore.mjs';
+import {assertWorkSize,FileLimitError,WORK_FILE_LIMIT_LABEL} from '../lib/file-limits.mjs';
 
 export default function Home(){
  const [items,setItems]=useState([]),[selected,setSelected]=useState(''),[step,setStep]=useState(1),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false),[examples,setExamples]=useState([]),[sources,setSources]=useState([]),[planConfirmed,setPlanConfirmed]=useState(false),[view,setView]=useState('review'),[level,setLevel]=useState(LEVELS[0]),[manual,setManual]=useState(''),[ids,setIds]=useState([]),[ack,setAck]=useState({});
@@ -72,20 +73,22 @@ export default function Home(){
  function subjectSelection(subject,included){setItems(prev=>selectSubject(prev,subject,included));setPlanConfirmed(false);setIds([]);setAck({});}
  function confirmPlan(){const issues=planIssues(items);if(issues.length){setNotice(issues.join(' '));return;}setPlanConfirmed(true);setSelected(activeItems.some(i=>i.id===selected)?selected:activeItems[0].id);setStep(2);setView('review');setAck({});setNotice('선택한 평가계획을 확정했습니다. 실제 수행한 활동과 예시문장은 별도로 입력·확인하세요.');}
  async function saveWork(){await run(async()=>download(serializeProject({items,examples,sources,planConfirmed,activeItemId:selected,combinationIds:ids}),'평어담-작업.json','application/json'));}
- async function openWork(e){const f=e.target.files?.[0];if(!f)return;await run(async()=>{
-  if(f.size>WORK_FILE_LIMIT)throw Error('작업 파일은 40MB 이하만 가능합니다.');
-  let v;try{v=restoreProject(JSON.parse(await f.text()));}catch{throw Error('작업 파일 형식 또는 PDF 출처 정보가 올바르지 않습니다. 기존 작업은 유지됩니다.');}
-  const merged={items:[...items,...v.items],examples:[...examples,...v.examples],sources:[...sources,...v.sources]};
+ async function openWork(e){const input=e.currentTarget,f=input.files?.[0];input.value='';if(!f)return;await run(async()=>{
+  assertWorkSize(f.size);
+  let v;try{v=restoreProject(JSON.parse(await f.text()));}catch(error){if(error instanceof FileLimitError)throw error;throw Error('작업 파일 형식 또는 PDF 출처 정보가 올바르지 않습니다. 기존 작업은 유지됩니다.');}
+  const empty=items.length===0&&sources.length===0;
+  const merged={items:[...items,...v.items],examples:[...examples,...v.examples],sources:[...sources,...v.sources],planConfirmed:empty?v.planConfirmed:false,activeItemId:v.activeItemId,combinationIds:items.length===0?v.combinationIds:[]};
   serializeProject(merged);
-  setItems(merged.items);setExamples(merged.examples);setSources(merged.sources);setPlanConfirmed(items.length===0&&sources.length===0?v.planConfirmed:false);setSelected(v.activeItemId);setIds(items.length===0?v.combinationIds:[]);setStep(1);setAck({});setManual('');setNotice('작업을 추가로 불러왔습니다. 항목 선택·계획·PDF 원본을 복원했습니다. 기존 승인 문장은 후보로 보관되며 전체 확인과 재승인이 필요합니다.');
- });e.target.value='';}
+  setItems(merged.items);setExamples(merged.examples);setSources(merged.sources);setPlanConfirmed(merged.planConfirmed);setSelected(merged.activeItemId);setIds(merged.combinationIds);setStep(1);setAck({});setManual('');setNotice('작업을 추가로 불러왔습니다. 항목 선택·계획·PDF 원본을 복원했습니다. 기존 승인 문장은 후보로 보관되며 전체 확인과 재승인이 필요합니다.');
+ });}
  async function run(fn){if(busyRef.current)return;busyRef.current=true;setBusy(true);setNotice('');try{await fn()}catch(e){setNotice(e.message||'작업을 완료하지 못했습니다.')}finally{busyRef.current=false;setBusy(false)}}
  function add(){if(busy||items.length>=100)return;const n=blankItem();setItems(a=>[...a,n]);setSelected(n.id);setStep(1);setPlanConfirmed(false);setAck({});}
  async function uploadPdf(f){if(!f)return;await run(async()=>{
-  const result=await readPdf(f),source={id:crypto.randomUUID(),name:f.name,data:encodePdf(new Uint8Array(await f.arrayBuffer())),pages:result.pages};
+  const result=await readPdf(f),source={id:crypto.randomUUID(),name:f.name,data:result.data,pages:result.pages};
   const added=result.items.map(i=>({...i,sourceId:source.id}));
-  serializeProject({items:[...items,...added],examples,sources:[...sources,source]});
-  setSources(a=>[...a,source]);setItems(a=>[...a,...added]);setPlanConfirmed(false);if(added[0])setSelected(added[0].id);setAck({});
+  const next={items:[...items,...added],examples,sources:[...sources,source],planConfirmed:false,activeItemId:added[0]?.id||selected,combinationIds:ids};
+  serializeProject(next);
+  setSources(next.sources);setItems(next.items);setPlanConfirmed(next.planConfirmed);setSelected(next.activeItemId);setAck({});
   setNotice(added.length?`${added.length}개 평가 항목을 추출했습니다. 전체 목록에서 선택하고 원본과 비교해 수정한 뒤 확정하세요.`:'지원하는 표를 찾지 못했습니다. 전체 추출 원문과 원본 PDF를 참고하여 항목을 직접 추가하세요. 스캔 PDF는 문자 인식 후 사용하세요.');
  });}
  function editCandidate(id,text){update({candidates:item.candidates.map(c=>c.id===id?{...c,text,edited:true,semanticPass:false,errors:[]}:c)});}
@@ -104,7 +107,7 @@ export default function Home(){
  <main><section className="intro"><div><div className="eyebrow">TEACHER’S WRITING STUDIO</div><h1>배움의 사실을 담아,<br/><em>평가 문장을 다듬어요.</em></h1><p>실제로 한 활동을 입력하고, 문장을 검토하세요.<br/>선생님이 승인한 문장만 최종 결과에 담깁니다.</p></div><aside className="principle"><span className="small-label">우리의 작업 원칙</span><h2>활동은 있는 그대로.<br/>평가 문구 예시는 다양하게!</h2><p>평가 기록의 다양한 예시를 제안해드립니다.</p><p>선생님의 평가 업무 수고를 덜어드립니다.</p><span className="leaf" aria-hidden="true">✳</span></aside></section>
  <nav className="steps" aria-label="작업 단계"><button className={step===1?'active':''} disabled={busy} onClick={()=>setStep(1)}><span>01</span>평가계획 추출 · 검토 · 선택<b>{items.length}</b></button><button className={step===2?'active':''} disabled={busy||!planConfirmed} onClick={()=>{setSelected(activeItems.some(i=>i.id===selected)?selected:activeItems[0]?.id||'');setStep(2)}}><span>02</span>평가문장 생성 · 검토 · 승인 · 내보내기<b>{total}</b></button></nav>
  {notice&&<div className="notice" role="status">{notice}<button aria-label="알림 닫기" onClick={()=>setNotice('')}>×</button></div>}
- <div className={`workspace ${step===1?'plan-workspace':''}`}><aside className={`sidebar ${step===1?'plan-sidebar':''}`}>{step===2&&<><div className="sidebar-title"><h2>확정한 평가 항목</h2><span>{activeItems.length}</span></div><p className="muted">선택한 항목별로 사실과 문장을 관리해요.</p><button className="add" disabled={busy} onClick={()=>setStep(1)}>← 평가계획 수정 · 선택</button><div className="item-list">{activeItems.map((i,n)=><button key={i.id} className={`item ${selected===i.id?'selected':''}`} disabled={busy} onClick={()=>{generationRevision.current++;setSelected(i.id);setAck({});setManual('')}}><span>{i.subject} <small>{i.page?`PDF ${i.page}쪽`:'직접 입력'}</small></span><strong>{i.element||i.unit||`새 평가 항목 ${n+1}`}</strong><div className="progress"><i style={{width:`${Math.min(100,i.approved.length/i.target*100)}%`}}/></div><small>승인 {i.approved.length} / {i.target}</small></button>)}</div>{!activeItems.length&&<div className="empty-side">아직 평가 항목이 없어요.<br/>PDF를 불러오거나<br/>직접 추가해 주세요.</div>}</>}<div className="session-note">자료는 서버에 저장하지 않습니다. 창을 닫으면 작업이 사라집니다. 원본 PDF도 작업 파일에 포함됩니다. 작업 파일을 저장해 이어서 사용하세요.</div><button className="text-button" disabled={busy||(!items.length&&!sources.length)} onClick={saveWork}>↓ 작업 파일 저장</button><label className={`text-button file-label ${busy?'disabled':''}`}>↑ 작업 이어서 열기<input disabled={busy} type="file" accept=".json" onChange={openWork}/></label><span className="muted">원본 PDF 포함 · 최대 40MB</span></aside>
+ <div className={`workspace ${step===1?'plan-workspace':''}`}><aside className={`sidebar ${step===1?'plan-sidebar':''}`}>{step===2&&<><div className="sidebar-title"><h2>확정한 평가 항목</h2><span>{activeItems.length}</span></div><p className="muted">선택한 항목별로 사실과 문장을 관리해요.</p><button className="add" disabled={busy} onClick={()=>setStep(1)}>← 평가계획 수정 · 선택</button><div className="item-list">{activeItems.map((i,n)=><button key={i.id} className={`item ${selected===i.id?'selected':''}`} disabled={busy} onClick={()=>{generationRevision.current++;setSelected(i.id);setAck({});setManual('')}}><span>{i.subject} <small>{i.page?`PDF ${i.page}쪽`:'직접 입력'}</small></span><strong>{i.element||i.unit||`새 평가 항목 ${n+1}`}</strong><div className="progress"><i style={{width:`${Math.min(100,i.approved.length/i.target*100)}%`}}/></div><small>승인 {i.approved.length} / {i.target}</small></button>)}</div>{!activeItems.length&&<div className="empty-side">아직 평가 항목이 없어요.<br/>PDF를 불러오거나<br/>직접 추가해 주세요.</div>}</>}<div className="session-note">자료는 서버에 저장하지 않습니다. 창을 닫으면 작업이 사라집니다. 원본 PDF도 작업 파일에 포함됩니다. 작업 파일을 저장해 이어서 사용하세요.</div><button className="text-button" disabled={busy||(!items.length&&!sources.length)} onClick={saveWork}>↓ 작업 파일 저장</button><label className={`text-button file-label ${busy?'disabled':''}`}>↑ 작업 이어서 열기<input disabled={busy} type="file" accept=".json" onChange={openWork}/></label><span className="muted">원본 PDF 포함 · 최대 {WORK_FILE_LIMIT_LABEL}</span></aside>
  <section className="content">
  {step===1&&<PlanReview items={items} item={item} sources={sources} busy={busy} confirmed={planConfirmed} onSelect={id=>{generationRevision.current++;setSelected(id);setAck({});setManual('')}} onUpdate={editPlan} onToggle={toggle} onSubject={subjectSelection} onAdd={add} onUpload={uploadPdf} onUploadError={setNotice} onConfirm={confirmPlan}/>}
  {step===2&&<nav className="work-tabs" aria-label="문장 작업 보기"><button className={view==='review'?'primary':''} disabled={busy} onClick={()=>setView('review')}>실제 활동 · 생성 · 검토 · 승인</button><button className={view==='export'?'primary':''} disabled={busy} onClick={()=>setView('export')}>조합 · XLSX 내보내기</button></nav>}

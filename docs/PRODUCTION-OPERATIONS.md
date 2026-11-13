@@ -91,6 +91,21 @@ TEST_BASE_URL=http://127.0.0.1:3006 TEST_OUTPUT_DIR=tmp/release-local-plan node 
 
 ## PDF 끌어놓기 회귀 검사
 
+### 파일 용량 기준과 대형 자료 검사 (2026-11-13)
+
+공통 기준은 `lib/file-limits.mjs`의 PDF 50×1024² bytes(52,428,800), 작업 200×1024² bytes(209,715,200)이며 같은 크기는 허용한다. 화면은 50MB·200MB로 표시한다. 작업 용량은 원본 Base64와 메타데이터를 포함한 최종 JSON 전체의 UTF-8 bytes다. `lib/plan.mjs`의 `WORK_FILE_LIMIT` import는 호환된다. PDF Base64 최대 69,905,068자 외에 형식·패딩·실제 디코딩 크기·헤더를 검사한다. 추가/병합은 최종 저장 상태를 검증한 뒤에만 반영하고 실패 시 기존 작업을 보존한다. 30쪽·원본 10개·항목 100개·예시 2,000개·XLSX 5MB 기준은 유지한다. AI API 요청 한도와는 별개다.
+
+다음 검사는 test-only ReportLab/pypdf·한국어 TTF와 기존 Playwright/Chromium을 사용한다. 제품 의존성에 추가하지 않는다. `create-drop-fixtures.py`로 기본 자료를 먼저 만들고, 유효한 PDF의 참조된 EmbeddedFile 스트림을 실제 크기로 확장한다. 작업 자료는 이 PDF 원본 3개와 한글 메타데이터를 포함한다. 크기 모의나 JSON 공백 패딩을 실제 대형 처리 PASS로 대체하지 않는다. 자료·다운로드·메모리/시간/콘솔 관찰은 모두 Git 제외 `tmp/`에 보존한다.
+
+```bash
+python3 scripts/create-large-file-fixtures.py
+node --max-old-space-size=4096 scripts/create-large-work-fixtures.mjs
+TEST_BASE_URL=http://127.0.0.1:3006 TEST_OUTPUT_DIR=tmp/file-limits-local node scripts/file-limits-browser.mjs
+TEST_PUBLIC_AI_ENABLED=true TEST_BASE_URL=https://pyeoneo-studio.vercel.app TEST_OUTPUT_DIR=tmp/file-limits-public node scripts/file-limits-browser.mjs
+```
+
+실모델 호출은 하지 않는다. 공개 API 상태와 잘못된 요청의 차단만 직접 확인한다. 메모리는 CDP의 해당 시점 heap 관찰이며 프로세스 전체 peak/안전성 보증이 아니다. 브라우저 버전·실제 크기·시간·콘솔·미검증은 이번 WORK HANDOFF에 구분한다.
+
 PDF 입력 변경 시 기존 두 브라우저 회귀에 아래 검사를 추가한다. 검증용 Python ReportLab과 한국어 TrueType 글꼴은 시험 환경에서만 사용하며 제품 의존성에 추가하지 않는다. PDF/글꼴/작업 JSON/다운로드/스크린샷은 Git 제외 `tmp/`에 둔다.
 
 ```bash
@@ -99,7 +114,7 @@ TEST_BASE_URL=http://127.0.0.1:3010 TEST_OUTPUT_DIR=tmp/pdf-drop-local node scri
 TEST_BASE_URL=https://pyeoneo-studio.vercel.app TEST_OUTPUT_DIR=tmp/pdf-drop-public node scripts/pdf-drop-browser.mjs
 ```
 
-기존과 같이 `PLAYWRIGHT_MODULE`·`BROWSER_EXECUTABLE`을 지정한다. `TEST_FIXTURE_DIR`로 생성 자료 위치를 바꿀 수 있다. 지원 평가표의 선택/드롭 일치, 실제 DataTransfer 이벤트, 입력 오류/10MB/30쪽/복수 파일/빈 입력, 승인 작업 보존, 처리 중 중복 입력, 10개 원본/40MB 저장 한도, 직접 승인·조합·복사·XLSX·PDF 포함 복원, 키보드/터치를 검사한다. 처리 중 상태 관찰에만 실제 File 읽기를 잠시 지연하며 추출 결과나 API를 모의 처리하지 않는다. 손상 PDF의 예상 파서 경고는 일반 오류와 구분한다.
+기존과 같이 `PLAYWRIGHT_MODULE`·`BROWSER_EXECUTABLE`을 지정한다. `TEST_FIXTURE_DIR`로 생성 자료 위치를 바꿀 수 있다. 지원 평가표의 선택/드롭 일치, 실제 DataTransfer 이벤트, 입력 오류/50MB/30쪽/복수 파일/빈 입력, 승인 작업 보존, 처리 중 중복 입력, 10개 원본/200MB 저장 한도, 직접 승인·조합·복사·XLSX·PDF 포함 복원, 키보드/터치를 검사한다. 처리 중 상태 관찰에만 실제 File 읽기를 잠시 지연하며 추출 결과나 API를 모의 처리하지 않는다. 손상 PDF의 예상 파서 경고는 일반 오류와 구분한다.
 
 ## 검증한 커밋의 push와 재현 가능한 소스 업로드
 

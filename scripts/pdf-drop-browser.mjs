@@ -8,6 +8,7 @@ import {createHash} from 'node:crypto';
 import ExcelJS from 'exceljs';
 import {blankItem,LEVELS} from '../lib/core.mjs';
 import {serializeProject} from '../lib/restore.mjs';
+import {PDF_LIMIT,PDF_LIMIT_LABEL} from '../lib/file-limits.mjs';
 const {chromium}=await import(process.env.PLAYWRIGHT_MODULE?pathToFileURL(process.env.PLAYWRIGHT_MODULE).href:'playwright');
 const base=process.env.TEST_BASE_URL||'http://127.0.0.1:3010',dir=process.env.TEST_OUTPUT_DIR||'tmp/pdf-drop-local',fixtures=process.env.TEST_FIXTURE_DIR||'tmp/pdf-drop-fixtures';
 await mkdir(dir,{recursive:true});
@@ -53,7 +54,7 @@ try{
  await approve(0,sentences[0]);await approve(1,sentences[1]);await p.getByRole('button',{name:'← 평가계획 수정 · 선택',exact:true}).click();const before=await save(p,'before-errors');
  const failures=[['not-pdf.txt',/올바른 PDF/],['corrupt.pdf',/Invalid PDF|PDF.*올바르|PDF.*손상/],['too-many-pages.pdf',/30쪽 이하/]];
  for(const [name,pattern]of failures){await drop(p,[{name,mimeType:'application/pdf',buffer:await readFile(`${fixtures}/${name}`)}]);await p.getByRole('status').filter({hasText:pattern}).waitFor();await ready(p);assert.deepEqual(await save(p,`after-${name}`),before);}
- await drop(p,[{name:'huge.pdf',buffer:Buffer.alloc(10*1024*1024+1)}]);await p.getByRole('status').filter({hasText:'10MB 이하'}).waitFor();assert.deepEqual(await save(p,'after-huge'),before);
+ await drop(p,[{name:'huge.pdf',buffer:Buffer.alloc(PDF_LIMIT+1)}]);await p.getByRole('status').filter({hasText:`${PDF_LIMIT_LABEL} 이하`}).waitFor();assert.deepEqual(await save(p,'after-huge'),before);
  await drop(p,[supported,supported]);await p.getByRole('status').filter({hasText:'PDF는 한 번에 한 개씩 넣어 주세요.'}).waitFor();assert.deepEqual(await save(p,'after-multiple'),before);
  await drop(p,[]);await input(p).setInputFiles([]);assert.deepEqual(await save(p,'after-empty-cancel'),before);
  await p.setViewportSize({width:390,height:844});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await p.screenshot({path:`${dir}/error-mobile.png`,fullPage:true});await p.setViewportSize({width:1440,height:1000});
@@ -70,7 +71,7 @@ try{
  // Artificial read delay ONLY: real File bytes still pass through readPdf/PDF.js.
  const slow=await page();await slow.evaluate(()=>{const read=File.prototype.arrayBuffer;File.prototype.arrayBuffer=async function(){if(this.name==='slow.pdf')await new Promise(resolve=>{window.releasePdf=resolve});return read.call(this)}});
  await drop(slow,[{...supported,name:'slow.pdf'}]);await slow.waitForFunction(()=>window.releasePdf);assert.equal(await card(slow).getAttribute('aria-busy'),'true');assert(await input(slow).isDisabled());await slow.screenshot({path:`${dir}/busy-desktop.png`});await slow.setViewportSize({width:390,height:844});await slow.screenshot({path:`${dir}/busy-mobile.png`});assert.equal(await slow.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await drop(slow);await input(slow).setInputFiles(supported);assert(!await card(slow).evaluate(e=>e.classList.contains('dragging')));
- // Release both real reads (extract then encode) without changing their results.
+ // Release the single real read without changing its result.
  await slow.evaluate(()=>{const release=window.releasePdf;delete window.releasePdf;File.prototype.arrayBuffer=Blob.prototype.arrayBuffer;release()});await extracted(slow,2);assert.equal((await save(slow,'slow-result')).sources.length,1);
  const race=await page();await race.evaluate(data=>{const bytes=Uint8Array.from(atob(data),c=>c.charCodeAt(0));const el=document.querySelector('.pdf-upload');for(let i=0;i<2;i++){const dt=new DataTransfer();dt.items.add(new File([bytes],'supported.pdf'));el.dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:dt}));}},bytes.toString('base64'));await extracted(race,2);assert.equal((await save(race,'same-tick-result')).sources.length,1);
  results.push('busy UI, disabled picker/additional drop and selection, same-tick duplicate drop serialized; real extraction delayed only for observation');
@@ -79,13 +80,7 @@ try{
  // serializeProject rejects additional sources before committing any app state.
  const limit=await page();const sources=Array.from({length:10},(_,i)=>({id:`pdf-${i}`,name:'supported.pdf',data:bytes.toString('base64'),pages:choiceWork.sources[0].pages}));await writeFile(`${dir}/limit-seed.json`,serializeProject({items:[{...blankItem(),element:'보존할 항목',sourceId:sources[0].id,page:1}],sources,examples:[],planConfirmed:true}));await limit.locator('input[accept=".json"]').setInputFiles(`${dir}/limit-seed.json`);await extracted(limit,1);const limitBefore=await save(limit,'limit-before');await drop(limit);await limit.getByRole('status').filter({hasText:/PDF 10개/}).waitFor();assert.deepEqual(await save(limit,'limit-after'),limitBefore);
 
- // Work byte limit must also reject atomically after successful real PDF parsing.
- const sizePage=await page();const padded=Buffer.concat([bytes,Buffer.alloc(3900000-bytes.length,32)]).toString('base64');
- const sizeSources=Array.from({length:8},(_,n)=>({...sources[0],id:`size-${n}`,data:padded}));
- await writeFile(`${dir}/size-seed.json`,serializeProject({items:[{...blankItem(),element:'용량 검사 보존 항목',sourceId:sizeSources[0].id,page:1}],sources:sizeSources,examples:[],planConfirmed:true}));
- await sizePage.locator('input[accept=".json"]').setInputFiles(`${dir}/size-seed.json`);await extracted(sizePage,1);const sizeBefore=await save(sizePage,'size-before');
- await drop(sizePage,[{...supported,buffer:Buffer.concat([bytes,Buffer.alloc(1100000,32)])}]);await sizePage.getByRole('status').filter({hasText:/작업 파일은 40MB/}).waitFor();assert.deepEqual(await save(sizePage,'size-after'),sizeBefore);await sizePage.close();
- results.push('unsupported/image-only PDF guidance retained; 10-source and 40MB work limits fail atomically');
+ results.push('unsupported/image-only PDF guidance retained; 10-source limit fails atomically; real 200MB aggregate checks live in file-limits-browser.mjs');
  const touch=await browser.newContext({proxy,hasTouch:true,isMobile:true,viewport:{width:390,height:844},acceptDownloads:true});const mobile=await touch.newPage();watch(mobile);await mobile.goto(base);chooser=mobile.waitForEvent('filechooser');await card(mobile).tap();await(await chooser).setFiles(supported);await extracted(mobile,2);assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await mobile.screenshot({path:`${dir}/touch-mobile.png`,fullPage:true});results.push('touch file chooser and keyboard Space file chooser retained; 390px no overflow');
  const api=await checkAiState(context,base);
  assert.deepEqual(errors,[]);const unexpected=warnings.filter(w=>!w.includes('Indexing all PDF objects')&&!w.includes('standardFontDataUrl'));assert.deepEqual(unexpected,[]);
