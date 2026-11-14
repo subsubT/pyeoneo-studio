@@ -1,6 +1,6 @@
 # 참고 예시문장 불필요한 공백 수정 WORK HANDOFF
 
-2026-11-14 KST. 관찰 주체: Codex 직접 작업. **검증 미실행 — 2026-11-14 사용자 지시, 실사용 검증은 사용자 진행.** 앱 배포 결과는 배포 후 이 문서에 기록한다. 미실행 검사를 PASS로 기록하지 않는다.
+2026-11-14 KST. 관찰 주체: Codex 직접 작업. **수정·배포 완료 — 실사용 검증 미실행(사용자 진행).** **검증 미실행 — 2026-11-14 사용자 지시, 실사용 검증은 사용자 진행.** 미실행 검사를 PASS로 기록하지 않는다.
 
 ## 시작점·배포 범위
 
@@ -34,6 +34,13 @@ Git 상태/커밋/원격 및 배포 소스·팀/프로젝트/도메인 metadata 
 
 기존 MCP `upload_file` SHA1 참조 / `create_deployment(files=…, target=production)` 경로를 사용한다. 기존 플랫폼 빌드와 강제 처리는 수행하고 결과를 기록한다. 검증 생략을 이유로 보호 설정/CI/hook을 해제하거나 필수 플랫폼 처리를 우회하지 않는다. 사용자 실사용 확인을 기다리며 배포를 멈추지 않는다.
 
-배포 전 기록 상태: 구현 완료, 커밋·push·배포 진행 예정. 정확한 개발/배포 SHA·ID·플랫폼 결과·미해결/복구 여부는 후속 문서 전용 커밋으로 확정한다. 최종 문서 SHA는 이 파일의 마지막 변경 커밋이며 최종 대화에도 명시한다. 문서 마무리만으로 앱을 재배포하지 않는다.
+- 개발 기능/실제 배포 소스 SHA: `86e182589cf880aff73f6a4c5880719c58596a25`. 개발 브랜치에 정상 커밋·push하고 `git ls-remote`의 동일 SHA를 읽었다. Git commit/push 출력에 추가 검사 hook 실행은 없었고 hook 설정을 변경하지 않았다.
+- Production 배포 ID `dpl_9nB6NpVAf6w5MfqpXGeSCN7UaJeS`, target=production, **READY**, aliasError=null. 배포 URL https://pyeoneo-studio-gf9mx5ne4-subsub-tschool.vercel.app/ . 실제 프로젝트·팀과 공개 도메인으로 조회한 새 배포 ID·소스 metadata가 일치한다.
+- 정확한 Git 커밋의 추적 파일 117개를 `{file, sha, size}`로 전달했다. 변경된 7개 파일의 바이트를 SHA1 참조 업로드하고 기존 110개 파일을 재사용했다. 작업 트리/환경 파일/교육 자료를 업로드하지 않았다. 전체 소스 사후 hash 비교 검사는 실행하지 않았다. 배포 payload는 Git 제외 `tmp/reference-spacing-release/production-request.json`이며 검증 산출물이 아닌 배포 입력이다.
+- 플랫폼 빌드 **성공**, `Build Completed in /vercel/output [24s]`, `Deployment completed`. Next.js16.4.3/Node24.x, 플랫폼 Vercel CLI65.14.0에서 기존 `npm run build` → `node scripts/copy-worker.mjs && next build --webpack`을 실행했다. 플랫폼 빌드 내부의 TypeScript 처리(2ms), 정적 페이지4개 생성, trace/최적화·배포·캐시 처리를 그대로 수행했다. 플랫폼 외 별도 검사/로컬 빌드는 0회다. `forceNew`/강제 캐시 무효화나 보호/CI/hook 해제는 사용하지 않았다.
+- 기존 `npm warn Unknown env config "cache-dir"` 경고가 있었으며 빌드는 성공했다. 경고를 제거하려고 환경/플랫폼 설정을 바꾸지 않았다. 별도의 강제 CI/추가 검사가 실행됐다는 로그는 없으며 실제 확인한 강제 처리는 위 플랫폼 빌드 내부 단계다.
+- 공개 URL https://pyeoneo-studio.vercel.app/ 와 `pyeoneo-studio-subsub-tschool.vercel.app` alias가 새 배포에 연결됐다. 이것은 플랫폼 metadata 관찰이며 HTTP 요청 시험·공개 기능 검증·콘솔/런타임 검증 결과가 아니다. 실사용/복사·수정·저장·복원은 사용자 진행으로 남긴다.
+- 배포 실패 없음, 복구/rollback **미실행**. 기능 적합성·원문 보존·반복 적용 동일성 등 제품 기준은 실행 검증하지 않았으므로 PASS/운영 장애 없음으로 단정하지 않는다. 이번 배포의 기술적 미해결 차단은 없다. 사용자 실사용 결과는 아직 받지 않았다.
+- 운영/상태/인계 최종 갱신은 후속 문서 전용 커밋이다. 최종 인계 문서 SHA/원격 HEAD는 `git log -1 -- docs/REFERENCE-SPACING-WORK-HANDOFF.md`가 가리키는 커밋이며 최종 대화에도 정확한 값을 명시한다. 앱 소스는 위 `86e1825`에 고정하고 문서만으로 재배포하지 않는다.
 
 공개 URL: https://pyeoneo-studio.vercel.app/ . 이번 공백 수정 범위에서 중단한다. 다음 기능/별도 AI 품질 개선은 착수하지 않는다. Work의 Drive 인계 원본 보관·프로젝트 지식 갱신은 Work 후속이며 이번 Codex 직접 실행에 포함하지 않는다.

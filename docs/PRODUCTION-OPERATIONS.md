@@ -2,7 +2,9 @@
 
 사용자 지시로 이번 작업의 별도 제품 검증을 전부 생략한다. 아래 과거 필수 검사/공개검증 PASS 조건은 이번 작업에 적용하지 않는다. 자동·회귀·정적·비밀값/도름스·재현·브라우저/PC/390px·API/실모델 시험·별도 검증용 빌드를 실행하지 않고 새 검증 산출물을 만들지 않는다. 구현→개발 브랜치 커밋·push→기존 SHA1 소스 업로드 Production 배포→상태/인계를 완료한다. 플랫폼 필수 빌드와 강제 처리는 수행하며 보호 설정·CI·hook은 해제하지 않는다. 제품 검증 생략은 이번 작업 한정이며 일반 정책의 영구 변경이 아니다.
 
-완료 문구는 **수정·배포 완료 — 실사용 검증 미실행(사용자 진행)**이다. Git/원격 소스·팀/프로젝트/Production READY/alias metadata 확인은 정확한 배포의 운영 처리이며 제품 기능 시험이 아니다. 이번 SHA·배포 ID·필수 빌드·강제 처리 결과는 [공백 수정 WORK HANDOFF](REFERENCE-SPACING-WORK-HANDOFF.md)에 기록한다. 아래 이전 PASS와 소스 해시 대조/브라우저 실행은 과거 작업 기록으로 구분한다.
+완료 문구는 **수정·배포 완료 — 실사용 검증 미실행(사용자 진행)**이다. Git/원격 소스·팀/프로젝트/Production READY/alias metadata 확인은 정확한 배포의 운영 처리이며 제품 기능 시험이 아니다. 이번 SHA·배포 ID·필수 빌드·강제 처리 결과는 [공백 수정 WORK HANDOFF](REFERENCE-SPACING-WORK-HANDOFF.md)에 기록했다. 아래 이전 PASS와 소스 해시 대조/브라우저 실행은 과거 작업 기록으로 구분한다.
+
+최신 배포(2026-11-14): 소스 `86e182589cf880aff73f6a4c5880719c58596a25`, Production `dpl_9nB6NpVAf6w5MfqpXGeSCN7UaJeS` READY·aliasError=null·공개 도메인 연결. 기존 SHA1 참조 경로로117파일(새 업로드7/재사용110)을 전달했고 플랫폼 빌드24초 성공, 빌드 내부 TypeScript/정적 페이지 생성 수행. npm cache-dir 경고 유지, 실패/복구 없음. 별도 제품 검증은 사용자 지시로 미실행, 실사용 검증은 사용자 진행이다. 아래는 이전 기록이다.
 
 최신 공개 적용(2026-11-13): 참고 예시 문체 개선 앱 `8c1a9bc461d2420c52f197c1a24322c140d0bd3a` / Production `dpl_5s3pA6L3giQKGsUqkfzzptd9pnc1` READY·aliasError=null·공개 소스115/115 SHA1 일치. 자동105·로컬/공개 PC/390px의 원형8+변형8·복사/수정/교체·승인/조합/XLSX/복원 PASS, 실모델0. [현재 WORK HANDOFF](REFERENCE-STYLE-WORK-HANDOFF.md). 입력 선택 규칙·무료 모델·키·공유 한도·활성 상태는 유지한다. 아래 배포 ID/실모델 호출 수는 각 기능 당시 기록이다.
 
