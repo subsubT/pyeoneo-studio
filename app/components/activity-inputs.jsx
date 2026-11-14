@@ -6,7 +6,7 @@ import {createInputExamples} from '../../lib/input-examples.mjs';
 export default function ActivityInputs({item,examples,busy,onUpdate}){
  const [pair,setPair]=useState(null),[message,setMessage]=useState('');
  function makeExamples(){
-  try{setPair(createInputExamples(item));setMessage('예시를 만들었습니다. 각 복사 버튼으로 입력창에 넣을 수 있습니다.');}
+  try{const next=createInputExamples(item);setPair(next);setMessage(next.referenceIssues?.length?'참고 예시 초안에 교사 수정이 필요한 표현이 있습니다. 내용을 확인하고 입력창에서 다듬어 주세요.':'예시를 만들었습니다. 각 복사 버튼으로 입력창에 넣을 수 있습니다.');}
   catch(error){setPair(null);setMessage(error.message);}
  }
  function copy(field,label){
@@ -18,14 +18,15 @@ export default function ActivityInputs({item,examples,busy,onUpdate}){
  function preview(field,label){
   return pair&&<section className="input-example" aria-label={`생성한 ${label}`}>
    <div className="card-heading"><strong>{label}</strong><button type="button" disabled={busy} aria-label={`${label} 복사`} onClick={()=>copy(field,field==='actual'?'실제 교육활동':'참고 예시문장')}>복사</button></div>
-   <p>{pair[field]}</p>
+   {field==='example'&&<div className="reference-before"><strong>수정 전:</strong>{pair.referenceSources?.length?pair.referenceSources.map(source=><p key={source.field}><span>{source.label}</span><br/>{source.text}</p>):<p>선택한 원천 과제 없음</p>}</div>}
+   <p>{field==='example'&&<strong>수정 후: </strong>}{pair[field]}</p>
   </section>;
  }
  return <div className="card facts">
   <div className="card-heading"><h3>실제로 한 활동과 확인한 성취</h3><span className="badge">실제 교육활동 필수</span></div>
   <p>실제 교육활동만 입력해도 후보를 만들 수 있습니다. 학생 실명·개인정보는 입력하지 마세요.</p>
   <button type="button" disabled={busy} onClick={makeExamples}>예시 만들기</button>
-  <p>수업에서 실제로 한 활동과 일치하는지 확인한 뒤 사용하세요.</p>
+  <p>참고 예시는 계획 과제를 정리한 교사 수정용 가상 초안입니다. 실제 활동과 일치하는지 확인한 뒤 각 입력창에 넣으세요.</p>
   {message&&<p className="muted" role="status">{message}</p>}
   <label>실제 교육활동<textarea aria-label="실제 교육활동" rows={4} maxLength={4000} placeholder="예: 주변의 색을 탐색하고 10색상환을 완성함. 색 혼합·작품 제작·감상 활동은 하지 않음." value={item.actual} onChange={e=>onUpdate({actual:e.target.value})}/></label>
   {preview('actual','실제 교육활동 예시')}
