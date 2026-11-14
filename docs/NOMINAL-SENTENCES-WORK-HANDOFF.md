@@ -34,3 +34,8 @@
 - 복구 기준은 시작의 dpl_9nB6NpVAf6w5MfqpXGeSCN7UaJeS/86e1825임. 이번 배포 실패/rollback/복구 실행 없음. 따라서 복구 후 동작 검증도 수행하지 않음.
 - Work 전달: 이 저장소 인계 원문과 최종 응답을 전달함. Drive 원본 보관/동일 프로젝트 지식 파일 갱신·readback은 Work 담당 후속이며 이번 Codex가 수행했다고 보고하지 않음.
 
+
+## 문서 SHA 추적
+
+- 운영 상태/완료 인계 문서 커밋: `b1609ef3bf90cddc1dc516cb0546d3f8ee0b91f3` (AGENTS/STATUS/PRODUCTION-OPERATIONS/본 인계4파일, 정상 push 완료). 개발·실제 배포 앱은 `296e648383fa30c3d70b48bf857d8bafc5209782`로 유지됨.
+- 이 SHA 추적 문구를 추가한 마지막 문서 전용 커밋은 최종 응답의 인계 SHA로 제공함. 해당 문서 커밋 이후 앱 재배포는 하지 않음.
