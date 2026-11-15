@@ -1,6 +1,6 @@
 # AI 독립 검토 요청 실패 WORK HANDOFF — 2026-11-15 (KST)
 
-상태: 구현 완료, 개발 브랜치 커밋·push 및 기존 Production 배포 진행 중. 실사용 검증은 미실행이며 사용자 진행이다. 배포 성공 metadata 수신 후 이 상태를 갱신한다.
+상태: **수정·배포 완료 — 실사용 검증 미실행(사용자 진행)**. 플랫폼 배포 성공을 실제 생성/독립 검토 성공·문장 품질 PASS로 기록하지 않는다.
 
 ## 시작과 관찰 근거
 
@@ -38,7 +38,32 @@ actual만 사실 근거, 모든 독립 핵심/순서/조건/수량/확인된 수
 
 사용자 지시로 별도 자동/단위/통합/회귀/정적/lint/typecheck/비밀값/도름스/브라우저/API/실모델 시험·별도 검증용 빌드를 실행하지 않았고 새 테스트/재현/검증 스크립트도 작성하지 않았다. 실제 모델 추가 호출0회다. 코드/기존 로그 읽기, Git/원격 식별과 배포 digest/manifest 생성·metadata 수신만 수행하며 이를 기능/품질 PASS로 보고하지 않는다. 플랫폼 필수 빌드와 강제 처리는 수행한다. CI/hook/보호/TLS를 끄지 않고 master 병합·새 Preview/자동 CI 활성화도 하지 않는다.
 
-기능/배포 앱 SHA·최종 배포 ID/metadata·필수 빌드·업로드 수와 실패/복구 여부는 배포 결과를 받은 후 아래에 갱신한다. 마지막 인계 전용 커밋은 앱 SHA와 구별하여 최종 응답에 전체 SHA를 제공하며 문서만으로 앱을 재배포하지 않는다.
+### 최종 배포와 Git 기록
+
+| 항목 | Codex가 직접 확인한 결과 |
+| --- | --- |
+| 브랜치 | `checkpoint-5-local-ai` |
+| 시작 개발 SHA | `88c3f51e5919042ce8dadaa7759aa41db9787d13` |
+| 시작 운영/복구 앱 SHA | `9cd81003a3d6b6b6d470c713eeee84b84eb767b9` |
+| 기능 커밋 / 실제 배포 앱 SHA | `df68af8aeccce1d2c5fc20c801e3d4a13d80d2aa` |
+| 최종 인계 SHA | 이 문서와 AGENTS/STATUS/PRODUCTION-OPERATIONS만 갱신하는 후속 커밋. 정상 push 후 원격에서 받은 전체 SHA를 최종 응답에 기재한다. 자체 SHA를 본문에 넣기 위한 재커밋/앱 재배포는 하지 않는다. |
+| 배포 ID / 환경 | `dpl_9iVW6o1n9cvMf9oe6MBM9vgXgDkJ` / `production` |
+| 상태 | `READY`, `aliasError=null` |
+| 실제 배포 URL | https://pyeoneo-studio-ccw7g4sox-subsub-tschool.vercel.app |
+| 공개 URL | https://pyeoneo-studio.vercel.app |
+| 팀 / 프로젝트 | `team_JKZ7B5OCf27pFKiNlhvSVuE4` / `prj_osDdLkgyiAomzS03J2GFM0c2bVB4` |
+
+기능 커밋을 정상 push한 뒤 git ls-remote로 원격 HEAD가 `df68af8aeccce1d2c5fc20c801e3d4a13d80d2aa`와 같음을 확인했다. 원격 Git의 그 커밋에서 실행/빌드 소스37개만 SHA1/size manifest로 구성해 기존 업로드 경로로 배포했다. 변경7개 업로드와30개 content-addressed 파일 재사용이며 운영 문서·테스트·교육자료·환경/인증 파일을 배포 소스에 섞지 않았다. 요청은1회, forceNew=1이며 플랫폼 로그에 캐시 생략이 명시됐다. Git 제외 manifest의 SHA256은 `e72d7a4822debbfe0fdab9c78220f24fff50c4a6090a2d3af2752ba1498d00b9`다. 로컬 release payload는 `tmp/review-request-release/`에만 있다.
+
+필수 플랫폼 빌드는 Vercel CLI65.14.0 / Next16.4.3 / Node24.x에서 일반 `npm run build`(`node scripts/copy-worker.mjs && next build --webpack`)로 완료됐다. Build Completed34초, compile11.9초, 플랫폼 내부 TypeScript 및 정적 페이지4/4, traces/출력 배포/캐시 업로드가 완료됐다. 기존 npm cache-dir 및 간접 의존성의 deprecated 경고가 있었고 빌드 실패는 없었다. 로컬 검증용 빌드·typecheck·audit를 별도로 실행한 결과가 아니다.
+
+배포 ID와 공개 도메인 각각의 get_deployment(withGitRepoInfo=true), get_alias, get_project_domain, get_project metadata를 직접 받았다. 앱 SHA·ref, Production READY·aliasError=null, project ID와 team accountId, 두 alias가 일치했다. 공개 도메인은 verified=true/gitBranch=null이고 alias.deploymentId는 새 배포 ID다. 이것은 배포 상태/연결 확인이며 브라우저/API/모델 기능 검증이 아니다.
+
+배포 차단/실패·자동 승인 거절·복구 실행은 없었다. 직전 복구 기준은 배포 직전에 재조회한 `dpl_H3tKLiWzfwjRw13Z2MCo5v7mt1e6` / `9cd81003a3d6b6b6d470c713eeee84b84eb767b9`다. 시작 운영 자체에 검토400 장애가 관찰됐으므로 이를 AI 검토 정상/품질 PASS 복구 대상으로 표현하지 않는다. rollback 가능 여부·기능은 새로 시험하지 않았다.
+
+이번 변경 파일은 실행7개(`app/page.jsx`, `lib/review-schema.mjs`, `lib/server/gemini.mjs`, `lib/generation.mjs`, `lib/prompt.mjs`, `lib/server/public-ai.mjs`, `lib/generation-result.mjs`)와 문서4개(`AGENTS.md`, `docs/STATUS.md`, `docs/PRODUCTION-OPERATIONS.md`, 이 문서)다. 사용자 입력/후보/승인/작업파일·키/플래그/공유 한도/중지키는 편집하지 않았다. master 병합·새 Preview/자동 CI 활성화·보호 해제는 없다.
+
+미검증으로 남은 것은 사용자 실사용에서 생성→독립 검토의 실제 성공 여부, 최종 후보 수/분포·문장 품질/편집·교사 확인/승인·출력·복원의 실제 동작, 사용자 화면의 고정 오류 안내와 후속 런타임 진단이다. 새 유료 서비스나 추가 모델 호출 없이 요청 범위의 구현·배포·인계를 마쳤고 후속 기능에 착수하지 않는다.
 
 ## Work 인계
 
