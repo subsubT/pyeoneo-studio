@@ -1,5 +1,7 @@
 ## 이번 PDF 줄 경계·두 예시·AI 변형 원문 작업의 우선 지시 — 2026-11-15
 
+현재 결과: **수정·배포 완료 — 실사용 검증 미실행(사용자 진행)**. 기능/실제 배포 앱 SHA `658104cb0d3e5fd32852585566772faaf86569f1`, Production `dpl_ENNCPSU4iACgdjNBEpQdksAa4br1` READY·aliasError=null. 기존 팀/프로젝트·공개 https://pyeoneo-studio.vercel.app 의 동일 배포/앱 SHA 연결을 metadata로 확인했다. forceNew=1 필수 플랫폼 빌드44초 성공(compile15.3초·플랫폼 TypeScript·정적 페이지4/4), 기존 npm cache-dir/간접 의존성 deprecated 경고 유지. 최초 자동 승인 검토는 운영 배포 승인 근거 부족으로 요청을 거절했으나, 사용자 첨부 요청의 명시적 상시 승인·재승인 생략 문구와 대상/원격 SHA를 재대조해 같은 MCP 요청이 허용됐다. 보호 우회·추가 승인 요구·배포/빌드 실패·rollback 실행 없음. 별도 제품 검증 미실행·모델 추가0회이며 사용자 원본 PDF 해결/범용 띄어쓰기/생성 품질은 미검증이다. 이 최종 상태/인계는 후속 문서 전용 commit/push이며 앱 재배포는 생략한다. 최종 원격/인계 SHA는 최종 응답에 제공한다.
+
 이번 사용자 요청이 아래 과거의 PDF/actual/AI 수정 제외와 actual만 변형·evidence 출처라는 계약을 대체한다. 새 PDF의 표 항목/셀/단계 안에서만 좌표·폭·높이·font·명시 공백·hasEOL을 함께 사용해 배치 줄바꿈을 판단하고, 알려진 어휘/활용·명사+조사의 분절만 복구한다. 원본 PDF와 줄/열이 보이는 추출 원문은 별도로 보존한다. 새 actual/reference의 생성용 사본은 의미 중립 공백·목적격 복구를 공유하며 actual 과거형과 reference 현재 ~ㅁ/음. 렌더링을 분리한다. 기존 교사 입력/보관 문장/승인을 일괄 교정하지 않는다.
 
 AI 변형 원문은 example이 있으면 원본 example, 없으면 원본 actual이다. actual은 example의 수업 맥락·명시적 모순을 확인하는 별도 자료이며 actual에만 있는 별도 활동을 모든 후보에 넣지 않는다. evidence:string[]는 선택 원본의 정확한 부분 문자열이고 앱 부여 evidenceSource로 출처를 구별한다. 표현 출처는 실제 수행 자동 확정이 아니며 예시 핵심·actual의 명시적 부정/미실시/도움/어려움/수량 모순은 독립 검토한다. 생성/검토 프롬프트·Gemini 지시·grounding/approval 검사를 같은 계약으로 연결한다. 충돌 후보도 목록에 유지하고 강제 PASS하지 않는다.
