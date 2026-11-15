@@ -1,6 +1,6 @@
 # AI 후보 서술 다양성 WORK HANDOFF — 2026-11-15
 
-상태: 구현 완료, 커밋·push 및 운영 배포 진행 중. 완료 판정은 아래 배포 결과 확정 후 기록한다.
+상태: **수정·배포 완료 — 실사용 검증 미실행(사용자 진행)**. 문장 다양성·의미 품질/실사용 PASS를 주장하지 않는다.
 
 ## 시작 근거와 범위
 
@@ -30,7 +30,13 @@ actual만 사실 근거, 모든 핵심/순서/조건/수량/확인된 수준의 
 
 사용자 지시로 자동 테스트·정적/lint/typecheck·비밀값/도름스·재현/비교 실험·세 주제 생성/비교표·브라우저/PC/모바일·공개 API·실모델 품질·별도 검증용 빌드를 실행하지 않았고 새 테스트/검증 스크립트도 작성하지 않았다. 실제 모델 호출0회. 코드 읽기/변경 범위 파악/Git·원격 식별과 필수 업로드 digest/크기 생성·배포 metadata 수신은 제품 검증 PASS가 아니다. 앱 실행 중 형식/근거/독립 검토는 유지했다.
 
-기능 커밋·실제 배포 앱 SHA·최종 인계 SHA·Production ID/상태·aliasError·공개 연결·필수 플랫폼 빌드·실패/복구 여부는 배포 완료 후 이 절에 확정한다. 배포에는 app/lib/public 및 필수 빌드/설정 파일만 전달하며 운영 문서·교육자료·환경/인증 파일을 섞지 않는다. master 병합·새 Preview/자동 CI 활성화·보호 해제는 하지 않는다.
+기능 커밋/배포 요청 앱 SHA는 `9cd81003a3d6b6b6d470c713eeee84b84eb767b9`이며 정상 커밋·push 후 git ls-remote의 개발 원격 HEAD 일치를 확인했다. 기존 운영부터 이 커밋까지 누적 앱 변경은 위6개 실행 파일이다. 실행/빌드 소스37개를 SHA1/size로 전달했고 변경6개를 업로드,31개를 재사용했다. Production 요청은 `dpl_H3tKLiWzfwjRw13Z2MCo5v7mt1e6` / https://pyeoneo-studio-7yp3mwlu7-subsub-tschool.vercel.app 이다. 최종 상태는 아래와 같다. 배포에는 app/lib/public 및 필수 빌드/설정 파일만 전달하며 운영 문서·교육자료·환경/인증 파일을 섞지 않는다. master 병합·새 Preview/자동 CI 활성화·보호 해제는 하지 않는다.
+
+- 실제 배포 앱/기능 SHA: `9cd81003a3d6b6b6d470c713eeee84b84eb767b9`. Production `dpl_H3tKLiWzfwjRw13Z2MCo5v7mt1e6`, target=production, readyState=READY, aliasError=null. get_deployment(공개 도메인, withGitRepoInfo=true)·get_alias·get_project에서 같은 배포/소스·두 alias·팀 accountId/프로젝트 일치를 직접 확인했다. 도메인의 verified=true·gitBranch=null도 확인했다. 이는 플랫폼 배포 상태 확인이며 공개 브라우저/API 기능 검증이 아니다.
+- 필수 플랫폼 빌드: Vercel CLI65.14.0 / Next16.4.3 / Node24.x, 기존 캐시 복원·의존성 설치·`node scripts/copy-worker.mjs && next build --webpack`, Build Completed21초. compile4.8초, 플랫폼 TypeScript 단계·정적 페이지4/4·build traces·출력 배포·캐시 업로드가 완료됐다. 기존 npm cache-dir 경고가 있었고 빌드 실패는 없었다. 별도 로컬 빌드나 정적 검사를 실행한 것이 아니다.
+- 배포 요청1회·업로드6개/재사용31개. 운영/인계 문서·교육자료·환경/인증 파일은 배포 소스에 포함하지 않았다. 자동 승인 검토 차단·배포 실패·rollback/복구 실행은 없었다. 복구 기준은 시작에 조회한 `dpl_4m5ug5hWU8UPPt1Hq3gduC78hFyB`/`296e648383fa30c3d70b48bf857d8bafc5209782`다.
+- 해결되지 않은 배포 차단은 없다. 실제 문장 품질/공개 동작/브라우저 콘솔/런타임 오류 스캔은 미검증이며 사용자 진행이다. 다양성 개선 효과·임계값 정확도는 측정하지 않았다. 모델/thinking/무료 호출 조건·승인 흐름의 보존은 변경 범위와 코드 읽기에 근거하며 새 실호출 검증 결과가 아니다.
+- 최종 인계/원격 SHA는 이 파일과 AGENTS/STATUS/PRODUCTION-OPERATIONS를 담은 후속 문서 전용 커밋이며 최종 응답에 정확한 SHA를 제공한다. 문서 커밋 때문에 앱을 재배포하지 않는다. 실제 앱 SHA와 구별한다.
 
 ## Work 전달
 
