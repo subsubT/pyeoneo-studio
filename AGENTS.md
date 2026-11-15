@@ -1,3 +1,11 @@
+## 이번 독립 검토 HTTP400·오류 전달 수정의 우선 지시 — 2026-11-15
+
+이번 작업은 검토 전송 스키마와 엄격한 앱 검증을 분리하고 Gemini→public-ai→generation-result→page의 고정 오류 종류·단계를 보존한다. 기존 로그3건의 생성 성공→검토HTTP400은 직접 확인했으며 거절된 상세 인자는 미확정이다. 후보 수·분포·품질/검토·교사 승인·무료 모델/공유한도·503추가1회/최대3호출을 유지한다. 400 재시도나 미검토 성공 처리는 하지 않는다.
+
+최신 사용자 지시에 따라 이번 별도 자동/회귀/정적/lint/typecheck/브라우저/API/실모델 시험·검증용 빌드 및 새 테스트/재현 스크립트는 생략하고 모델 추가 호출0회를 유지한다. 구현→개발 브랜치 정상 커밋/push→기존 Production SHA1 소스 업로드→플랫폼 필수 빌드/강제 처리→metadata 확인→미검증 인계를 완료한다. CI/hook/보호/TLS를 끄지 않고 master 병합·새 Preview/자동 CI 활성화도 하지 않는다. 상세 구현/시작 근거·배포/복구 결과는 [이번 인계](docs/AI-REVIEW-REQUEST-FAILURE-WORK-HANDOFF.md)를 우선한다. 아래 완료/PASS는 각 과거 작업의 이력이다.
+
+현재: 구현 완료, 커밋·push·Production 배포 진행 중. 실사용 검증 미실행(사용자 진행). 배포 성공 후 새 metadata로 갱신한다.
+
 ## 이번 AI 후보 서술 다양성 작업의 우선 지시 — 2026-11-15
 
 현재 결과: **수정·배포 완료 — 실사용 검증 미실행(사용자 진행)**. 기능/실제 배포 앱 SHA `9cd81003a3d6b6b6d470c713eeee84b84eb767b9`, Production `dpl_H3tKLiWzfwjRw13Z2MCo5v7mt1e6` READY·aliasError=null. 팀 `subsub-tschool`/프로젝트 `pyeoneo-studio` 일치 및 공개 `pyeoneo-studio.vercel.app`의 같은 배포/소스 연결을 플랫폼 metadata로 확인했다. 필수 플랫폼 빌드21초 성공(TypeScript·정적 페이지4/4 포함), 기존 npm cache-dir 경고 유지. 별도 제품 검증 미실행·실모델0회·배포 실패/복구 실행 없음. 아래 과거의 ‘현재’ 배포/PASS는 당시 이력이다. 후속 인계/상태 문서만의 최종 커밋은 앱 재배포하지 않으며 최종 원격 SHA는 최종 응답으로 제공한다.

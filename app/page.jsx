@@ -1,7 +1,7 @@
 'use client';
 import {useState,useEffect,useRef} from 'react';
 import {itemLevels,generationPlan,countIssues,orderedCandidates,confirmationSnapshot,approvalIssues} from '../lib/batch.mjs';
-import {GenerationResultError,generationSignature,appendGeneratedBatch,readGenerationResponse,generationFailureMessage} from '../lib/generation-result.mjs';
+import {GenerationResultError,generationSignature,appendGeneratedBatch,readGenerationResponse,generationFailureMessage,normalizeGenerationFailure} from '../lib/generation-result.mjs';
 import {activityIssues} from '../lib/activity.mjs';
 import {blankItem,LEVELS,combine} from '../lib/core.mjs';
 import {readPdf,readExamples,workbookBuffer,download} from '../lib/files.mjs';
@@ -45,10 +45,13 @@ export default function Home(){
    setAck({});setGenerationResult({itemId:snapshot.id,kind:'applying',newIds:added.map(c=>c.id),message:'후보 목록 반영을 확인하고 있습니다.'});
   }catch(e){
    // Cancellation/input changes win even if a late HTTP/parse failure arrives afterwards.
-   if(controller?.signal.aborted)e=new GenerationResultError('CANCELLED');
-   else if(requestSignal?.aborted)e=new GenerationResultError('TIMEOUT');
+   if(controller?.signal.aborted)e=new GenerationResultError('CANCELLED',null,e?.stage);
+   else if(requestSignal?.aborted)e=new GenerationResultError('TIMEOUT',null,e?.stage);
    if(controller&&!controller.signal.aborted&&generationRevision.current!==revision)setGenerationResult({itemId:item.id,kind:'discarded',message:'입력이나 대상이 바뀌어 이전 요청의 후보를 반영하지 않았습니다. 이번 후보는 추가되지 않았고 기존 작업은 보존됐습니다.'});
-   else setGenerationResult({itemId:item.id,kind:e?.code==='CANCELLED'?'cancelled':'error',message:generationFailureMessage(e)});
+   else {
+    const failure=normalizeGenerationFailure(e?.code,0,e?.stage);
+    setGenerationResult({itemId:item.id,kind:failure.code==='CANCELLED'?'cancelled':'error',...failure,message:generationFailureMessage(e)});
+   }
   }finally{if(generationController.current===controller)generationController.current=null;busyRef.current=false;setBusy(false);}
  }
  const activeItems=selectedItems(items);
