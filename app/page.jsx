@@ -92,7 +92,7 @@ export default function Home(){
   const next={items:[...items,...added],examples,sources:[...sources,source],planConfirmed:false,activeItemId:added[0]?.id||selected,combinationIds:ids};
   serializeProject(next);
   setSources(next.sources);setItems(next.items);setPlanConfirmed(next.planConfirmed);setSelected(next.activeItemId);setAck({});
-  setNotice(added.length?`${added.length}개 평가 항목을 추출했습니다. 전체 목록에서 선택하고 원본과 비교해 수정한 뒤 확정하세요.`:'지원하는 표를 찾지 못했습니다. 전체 추출 원문과 원본 PDF를 참고하여 항목을 직접 추가하세요. 스캔 PDF는 문자 인식 후 사용하세요.');
+  setNotice(result.pages.some(p=>p.reviewRequired)?`${added.length}개 평가 항목을 추출했으며 원문 검토가 필요한 쪽이 있습니다. 1단계의 전체 추출 원문에서 해당 쪽을 확인하고 누락된 항목을 직접 추가하세요.`:added.length?`${added.length}개 평가 항목을 추출했습니다. 전체 목록에서 선택하고 원본과 비교해 수정한 뒤 확정하세요.`:'지원하는 표를 찾지 못했습니다. 전체 추출 원문과 원본 PDF를 참고하여 항목을 직접 추가하세요. 스캔 PDF는 문자 인식 후 사용하세요.');
  });}
  function editCandidate(id,text){update({candidates:item.candidates.map(c=>c.id===id?{...c,text,edited:true,semanticPass:false,errors:[]}:c)});}
  function approveAll(){
