@@ -4,7 +4,7 @@
 
 2026-11-17 띄어쓰기 검증 재개는 완료된 이전 범위의 예외다. 이번에는 별도 자동/회귀/정적/비밀값/브라우저/API/실모델 시험·검증용 빌드 및 새 검증 스크립트 작성을 생략하고 모델 호출0회를 유지한다. 구현에 필요한 코드 읽기·변경 검토, 정상 commit/push, 기존 Production 소스 업로드와 플랫폼 필수 빌드/강제 검사, 배포 metadata 확인, 상태/인계 갱신까지 진행한다. 보호/CI/hook/TLS·무료 팀/프로젝트·모델/키/플래그/공유 한도를 변경하지 않는다. master 병합·새 Preview/자동CI 활성화는 하지 않으며 후속 문서 전용 커밋은 앱 재배포하지 않는다.
 
-현재 단계: 구현 반영, 배포 전. 이번 결과는 [쪽수 제한 제거 WORK HANDOFF](docs/PDF-PAGE-LIMIT-REMOVAL-WORK-HANDOFF.md)를 우선하며 아래 PASS/30쪽 유지/검증 재개 기록은 해당 과거 작업의 이력이다. 이번 변경을 기능 PASS나 검증 완료로 표기하지 않는다.
+현재 단계: **수정·배포 완료 — 실사용 검증 미실행(사용자 진행)**. 개발/실제 배포 앱 SHA `0f4dd65f5673eb9f9fda29cf74458e3e1108fb86`, Production `dpl_CpDuC3NmTvz1reNWmbrhjwGqAQz4` READY·aliasError=null. 공개 https://pyeoneo-studio.vercel.app 의 동일 배포/소스 연결과 실행 소스38/38 SHA1 일치를 metadata로 확인했다. 필수 플랫폼 빌드39초 성공(compile14.5초·TypeScript·정적4/4). 별도 자동/회귀/정적/브라우저/API/실사용 시험 미실행·모델0회, 배포 실패/차단/복구 실행 없음. 후속 문서 전용 커밋은 앱 재배포하지 않는다. 이번 결과는 [쪽수 제한 제거 WORK HANDOFF](docs/PDF-PAGE-LIMIT-REMOVAL-WORK-HANDOFF.md)를 우선하며 아래 PASS/30쪽 유지/검증 재개 기록은 해당 과거 작업의 이력이다. 이번 변경을 기능 PASS나 검증 완료로 표기하지 않는다.
 
 ## 이번 PDF 띄어쓰기 수정·실제 검증 — 2026-11-17
 

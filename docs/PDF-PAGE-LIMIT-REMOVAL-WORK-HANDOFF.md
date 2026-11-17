@@ -1,6 +1,6 @@
 # PDF 쪽수 제한 제거 — WORK HANDOFF
 
-2026-11-17 KST / Codex 직접 구현. 현재 단계: 구현 반영, Production 배포 전. 기능 PASS 또는 실사용 검증 완료가 아니다.
+2026-11-17 KST / Codex 직접 구현·운영 처리. **수정·배포 완료 — 실사용 검증 미실행(사용자 진행)**. 기능 PASS 또는 실사용 검증 완료가 아니다.
 
 ## 시작과 대상
 
@@ -37,7 +37,23 @@ PDF **52,428,800bytes(50MB)**, 작업 JSON **UTF-8 209,715,200bytes(200MB)**, PD
 
 ## 배포 결과
 
-정상 개발 commit/push → 정확한 원격 소스의 기존 Production 업로드 → 필수 빌드 → READY·실제 앱SHA·공개 도메인 metadata 확인 뒤 이 절을 갱신한다. 후속 상태/인계 전용 커밋은 앱을 재배포하지 않는다. 기능/실제 배포SHA·배포ID·빌드·최종 인계SHA·복구 여부를 구분해 최종 응답에도 제공한다.
+| 항목 | 이번 직접 확인 결과 |
+| --- | --- |
+| 시작 개발 HEAD | `c3479ac0c382b23ff9336732656d03bbebd67d8b` |
+| 개발 기능 / 실제 배포 앱 SHA | `0f4dd65f5673eb9f9fda29cf74458e3e1108fb86` — 정상 commit·push 후 원격 일치 확인 |
+| 최종 상태 / 인계 SHA | 이 배포 결과를 기록한 후속 문서 전용 커밋. `git log -1 --format=%H -- docs/PDF-PAGE-LIMIT-REMOVAL-WORK-HANDOFF.md`로 조회 가능하며 최종 응답에 정확한 SHA 제공 |
+| Production ID / 상태 | `dpl_CpDuC3NmTvz1reNWmbrhjwGqAQz4` / READY / aliasError=null |
+| 배포 URL | https://pyeoneo-studio-8j8gv3yxf-subsub-tschool.vercel.app |
+| 공개 도메인 | https://pyeoneo-studio.vercel.app — 배포 조회와 alias 독립 조회에서 새 ID·앱 SHA·projectId 일치 |
+| 필수 플랫폼 빌드 | forceNew=1, 일반 npm run build 성공. Build Completed **39초**, compile14.5초·플랫폼 TypeScript·정적페이지4/4. BUILDING→READY 약45.9초 |
+| 업로드 소스 | 기존 경로와 같은 실행 소스38파일. 변경3파일 SHA1/bytes 지정 업로드·동일35파일 재사용. 새 배포 src/ **38/38 SHA1**이 원격 앱 커밋 manifest와 일치 |
+| 경고 | 기존 npm cache-dir·간접 의존성 rimraf/lodash.isequal/inflight/glob/fstream deprecated 경고. 의존성/플랫폼 보호 변경 없음 |
+| 실패 / 차단 / 복구 | 배포 실패·승인 차단·rollback 실행 없음. 실사용 장애 유무는 기능 시험 미실행으로 미확인 |
+| 앱 재배포 | 후속 상태·인계 문서만의 커밋은 재배포하지 않음 |
+
+플랫폼 빌드/metadata 확인은 기능 PASS가 아니다. 사용자 지시로 별도 runtime error scan·drain/monitoring 조회·브라우저/API/실모델·31쪽 PDF 실행 시험은 수행하지 않았다. 추가 서비스/설정 변경도 없다.
+
+운영 근거는 Git 제외 `tmp/page-limit-release/`의 rollback-record.json, source-manifest.json, production-request.json, create-result.json, deployment.json, build-events.json, public-domain-deployment.json, public-alias.json, source-deployment-match.json에 보관했다. 인증정보·환경파일·교육 원본을 Git/배포 소스에 넣지 않았다. 관찰 주체는 이번 Codex이며 과거 Work/PASS로 이번 결과를 대신하지 않는다.
 
 ## 미래의 사용자 확인 절차 — 이번 실행 결과 아님
 
