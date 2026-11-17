@@ -1,6 +1,6 @@
 # PDF 열 경계·로컬 예시 — WORK HANDOFF
 
-2026-11-17 KST / Codex 직접 구현·운영 처리. 현재 구현·코드 검토 완료, 배포 대기. 기능 PASS/실사용 검증 완료가 아니다. 사용자 요청 원본 사본은 [가이드](LOCAL-EXAMPLE-CELL-BOUNDARY-GUIDE.md)에 보존했다.
+2026-11-17 KST / Codex 직접 구현·운영 처리. **수정·배포 완료 — 실사용 검증 미실행(사용자 진행)**. 기능 PASS/실사용 검증 완료가 아니다. 사용자 요청 원본 사본은 [가이드](LOCAL-EXAMPLE-CELL-BOUNDARY-GUIDE.md)에 보존했다.
 
 ## 시작·대상·누적 변경
 
@@ -41,8 +41,29 @@ AI example 우선/공란이면 actual, 정확 substring evidence/evidenceSource,
 
 ## 배포 결과
 
-개발 기능/실제 배포 SHA, Production ID/READY/aliasError, 공개 도메인, 필수 빌드와 소스 metadata 및 복구 실행 여부는 배포 완료 후 이 절에 기록한다. 최종 문서 인계 SHA는 후속 문서 커밋이며 최종 응답과 Git 이력에서 확인한다.
+| 항목 | Codex 직접 처리·확인 |
+| --- | --- |
+| 개발 기능/실제 배포 앱 SHA | `560a2dcb214665b5bfeed6aba0f2a324fcaebbb3` 정상 commit/push·원격 일치 |
+| 최종 문서/인계 SHA | 이 결과를 기록한 후속 문서 전용 커밋, 최종 응답 및 git log -1 --format=%H -- docs/LOCAL-EXAMPLE-CELL-BOUNDARY-WORK-HANDOFF.md로 확인 |
+| Production | `dpl_HemDiWvJwBJ5M9AgfRWb3jsLFJMF`, target=production, READY, aliasError=null |
+| 배포 URL | https://pyeoneo-studio-neaa0t4eu-subsub-tschool.vercel.app |
+| 공개 도메인 | https://pyeoneo-studio.vercel.app — 도메인 배포 조회/alias 조회에서 같은 ID·projectId·앱 SHA 연결 |
+| 필수 플랫폼 빌드 | forceNew=1·일반 npm run build·51초 성공, compile18.4초·플랫폼 TypeScript·정적페이지4/4, BUILDING→READY 약57.5초 |
+| 소스 업로드 | 원격 커밋 실행 소스40파일, 변경10파일 SHA1/bytes 업로드·동일30파일 재사용. 배포 src/40/40 SHA1 일치·목록 truncated=false |
+| 경고 | 기존 npm cache-dir와 rimraf/lodash.isequal/inflight/glob/fstream deprecated 경고, 의존성/설정 변경 없음 |
+| 실패/차단/복구 | 앱 배포 실패·앱 배포 자동 승인 거절·rollback 실행 없음. Drive 문서 업로드는 최초 자동 승인 검토에서 대상 소유권/명시 전송 승인 근거 부족으로2건 거절됐으며 사용자가 기준폴더/하위보관·기존지침/지식 갱신을 명시 승인한 뒤 같은 경로로 정상 완료했다. 실사용 장애 여부는 기능 시험 미실행으로 미확인 |
+| 후속 문서 커밋 | 앱 재배포 생략 |
+
+운영 기록은 Git 제외 tmp/cell-boundary-release/의 source-manifest.json, production-request.json, rollback-record.json, create-result.json, public-domain-deployment.json, deployment-files.json, source-deployment-match.json, public-alias.json, build-events.json에 보관했다. 이 metadata 대조는 제품 문장 품질 PASS가 아니다. 별도 runtime error scan/drain·monitoring 조회도 생략했다.
 
 ## Work 연결
 
-현재 프로젝트 지침/상태/운영 문서와 이 인계·가이드 사본을 함께 갱신했다. Work는 원본 인계/가이드를 기준 Drive 폴더에 보관하고 동일 프로젝트 지식 파일에 확정 범위·현재 배포·미검증/한계를 반영한다. Work 직접 재실행/확인과 Codex 보고는 구별한다. 이번 Codex의 Drive/Work 직접 갱신 여부는 최종 결과에 사실대로 기록하며 다른 기능에는 착수하지 않는다.
+이번 Codex가 Google Drive 스킬을 사용해 사용자가 승인한 기존 기준폴더의 같은 지침/지식 파일ID를 유지하며 이번 범위의 완료/배포/미검증·한계 요약을 앞에 추가했다. 이전 원문 전체·조직/부모폴더/공유 설정을 보존했고 조회했던 modifiedTime/size가 바뀌지 않았음을 갱신 직전에 확인했다. 각 저장 후 metadata에서 같은ID·부모·새크기/수정시각을 readback했다. 별도의 Work 독립 제품검토/사용자실사용을 실행한 것으로 기록하지 않는다.
+
+- 기준폴더: https://drive.google.com/drive/folders/1sZI59-IfIveVqP4Fqb2rADkHnEuShsrr
+- 인계원본(이번 문서의 최종 바이트도 같은ID로 반영): https://drive.google.com/file/d/1Y0n0E0Hg0ZKRKdUaFmoI83zW-rvqg4az/view?usp=drivesdk — Codex_인계자료.
+- 사용자 가이드 정확한 사본: https://drive.google.com/file/d/1RBAYrvjG88UXUgjWBupZw1rSg84m0TYj/view?usp=drivesdk — Codex_작업가이드. 이전Work가 작성한 원래가이드ID 1mGsolRupsnNVDDLKBRkFktVBAKtIowta도 변경하지 않았다.
+- 기준 지침: https://drive.google.com/file/d/1_d7NNimXLYUAINBaKk2ht2AvfAERyPzy/view?usp=drivesdk — 이번 반영83845bytes.
+- 기준 지식: https://drive.google.com/file/d/1uVJp3KOZws9YLB_vqfSBjdBJ7w6v1-qU/view?usp=drivesdk — 이번 반영258063bytes.
+
+가이드/인계 최초 업로드2건은 자동 승인 검토가 전송 대상 소유권/명시 승인의 근거 부족으로 거절했다. 이를 우회하지 않고 대화에서 기준폴더와 반영 범위를 명시해 승인받은 뒤 동일 도구/대상으로 재시도해 성공했다. 코드/배포 차단은 아니며 최종 미반영 범위는 없다. 이번 수정·배포·인계에서 종료한다.
