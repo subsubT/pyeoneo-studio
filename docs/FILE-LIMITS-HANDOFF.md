@@ -1,3 +1,5 @@
+> 2026-11-17 후속: PDF 30쪽 상한은 [쪽수 제한 제거 인계](PDF-PAGE-LIMIT-REMOVAL-WORK-HANDOFF.md)에서 제거한다. 아래 30쪽 유지/거절 및 PASS는 2026-11-13 당시 기록이며 이번 변경의 검증 결과가 아니다. PDF50MB·작업200MB와 다른 한도는 유지한다.
+
 # PDF·작업 파일 용량 상향 — WORK HANDOFF
 
 2026-11-13 KST / Codex 직접 실행. **판정: PASS — 공개 사이트 반영 완료.**
