@@ -9,19 +9,23 @@ const pdf=process.env.TEST_PDF,expectedFile=process.env.TEST_EXPECTED_JSON;
 assert(pdf&&expectedFile,'Provide TEST_PDF and TEST_EXPECTED_JSON');
 const expected=JSON.parse(await readFile(expectedFile,'utf8'));
 const base=process.env.TEST_BASE_URL||'http://127.0.0.1:3008';
+const proxyUrl=process.env.HTTPS_PROXY||process.env.https_proxy;
+const proxy=new URL(base).protocol==='https:'&&proxyUrl?{server:proxyUrl}:undefined;
 const out=process.env.TEST_OUTPUT_DIR||'tmp/spacing-browser';await mkdir(out,{recursive:true});
-const browser=await chromium.launch({headless:true,executablePath:process.env.BROWSER_EXECUTABLE||'/usr/bin/chromium',args:JSON.parse(process.env.BROWSER_ARGS||'[]')});
+const browser=await chromium.launch({headless:true,proxy,executablePath:process.env.BROWSER_EXECUTABLE||'/usr/bin/chromium',args:JSON.parse(process.env.BROWSER_ARGS||'[]')});
 // Physical line feeds and spacing around list dots are presentation; spaces
 // inside/between Korean words remain significant in these comparisons.
 const norm=text=>text.replace(/\s+/g,' ').replace(/\s*([․·])\s*/g,'$1').trim();
 const reports=[];
 try{
  for(const width of [1440,390]){
-  const context=await browser.newContext({viewport:{width,height:1000},acceptDownloads:true});
+  const context=await browser.newContext({proxy,viewport:{width,height:1000},acceptDownloads:true});
   context.setDefaultTimeout(12000);
+  context.setDefaultNavigationTimeout(120000);
   await verifiedBrowserTransport(context,base);
   const errors=[],posts=[];context.on('page',p=>{p.on('pageerror',e=>errors.push(e.message));p.on('request',r=>{if(r.method()==='POST')posts.push(r.url());});});
   const page=await context.newPage();await page.goto(base);
+  console.log(`public-flow ${width}: loaded`);
   await page.getByLabel('평가계획 PDF 선택',{exact:true}).setInputFiles(pdf);
   await page.waitForFunction(count=>document.querySelectorAll('.plan-table tbody tr').length===count,expected.items.length,{timeout:60000});
   const fields={standard:'성취기준',unit:'단원',area:'평가 영역',element:'평가 요소',method:'수업·평가 방법',criteria:'평가 기준 전체'};
@@ -32,6 +36,7 @@ try{
     assert.equal(norm(await page.getByLabel(label,{exact:true}).inputValue()),norm(expected.items[i][key]),`field ${i}/${key}/${width}`);fieldChecks++;
    }
   }
+  console.log(`public-flow ${width}: ${fieldChecks} fields`);
   await page.getByRole('button',{name:'선택한 평가계획 확정 →',exact:true}).click();
   for(let i=0;i<expected.examples.length;i++){
    await page.locator('.sidebar .item').nth(i).click();
@@ -45,6 +50,7 @@ try{
    assert.equal(await page.getByLabel('실제 교육활동',{exact:true}).inputValue(),actual);
    assert.equal(await page.getByLabel('참고 예시문장',{exact:true}).inputValue(),reference);
   }
+  console.log(`public-flow ${width}: ${expected.examples.length} example pairs and copies`);
   // Prove that regeneration does not silently rewrite a teacher's fields.
   await page.getByLabel('실제 교육활동',{exact:true}).fill('교사가 직접 수정한 활동을 보관했다.');
   await page.getByRole('button',{name:'예시 만들기',exact:true}).click();
@@ -62,7 +68,9 @@ try{
   assert.equal(posts.length,0,'Local extraction/examples must not call AI');assert.deepEqual(errors,[]);
   await page.screenshot({path:`${out}/examples-${width}.png`,fullPage:true});
   reports.push({width,fieldChecks,examples:expected.examples.length,copies:expected.examples.length*2,saveRestore:true,noAiPosts:true,pageErrors:errors});
+  await context.unrouteAll({behavior:'ignoreErrors'});
   await context.close();
  }
  await writeFile(`${out}/report.json`,JSON.stringify({base,reports},null,2));console.log(JSON.stringify({base,reports},null,2));
-}finally{await browser.close();}
+}catch(error){console.error(error);throw error;}
+finally{for(const context of browser.contexts())await context.unrouteAll({behavior:'ignoreErrors'});await browser.close();}
