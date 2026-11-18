@@ -1,3 +1,13 @@
+## 이번 수업·평가 방법 결합·AI 중복 억제 — 2026-11-18 KST
+
+이번 사용자 요청은 평가 요소와 관련된 구체적인 수업·평가 방법을 새 두 예시에 결합하고 AI 후보의 동일 문장 복제·직접 동사 약화를 억제한다. 아래 과거의 방법 제외/프롬프트 수정 제외 지시를 이번 범위에서 대체한다. 원본 인용·수치/출처와 교사 입력·교체 확인·개별 복사, actual 과거형/example 현재 명사형을 유지한다. 관련 수행/대상/조건의 포함 관계를 확인해 요약 중복을 줄이고 평가유형 대괄호 태그는 생성용 사본에서만 제거한다.
+
+AI는 슬롯별 구체적 방향/guide와 배치 중복 금지를 적용한다. 원문의 모든 핵심과 실제 순서·조건을 보존하며 없는 활동·칭찬·성취·도움·태도를 만들지 않는다. 보정 후 충돌을 다시 확인하고, 가능한 기존 명사형 표현을 보존하되 남는 중복은 요청 슬롯 그대로 오류와 함께 남긴다. example 우선/evidence 원문 substring·actual 모순 대조·review-flat-v1·엄격한 독립 검토·교사 단일 전체 확인/원자 일괄 승인·1~24개와 분포·무료 Gemini gemini-3.5-flash-lite·Upstash·40,000bytes/200kbytes·정상2호출/503추가1/최대3호출은 유지한다.
+
+사용자 지시로 별도 자동/단위/통합/회귀/정적/lint/typecheck/비밀값/브라우저/기기/API/실모델·검증용 빌드와 새 테스트/검증 스크립트를 생략한다. 모델 추가0회. 소스/diff 읽기·정상 commit/push·기존 Production 소스 업로드·플랫폼 필수 npm run build/강제 처리·배포 metadata 확인·미검증 인계만 진행한다. CI/hook/보호/TLS 해제·force push·master 병합·새 Preview/자동CI 활성화 없음. 후속 문서 전용 커밋은 앱 재배포하지 않는다.
+
+현재 배포 기록은 [이번 WORK HANDOFF](docs/METHOD-CONTEXT-CANDIDATE-DIVERSITY-WORK-HANDOFF.md)를 우선한다. 기능/배포 앱 SHA `0d008b8cb37a20aec535b248aef282f20250b9ff`, Production `dpl_4Dmq4AK5su4Tzb45P2ZXnYnHLmzV` READY·aliasError=null. **수정·배포 완료 — 실사용 검증 미실행(사용자 진행)**. 공개 https://pyeoneo-studio.vercel.app 의 동일 배포/앱 SHA 연결 및 실행 소스40/40 SHA1 일치를 metadata로 확인했다. 플랫폼 필수 빌드39초 성공(compile14.2초·플랫폼 TypeScript·정적4/4). 별도 제품 검증 미실행·사용자 실사용 검증 대기이며 아래 완료/PASS는 과거 이력이다.
+
 ## 이번 PDF 열 경계·로컬 예시 수정 — 2026-11-17 KST
 
 이번 사용자 요청은 [작업 가이드](docs/LOCAL-EXAMPLE-CELL-BOUNDARY-GUIDE.md)와 [이번 인계](docs/LOCAL-EXAMPLE-CELL-BOUNDARY-WORK-HANDOFF.md)를 따른다. 시작 개발 HEAD는 `a2c91b92ab05accbb0237d6f6fbecf2b62758c8a`이며 PDF 쪽수 제한 제거를 포함한 최신 변경을 보존한다. 앞 두 제목의 단일 배율·고정 열 경계를 제거하고 PDF.js5.4.624의 실제 표 선/페이지 변환·각 제목·토큰 폭으로 셀/행/단계/시기를 구분한다. 근거가 부족한 표/겹친 토큰은 원문 검토 필요로 남기며 원본과 전체 원문/직접 편집 경로를 보존한다.
